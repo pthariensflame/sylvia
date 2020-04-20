@@ -2,6 +2,7 @@ package com.pthariensflame.sylvia
 
 import com.oracle.truffle.api.TruffleLanguage
 import com.oracle.truffle.api.debug.DebuggerTags
+import com.oracle.truffle.api.dsl.GenerateUncached
 import com.oracle.truffle.api.instrumentation.ProvidedTags
 import com.oracle.truffle.api.instrumentation.StandardTags
 
@@ -31,6 +32,7 @@ import com.oracle.truffle.api.instrumentation.StandardTags
     //StandardTags.TryBlockTag::class,
     //DebuggerTags.AlwaysHalt::class,
 )
+@GenerateUncached(inherit = true)
 final class SylviaLanguage : TruffleLanguage<SylviaLanguage.SylviaLangCxt>() {
 
     final class SylviaLangCxt(val env: Env)
