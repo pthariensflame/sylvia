@@ -70,20 +70,20 @@ java {
     withSourcesJar()
     modularity.inferModulePath.set(true)
 }
+//val compileJava: JavaCompile by tasks
+//val javaClasspath = compileJava.classpath.asPath
 
 //kotlin {
 //    target {
 //    }
 //}
 
-val compileJava: JavaCompile by tasks
-val javaClasspath = compileJava.classpath.asPath
 kapt {
     correctErrorTypes = true
     includeCompileClasspath = false
 
     javacOptions {
-        option("--module-path", javaClasspath)
+//        option("--module-path", javaClasspath)
     }
 }
 
@@ -100,9 +100,9 @@ tasks {
             apiVersion = "1.4"
             languageVersion = "1.4"
             jdkHome = jdkHomePath
-            freeCompilerArgs += sequenceOf(
-                "-Xmodule-path=$javaClasspath"
-            )
+//            freeCompilerArgs += sequenceOf(
+//                "-Xmodule-path=$javaClasspath"
+//            )
         }
     }
 
