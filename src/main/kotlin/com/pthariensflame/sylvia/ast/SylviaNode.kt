@@ -8,5 +8,8 @@ import com.oracle.truffle.api.nodes.NodeInterface
 val truffleRuntime: TruffleRuntime
     get() = Truffle.getRuntime()
 
-@NodeInfo(language = "Sylvia")
+@NodeInfo(
+    language = "Sylvia",
+    description = "An arbitrary node for the Sylvia language"
+)
 interface SylviaNode : NodeInterface
