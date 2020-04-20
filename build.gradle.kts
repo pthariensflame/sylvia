@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     `java-library`
+    `antlr`
     kotlin("jvm") version "1.4-M1"
     kotlin("kapt") version "1.4-M1"
     id("org.jetbrains.dokka") version "0.10.1"
@@ -42,13 +43,23 @@ dependencies {
     }
     api(enforcedPlatform("org.graalvm:graalvm-virtual-platform:$graalVMVersion"))
     testImplementation(platform("org.junit:junit-bom:[5.6.2,5.7.0)"))
+    constraints {
+        testImplementation("junit", "junit", "[4.13,)")
+    }
 
     api(kotlin("stdlib-jdk8"))
     implementation(kotlin("reflect"))
     testImplementation(kotlin("test"))
     testImplementation(kotlin("test-junit5"))
 
+    testImplementation("org.junit.jupiter", "junit-jupiter-api")
+    testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine")
+    testRuntimeOnly("org.junit.vintage", "junit-vintage-engine")
+
     implementation("com.ibm.icu", "icu4j", "[66.1,)")
+
+    antlr("org.antlr", "antlr4", "4.8-1")
+    runtimeOnly("org.antlr", "antlr4-runtime", "4.8-1")
 
     api("org.graalvm.truffle", "truffle-api", graalVMVersion)
     implementation("org.graalvm.truffle", "truffle-nfi", graalVMVersion)
@@ -57,10 +68,8 @@ dependencies {
     compileOnly("org.graalvm.truffle", "truffle-dsl-processor", graalVMVersion)
     kapt("org.graalvm.truffle", "truffle-dsl-processor", graalVMVersion)
     runtimeOnly("org.graalvm.compiler", "compiler", graalVMVersion)
-
-    testImplementation("org.junit.jupiter", "junit-jupiter-api")
-    testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine")
-//    testRuntimeOnly("org.junit.vintage", "junit-vintage-engine")
+    testImplementation("org.graalvm.truffle", "truffle-tck", graalVMVersion)
+    testImplementation("org.graalvm.sdk", "polyglot-tck", graalVMVersion)
 }
 
 java {
@@ -89,6 +98,9 @@ kapt {
 
 tasks {
 //    withType<JavaCompile>().configureEach {
+//    }
+
+//    withType<AntlrTask>().configureEach {
 //    }
 
     withType<KotlinCompile>().configureEach {

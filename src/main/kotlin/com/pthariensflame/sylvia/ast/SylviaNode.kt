@@ -5,7 +5,7 @@ import com.oracle.truffle.api.TruffleRuntime
 import com.oracle.truffle.api.nodes.NodeInfo
 import com.oracle.truffle.api.nodes.NodeInterface
 
-val truffleRuntime: TruffleRuntime
+internal val truffleRuntime: TruffleRuntime
     get() = Truffle.getRuntime()
 
 @NodeInfo(
