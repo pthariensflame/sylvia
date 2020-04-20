@@ -64,11 +64,11 @@ dependencies {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_14
-    targetCompatibility = JavaVersion.VERSION_14
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
     withJavadocJar()
     withSourcesJar()
-    modularity.inferModulePath.set(true)
+//    modularity.inferModulePath.set(true)
 }
 //val compileJava: JavaCompile by tasks
 //val javaClasspath = compileJava.classpath.asPath
@@ -95,7 +95,7 @@ tasks {
         usePreciseJavaTracking = true
 
         kotlinOptions {
-            jvmTarget = "13"
+            jvmTarget = "1.8"
             javaParameters = true
             apiVersion = "1.4"
             languageVersion = "1.4"
@@ -111,7 +111,7 @@ tasks {
         outputDirectory = "$buildDir/dokka"
 
         configuration {
-            jdkVersion = 14
+            jdkVersion = 8
         }
     }
 
@@ -122,7 +122,7 @@ tasks {
 
 idea {
     project {
-        jdkName = "SapMachine 14"
+        jdkName = "GraalVM 1.8 (20)"
     }
 
     module {
