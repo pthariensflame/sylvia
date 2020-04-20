@@ -1,4 +1,4 @@
-module com.pthariensflame.sylvia {
+open module com.pthariensflame.sylvia {
     requires com.ibm.icu;
     requires transitive org.graalvm.truffle;
     requires org.graalvm.sdk;
@@ -10,6 +10,6 @@ module com.pthariensflame.sylvia {
     requires transitive kotlin.stdlib.common;
 
     exports com.pthariensflame.sylvia.ast;
-//    exports com.pthariensflame.sylvia.parser;
-//    exports com.pthariensflame.sylvia.shell;
+    exports com.pthariensflame.sylvia.parser;
+    exports com.pthariensflame.sylvia.shell;
 }
