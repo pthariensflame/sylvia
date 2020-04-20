@@ -1,3 +1,4 @@
+/*
 open module com.pthariensflame.sylvia {
     requires com.ibm.icu;
     requires transitive org.graalvm.truffle;
@@ -13,3 +14,4 @@ open module com.pthariensflame.sylvia {
     exports com.pthariensflame.sylvia.parser;
     exports com.pthariensflame.sylvia.shell;
 }
+*/
