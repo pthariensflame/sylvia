@@ -42,9 +42,9 @@ dependencies {
         }
     }
     api(enforcedPlatform("org.graalvm:graalvm-virtual-platform:$graalVMVersion"))
-    testImplementation(platform("org.junit:junit-bom:[5.6.2,5.7.0)"))
+    testImplementation(platform("org.junit:junit-bom:5.6.+"))
     constraints {
-        testImplementation("junit", "junit", "[4.13,)")
+        testImplementation("junit", "junit", "4.+")
     }
 
     api(kotlin("stdlib-jdk8"))
@@ -65,7 +65,6 @@ dependencies {
     implementation("org.graalvm.truffle", "truffle-nfi", graalVMVersion)
     implementation("org.graalvm.sdk", "graal-sdk", graalVMVersion)
     implementation("org.graalvm.sdk", "launcher-common", graalVMVersion)
-    compileOnly("org.graalvm.truffle", "truffle-dsl-processor", graalVMVersion)
     kapt("org.graalvm.truffle", "truffle-dsl-processor", graalVMVersion)
     runtimeOnly("org.graalvm.compiler", "compiler", graalVMVersion)
     testImplementation("org.graalvm.truffle", "truffle-tck", graalVMVersion)
