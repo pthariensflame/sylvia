@@ -1,11 +1,10 @@
 pluginManagement {
     repositories {
         maven("https://dl.bintray.com/kotlin/kotlin-eap")
-
+        gradlePluginPortal()
         mavenCentral()
-
-        maven("https://plugins.gradle.org/m2/")
+        jcenter()
     }
 }
-rootProject.name = "sylvia"
 
+rootProject.name = "sylvia"
