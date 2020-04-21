@@ -110,10 +110,12 @@ tasks {
                 "-Xjsr305=strict",
                 "-Xjsr305=under-migration:warn",
                 "-Xjvm-default=enable",
-                "-Xcoroutines=error",
+                "-Xuse-mixed-named-arguments",
                 "-Xnew-inference",
                 "-Xread-deserialized-contracts",
-                "-Xassertions=jvm"
+                "-Xassertions=jvm",
+                "-Xstrict-java-nullability-assertions",
+                "-Xgenerate-strict-metadata-version"
 //                "-Xmodule-path=$javaClasspath"
             )
         }
