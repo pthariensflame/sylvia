@@ -8,9 +8,6 @@ plugins {
     kotlin("kapt") version "1.4-M1"
     id("org.jetbrains.dokka") version "0.10.1"
     id("com.hpe.kraal") version "0.0.15"
-    id("ch.tutteli.project.utils") version "0.33.0"
-    id("ch.tutteli.kotlin.module.info") version "0.33.0"
-    id("ch.tutteli.kotlin.utils") version "0.33.0"
     `maven-publish`
     idea
 }
@@ -26,10 +23,6 @@ repositories {
     maven { url = uri("https://kotlin.bintray.com/kotlinx") }
     mavenCentral()
     jcenter()
-}
-
-kotlinutils {
-    kotlinVersion.set("1.4-M1")
 }
 
 dependencies {
@@ -111,9 +104,18 @@ tasks {
             apiVersion = "1.4"
             languageVersion = "1.4"
             jdkHome = jdkHomePath
-//            freeCompilerArgs += sequenceOf(
+            freeCompilerArgs += sequenceOf(
+                "-progressive",
+                "-Xopt-in=kotlin.RequiresOptIn",
+                "-Xjsr305=strict",
+                "-Xjsr305=under-migration:warn",
+                "-Xjvm-default=enable",
+                "-Xcoroutines=error",
+                "-Xnew-inference",
+                "-Xread-deserialized-contracts",
+                "-Xassertions=jvm"
 //                "-Xmodule-path=$javaClasspath"
-//            )
+            )
         }
     }
 

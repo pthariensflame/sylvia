@@ -5,7 +5,6 @@ import com.oracle.truffle.api.dsl.TypeCast
 import com.oracle.truffle.api.dsl.TypeCheck
 import com.oracle.truffle.api.dsl.TypeSystem
 import com.pthariensflame.sylvia.values.*
-import java.math.BigInteger
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
@@ -13,10 +12,14 @@ import kotlin.contracts.contract
     NoReturnVal::class,
     Boolean::class,
     BoolVal::class,
+    Byte::class,
+    Short::class,
     Int::class,
     Long::class,
     BigIntVal::class,
+    Float::class,
     Double::class,
+    BigFloatVal::class,
     String::class,
     StringVal::class,
     SylviaVal::class,
@@ -36,7 +39,7 @@ open class SylviaTypeSystem internal constructor() {
 
         @TypeCast(NoReturnVal::class)
         @JvmStatic
-        fun asNoReturnVal(obj: Any?): NoReturnVal {
+        fun asNoReturnVal(@Suppress("UNUSED_PARAMETER") obj: Any?): NoReturnVal {
             return NoReturnVal
         }
 
@@ -46,19 +49,71 @@ open class SylviaTypeSystem internal constructor() {
 
         @ImplicitCast
         @JvmStatic
+        fun boolValToBoolean(v: BoolVal): Boolean = v.value
+
+        @ImplicitCast
+        @JvmStatic
+        fun byteToShort(v: Byte): Short = v.toShort()
+
+        @ImplicitCast
+        @JvmStatic
+        fun byteToInt(v: Byte): Int = v.toInt()
+
+        @ImplicitCast
+        @JvmStatic
+        fun byteToLong(v: Byte): Long = v.toLong()
+
+        @ImplicitCast
+        @JvmStatic
+        fun shortToInt(v: Short): Int = v.toInt()
+
+        @ImplicitCast
+        @JvmStatic
+        fun shortToLong(v: Short): Long = v.toLong()
+
+        @ImplicitCast
+        @JvmStatic
         fun intToLong(v: Int): Long = v.toLong()
 
         @ImplicitCast
         @JvmStatic
-        fun intToBigIntVal(v: Int): BigIntVal = BigIntVal(BigInteger.valueOf(v.toLong()))
+        fun intToBigIntVal(v: Int): BigIntVal = BigIntVal(v.toBigInteger())
 
         @ImplicitCast
         @JvmStatic
-        fun longToBigIntVal(v: Long): BigIntVal = BigIntVal(BigInteger.valueOf(v))
+        fun intToBigFloatVal(v: Int): BigFloatVal = BigFloatVal(v.toBigDecimal())
+
+        @ImplicitCast
+        @JvmStatic
+        fun longToBigIntVal(v: Long): BigIntVal = BigIntVal(v.toBigInteger())
+
+        @ImplicitCast
+        @JvmStatic
+        fun longToBigFloatVal(v: Long): BigFloatVal = BigFloatVal(v.toBigDecimal())
+
+        @ImplicitCast
+        @JvmStatic
+        fun bigIntValToBigFloatVal(v: BigIntVal): BigFloatVal = BigFloatVal(v.value.toBigDecimal())
+
+        @ImplicitCast
+        @JvmStatic
+        fun floatToDouble(v: Float): Double = v.toDouble()
+
+        @ImplicitCast
+        @JvmStatic
+        fun floatToBigFloatVal(v: Float): BigFloatVal = BigFloatVal(v.toBigDecimal())
+
+        @ImplicitCast
+        @JvmStatic
+        fun doubleToBigFloatVal(v: Double): BigFloatVal = BigFloatVal(v.toBigDecimal())
 
         @ImplicitCast
         @JvmStatic
         fun stringToStringVal(v: String): StringVal = StringVal(v)
+
+        @ImplicitCast
+        @JvmStatic
+        fun stringValToString(v: StringVal): String = v.value
     }
 }
 
