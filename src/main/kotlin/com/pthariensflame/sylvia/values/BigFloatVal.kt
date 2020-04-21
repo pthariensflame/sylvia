@@ -5,15 +5,8 @@ import com.oracle.truffle.api.interop.InteropLibrary
 import com.oracle.truffle.api.interop.UnsupportedMessageException
 import com.oracle.truffle.api.library.ExportLibrary
 import com.oracle.truffle.api.library.ExportMessage
-import com.pthariensflame.sylvia.values.TypeLimits.MAX_BYTE_DEC
-import com.pthariensflame.sylvia.values.TypeLimits.MAX_INT_DEC
-import com.pthariensflame.sylvia.values.TypeLimits.MAX_LONG_DEC
-import com.pthariensflame.sylvia.values.TypeLimits.MAX_SHORT_DEC
-import com.pthariensflame.sylvia.values.TypeLimits.MIN_BYTE_DEC
-import com.pthariensflame.sylvia.values.TypeLimits.MIN_INT_DEC
-import com.pthariensflame.sylvia.values.TypeLimits.MIN_LONG_DEC
-import com.pthariensflame.sylvia.values.TypeLimits.MIN_SHORT_DEC
 import java.math.BigDecimal
+import java.math.MathContext
 import java.math.RoundingMode
 
 @ExportLibrary(InteropLibrary::class)
@@ -29,22 +22,56 @@ data class BigFloatVal private constructor(@JvmField val value: BigDecimal) : Sy
     fun isNumber(): Boolean = true
 
     @ExportMessage
-    fun fitsInByte(): Boolean = value >= MIN_BYTE_DEC && value <= MAX_BYTE_DEC
+    fun fitsInByte(): Boolean {
+        return try {
+            value.byteValueExact() // return ignored
+            true
+        } catch (ex: ArithmeticException) {
+            false
+        }
+    }
 
     @ExportMessage
-    fun fitsInShort(): Boolean = value >= MIN_SHORT_DEC && value <= MAX_SHORT_DEC
+    fun fitsInShort(): Boolean {
+        return try {
+            value.shortValueExact() // return ignored
+            true
+        } catch (ex: ArithmeticException) {
+            false
+        }
+    }
 
     @ExportMessage
-    fun fitsInInt(): Boolean = value >= MIN_INT_DEC && value <= MAX_INT_DEC
+    fun fitsInInt(): Boolean {
+        return try {
+            value.intValueExact() // return ignored
+            true
+        } catch (ex: ArithmeticException) {
+            false
+        }
+    }
 
     @ExportMessage
-    fun fitsInLong(): Boolean = value >= MIN_LONG_DEC && value <= MAX_LONG_DEC
+    fun fitsInLong(): Boolean {
+        return try {
+            value.longValueExact() // return ignored
+            true
+        } catch (ex: ArithmeticException) {
+            false
+        }
+    }
 
     @ExportMessage
-    fun fitsInFloat(): Boolean = fitsInShort()
+    fun fitsInFloat(): Boolean {
+        val v = value.toFloat()
+        return v.toBigDecimal(MathContext.UNLIMITED) == value
+    }
 
     @ExportMessage
-    fun fitsInDouble(): Boolean = fitsInInt()
+    fun fitsInDouble(): Boolean {
+        val v = value.toDouble()
+        return v.toBigDecimal(MathContext.UNLIMITED) == value
+    }
 
     @ExportMessage
     @Throws(UnsupportedMessageException::class)
@@ -88,11 +115,25 @@ data class BigFloatVal private constructor(@JvmField val value: BigDecimal) : Sy
 
     @ExportMessage
     @Throws(UnsupportedMessageException::class)
-    fun asFloat(): Float = asShort().toFloat()
+    fun asFloat(): Float {
+        val v = value.toFloat()
+        if (v.toBigDecimal(MathContext.UNLIMITED) == value) {
+            return v
+        } else {
+            throw UnsupportedMessageException.create()
+        }
+    }
 
     @ExportMessage
     @Throws(UnsupportedMessageException::class)
-    fun asDouble(): Double = asInt().toDouble()
+    fun asDouble(): Double {
+        val v = value.toDouble()
+        if (v.toBigDecimal(MathContext.UNLIMITED) == value) {
+            return v
+        } else {
+            throw UnsupportedMessageException.create()
+        }
+    }
 
     override fun compareTo(other: BigFloatVal): Int = value.compareTo(other.value)
 }

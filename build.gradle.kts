@@ -8,6 +8,7 @@ plugins {
     kotlin("kapt") version "1.4-M1"
     id("org.jetbrains.dokka") version "0.10.1"
     id("com.hpe.kraal") version "0.0.15"
+//    id("ch.tutteli.kotlin.utils") version "0.33.0"
     `maven-publish`
     idea
 }
@@ -63,6 +64,10 @@ dependencies {
     testImplementation("org.graalvm.truffle", "truffle-tck", graalVMVersion)
     testImplementation("org.graalvm.sdk", "polyglot-tck", graalVMVersion)
 }
+
+//kotlinutils {
+//    kotlinVersion.set("1.4-M1")
+//}
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8

@@ -5,6 +5,7 @@ import com.oracle.truffle.api.dsl.TypeCast
 import com.oracle.truffle.api.dsl.TypeCheck
 import com.oracle.truffle.api.dsl.TypeSystem
 import com.pthariensflame.sylvia.values.*
+import java.math.MathContext
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
@@ -65,6 +66,22 @@ open class SylviaTypeSystem internal constructor() {
 
         @ImplicitCast
         @JvmStatic
+        fun byteToBigIntVal(v: Byte): BigIntVal = BigIntVal(v.toLong().toBigInteger())
+
+        @ImplicitCast
+        @JvmStatic
+        fun byteToFloat(v: Byte): Float = v.toFloat()
+
+        @ImplicitCast
+        @JvmStatic
+        fun byteToDouble(v: Byte): Double = v.toDouble()
+
+        @ImplicitCast
+        @JvmStatic
+        fun byteToBigFloatVal(v: Byte): BigFloatVal = BigFloatVal(v.toLong().toBigDecimal(MathContext.UNLIMITED))
+
+        @ImplicitCast
+        @JvmStatic
         fun shortToInt(v: Short): Int = v.toInt()
 
         @ImplicitCast
@@ -73,7 +90,27 @@ open class SylviaTypeSystem internal constructor() {
 
         @ImplicitCast
         @JvmStatic
+        fun shortToBigIntVal(v: Short): BigIntVal = BigIntVal(v.toLong().toBigInteger())
+
+        @ImplicitCast
+        @JvmStatic
+        fun shortToFloat(v: Short): Float = v.toFloat()
+
+        @ImplicitCast
+        @JvmStatic
+        fun shortToDouble(v: Short): Double = v.toDouble()
+
+        @ImplicitCast
+        @JvmStatic
+        fun shortToBigFloatVal(v: Short): BigFloatVal = BigFloatVal(v.toLong().toBigDecimal(MathContext.UNLIMITED))
+
+        @ImplicitCast
+        @JvmStatic
         fun intToLong(v: Int): Long = v.toLong()
+
+        @ImplicitCast
+        @JvmStatic
+        fun intToDouble(v: Int): Double = v.toDouble()
 
         @ImplicitCast
         @JvmStatic
@@ -81,7 +118,7 @@ open class SylviaTypeSystem internal constructor() {
 
         @ImplicitCast
         @JvmStatic
-        fun intToBigFloatVal(v: Int): BigFloatVal = BigFloatVal(v.toBigDecimal())
+        fun intToBigFloatVal(v: Int): BigFloatVal = BigFloatVal(v.toBigDecimal(MathContext.UNLIMITED))
 
         @ImplicitCast
         @JvmStatic
@@ -89,11 +126,11 @@ open class SylviaTypeSystem internal constructor() {
 
         @ImplicitCast
         @JvmStatic
-        fun longToBigFloatVal(v: Long): BigFloatVal = BigFloatVal(v.toBigDecimal())
+        fun longToBigFloatVal(v: Long): BigFloatVal = BigFloatVal(v.toBigDecimal(MathContext.UNLIMITED))
 
         @ImplicitCast
         @JvmStatic
-        fun bigIntValToBigFloatVal(v: BigIntVal): BigFloatVal = BigFloatVal(v.value.toBigDecimal())
+        fun bigIntValToBigFloatVal(v: BigIntVal): BigFloatVal = BigFloatVal(v.value.toBigDecimal(0, MathContext.UNLIMITED))
 
         @ImplicitCast
         @JvmStatic
@@ -101,11 +138,11 @@ open class SylviaTypeSystem internal constructor() {
 
         @ImplicitCast
         @JvmStatic
-        fun floatToBigFloatVal(v: Float): BigFloatVal = BigFloatVal(v.toBigDecimal())
+        fun floatToBigFloatVal(v: Float): BigFloatVal = BigFloatVal(v.toBigDecimal(MathContext.UNLIMITED))
 
         @ImplicitCast
         @JvmStatic
-        fun doubleToBigFloatVal(v: Double): BigFloatVal = BigFloatVal(v.toBigDecimal())
+        fun doubleToBigFloatVal(v: Double): BigFloatVal = BigFloatVal(v.toBigDecimal(MathContext.UNLIMITED))
 
         @ImplicitCast
         @JvmStatic
