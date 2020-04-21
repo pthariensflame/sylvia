@@ -1,3 +1,3 @@
 package com.pthariensflame.sylvia.shell
 
-object SylviaMain
+object SylviaShellMain

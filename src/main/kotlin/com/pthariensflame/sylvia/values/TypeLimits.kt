@@ -1,4 +1,4 @@
-package com.pthariensflame.sylvia
+package com.pthariensflame.sylvia.values
 
 import java.math.BigInteger
 

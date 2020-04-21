@@ -3,4 +3,4 @@ package com.pthariensflame.sylvia.parser
 import com.oracle.truffle.api.CompilerDirectives
 
 @CompilerDirectives.ValueType
-data class SourceSpan(val start: Long, val len: Long)
+data class SourceSpan(@JvmField val start: Long, @JvmField val len: Long)

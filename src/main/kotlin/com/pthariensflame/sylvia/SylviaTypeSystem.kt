@@ -1,15 +1,10 @@
-@file:OptIn(ExperimentalContracts::class)
-
 package com.pthariensflame.sylvia
 
 import com.oracle.truffle.api.dsl.ImplicitCast
 import com.oracle.truffle.api.dsl.TypeCast
 import com.oracle.truffle.api.dsl.TypeCheck
 import com.oracle.truffle.api.dsl.TypeSystem
-import com.pthariensflame.sylvia.values.BigIntVal
-import com.pthariensflame.sylvia.values.BoolVal
-import com.pthariensflame.sylvia.values.NoReturnVal
-import com.pthariensflame.sylvia.values.SylviaVal
+import com.pthariensflame.sylvia.values.*
 import java.math.BigInteger
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
@@ -23,8 +18,10 @@ import kotlin.contracts.contract
     BigIntVal::class,
     Double::class,
     String::class,
-    SylviaVal::class
+    StringVal::class,
+    SylviaVal::class,
 )
+@OptIn(ExperimentalContracts::class)
 open class SylviaTypeSystem internal constructor() {
     companion object {
         @TypeCheck(NoReturnVal::class)
@@ -45,15 +42,23 @@ open class SylviaTypeSystem internal constructor() {
 
         @ImplicitCast
         @JvmStatic
+        fun booleanToBoolVal(v: Boolean): BoolVal = BoolVal(v)
+
+        @ImplicitCast
+        @JvmStatic
         fun intToLong(v: Int): Long = v.toLong()
 
         @ImplicitCast
         @JvmStatic
-        fun intToBigInt(v: Int): BigIntVal = BigIntVal(BigInteger.valueOf(v.toLong()))
+        fun intToBigIntVal(v: Int): BigIntVal = BigIntVal(BigInteger.valueOf(v.toLong()))
 
         @ImplicitCast
         @JvmStatic
-        fun longToBigInt(v: Long): BigIntVal = BigIntVal(BigInteger.valueOf(v))
+        fun longToBigIntVal(v: Long): BigIntVal = BigIntVal(BigInteger.valueOf(v))
+
+        @ImplicitCast
+        @JvmStatic
+        fun stringToStringVal(v: String): StringVal = StringVal(v)
     }
 }
 

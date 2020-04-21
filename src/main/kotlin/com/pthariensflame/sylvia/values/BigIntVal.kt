@@ -5,14 +5,14 @@ import com.oracle.truffle.api.interop.InteropLibrary
 import com.oracle.truffle.api.interop.UnsupportedMessageException
 import com.oracle.truffle.api.library.ExportLibrary
 import com.oracle.truffle.api.library.ExportMessage
-import com.pthariensflame.sylvia.TypeLimits.MAX_BYTE
-import com.pthariensflame.sylvia.TypeLimits.MAX_INT
-import com.pthariensflame.sylvia.TypeLimits.MAX_LONG
-import com.pthariensflame.sylvia.TypeLimits.MAX_SHORT
-import com.pthariensflame.sylvia.TypeLimits.MIN_BYTE
-import com.pthariensflame.sylvia.TypeLimits.MIN_INT
-import com.pthariensflame.sylvia.TypeLimits.MIN_LONG
-import com.pthariensflame.sylvia.TypeLimits.MIN_SHORT
+import com.pthariensflame.sylvia.values.TypeLimits.MAX_BYTE
+import com.pthariensflame.sylvia.values.TypeLimits.MAX_INT
+import com.pthariensflame.sylvia.values.TypeLimits.MAX_LONG
+import com.pthariensflame.sylvia.values.TypeLimits.MAX_SHORT
+import com.pthariensflame.sylvia.values.TypeLimits.MIN_BYTE
+import com.pthariensflame.sylvia.values.TypeLimits.MIN_INT
+import com.pthariensflame.sylvia.values.TypeLimits.MIN_LONG
+import com.pthariensflame.sylvia.values.TypeLimits.MIN_SHORT
 import java.math.BigInteger
 
 @ExportLibrary(InteropLibrary::class)
