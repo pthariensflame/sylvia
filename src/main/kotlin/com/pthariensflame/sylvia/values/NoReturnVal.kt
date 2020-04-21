@@ -8,6 +8,4 @@ import com.oracle.truffle.api.library.ExportMessage
 object NoReturnVal : SylviaVal() {
     @ExportMessage(limit = "1")
     fun isNull(): Boolean = true
-
-    override fun equals(other: Any?): Boolean = other is NoReturnVal || other == this
 }
