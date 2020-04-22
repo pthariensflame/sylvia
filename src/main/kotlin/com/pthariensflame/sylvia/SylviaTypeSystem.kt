@@ -130,7 +130,8 @@ open class SylviaTypeSystem internal constructor() {
 
         @ImplicitCast
         @JvmStatic
-        fun bigIntValToBigFloatVal(v: BigIntVal): BigFloatVal = BigFloatVal(v.value.toBigDecimal(0, MathContext.UNLIMITED))
+        fun bigIntValToBigFloatVal(v: BigIntVal): BigFloatVal =
+            BigFloatVal(v.value.toBigDecimal(0, MathContext.UNLIMITED))
 
         @ImplicitCast
         @JvmStatic
