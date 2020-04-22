@@ -6,6 +6,7 @@ import com.oracle.truffle.api.frame.VirtualFrame
 import com.oracle.truffle.api.instrumentation.*
 import com.oracle.truffle.api.nodes.Node
 import com.oracle.truffle.api.nodes.NodeInfo
+import com.pthariensflame.sylvia.parser.SourceSpan
 
 @NodeInfo(
         shortName = "stmt",
@@ -14,7 +15,10 @@ import com.oracle.truffle.api.nodes.NodeInfo
 @GenerateNodeFactory
 @GenerateWrapper
 @GenerateUncached
-abstract class StatementNode : Node(), SylviaNode, InstrumentableNode {
+abstract class StatementNode
+@JvmOverloads constructor(
+        @JvmField val srcSpan: SourceSpan? = null,
+                         ) : Node(), SylviaNode, InstrumentableNode {
     override fun isInstrumentable(): Boolean = true
 
     override fun createWrapper(probe: ProbeNode): InstrumentableNode.WrapperNode =
