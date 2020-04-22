@@ -10,34 +10,36 @@ import com.oracle.truffle.api.nodes.Node
 import com.oracle.truffle.api.nodes.NodeInfo
 import com.oracle.truffle.api.nodes.RootNode
 import com.pthariensflame.sylvia.SylviaLanguage
-import com.pthariensflame.sylvia.SylviaTypeSystem
+import com.pthariensflame.sylvia.SylviaTruffleTypeSystem
 import com.pthariensflame.sylvia.parser.SourceSpan
-import com.pthariensflame.sylvia.values.NoReturnVal
 
 @NodeInfo(
-    shortName = "proc",
-    description = "A procedure"
-)
+        shortName = "proc",
+        description = "A procedure"
+         )
 @GenerateNodeFactory
 @GenerateWrapper
 @GenerateUncached
-@TypeSystemReference(SylviaTypeSystem::class)
+@TypeSystemReference(SylviaTruffleTypeSystem::class)
 open class ProcedureNode
 @JvmOverloads constructor(
-    langInstance: SylviaLanguage? = null,
-    frameDescriptor: FrameDescriptor? = null,
-    @JvmField val srcSpan: SourceSpan? = null,
-    @Node.Child @JvmField var bodyNode: ProcedureBodyNode = ProcedureBodyNode(langInstance),
-) : RootNode(langInstance, frameDescriptor), SylviaNode, InstrumentableNode {
+        langInstance: SylviaLanguage? = null,
+        frameDescriptor: FrameDescriptor? = null,
+        @JvmField val srcSpan: SourceSpan? = null,
+        @Node.Child @JvmField var bodyNode: ProcedureBodyNode = ProcedureBodyNode(),
+                         ) : RootNode(langInstance, frameDescriptor), SylviaNode, InstrumentableNode {
     override fun isInstrumentable(): Boolean = super.isInstrumentable()
 
     override fun createWrapper(probe: ProbeNode): InstrumentableNode.WrapperNode =
-        ProcedureNodeWrapper(this, probe)
+            ProcedureNodeWrapper(this, probe)
 
-    override fun execute(frame: VirtualFrame): NoReturnVal = bodyNode.execute(frame)
+    override fun execute(frame: VirtualFrame): Any? {
+        bodyNode.executeVoid(frame)
+        return null
+    }
 
     override fun hasTag(tag: Class<out Tag>): Boolean =
-        tag.kotlin == StandardTags.RootTag::class || super.hasTag(tag)
+            tag.kotlin == StandardTags.RootTag::class || super.hasTag(tag)
 
     @GenerateWrapper.OutgoingConverter
     protected fun outConv(@Suppress("UNUSED_PARAMETER") v: Any?): Any? = null

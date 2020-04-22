@@ -10,7 +10,6 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
 @TypeSystem(
-    NoReturnVal::class,
     Boolean::class,
     BoolVal::class,
     Byte::class,
@@ -26,24 +25,8 @@ import kotlin.contracts.contract
     SylviaVal::class,
 )
 @OptIn(ExperimentalContracts::class)
-open class SylviaTypeSystem internal constructor() {
+open class SylviaTruffleTypeSystem internal constructor() {
     companion object {
-        @TypeCheck(NoReturnVal::class)
-        @JvmStatic
-        fun isNoReturnVal(obj: Any?): Boolean {
-            contract {
-                returns(true) implies (obj is NoReturnVal)
-                returns(false) implies (obj !is NoReturnVal)
-            }
-            return obj === NoReturnVal
-        }
-
-        @TypeCast(NoReturnVal::class)
-        @JvmStatic
-        fun asNoReturnVal(@Suppress("UNUSED_PARAMETER") obj: Any?): NoReturnVal {
-            return NoReturnVal
-        }
-
         @ImplicitCast
         @JvmStatic
         fun booleanToBoolVal(v: Boolean): BoolVal = BoolVal(v)
