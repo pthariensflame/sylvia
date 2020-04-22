@@ -14,7 +14,7 @@ import com.oracle.truffle.api.nodes.NodeInfo
 @GenerateNodeFactory
 @GenerateWrapper
 @GenerateUncached
-abstract class StatementNode() : Node(), SylviaNode, InstrumentableNode {
+abstract class StatementNode : Node(), SylviaNode, InstrumentableNode {
     override fun isInstrumentable(): Boolean = true
 
     override fun createWrapper(probe: ProbeNode): InstrumentableNode.WrapperNode =
