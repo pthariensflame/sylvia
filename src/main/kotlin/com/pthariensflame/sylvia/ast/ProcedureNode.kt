@@ -3,6 +3,7 @@ package com.pthariensflame.sylvia.ast
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary
 import com.oracle.truffle.api.dsl.GenerateNodeFactory
 import com.oracle.truffle.api.dsl.GenerateUncached
+import com.oracle.truffle.api.dsl.Introspectable
 import com.oracle.truffle.api.dsl.TypeSystemReference
 import com.oracle.truffle.api.frame.FrameDescriptor
 import com.oracle.truffle.api.frame.VirtualFrame
@@ -23,6 +24,7 @@ import com.pthariensflame.sylvia.parser.SourceSpan
 @GenerateNodeFactory
 @GenerateWrapper
 @GenerateUncached
+@Introspectable
 @TypeSystemReference(SylviaTruffleTypeSystem::class)
 open class ProcedureNode
 @JvmOverloads constructor(

@@ -4,17 +4,17 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary
 import com.oracle.truffle.api.dsl.GenerateNodeFactory
 import com.oracle.truffle.api.dsl.GenerateUncached
 import com.oracle.truffle.api.dsl.Introspectable
+import com.oracle.truffle.api.dsl.TypeSystemReference
 import com.oracle.truffle.api.frame.FrameDescriptor
 import com.oracle.truffle.api.frame.VirtualFrame
-import com.oracle.truffle.api.instrumentation.GenerateWrapper
-import com.oracle.truffle.api.instrumentation.InstrumentableNode
-import com.oracle.truffle.api.instrumentation.ProbeNode
+import com.oracle.truffle.api.instrumentation.*
 import com.oracle.truffle.api.nodes.Node
 import com.oracle.truffle.api.nodes.NodeInfo
 import com.oracle.truffle.api.nodes.RootNode
 import com.oracle.truffle.api.source.Source
 import com.oracle.truffle.api.source.SourceSection
 import com.pthariensflame.sylvia.SylviaLanguage
+import com.pthariensflame.sylvia.SylviaTruffleTypeSystem
 import com.pthariensflame.sylvia.parser.SourceSpan
 
 @NodeInfo(
@@ -25,6 +25,7 @@ import com.pthariensflame.sylvia.parser.SourceSpan
 @GenerateWrapper
 @GenerateUncached
 @Introspectable
+@TypeSystemReference(SylviaTruffleTypeSystem::class)
 open class TopExpressionNode
 @JvmOverloads constructor(
         langInstance: SylviaLanguage? = null,
@@ -40,6 +41,9 @@ open class TopExpressionNode
             TopExpressionNodeWrapper(this, probe)
 
     override fun execute(frame: VirtualFrame): Any? = bodyNode.executeVal(frame)
+
+    override fun hasTag(tag: Class<out Tag>): Boolean =
+            tag.kotlin == StandardTags.RootTag::class || super.hasTag(tag)
 
     @TruffleBoundary
     override fun getSourceSection(): SourceSection {

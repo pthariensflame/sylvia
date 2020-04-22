@@ -3,6 +3,7 @@ package com.pthariensflame.sylvia.ast
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary
 import com.oracle.truffle.api.dsl.GenerateNodeFactory
 import com.oracle.truffle.api.dsl.GenerateUncached
+import com.oracle.truffle.api.dsl.Introspectable
 import com.oracle.truffle.api.frame.VirtualFrame
 import com.oracle.truffle.api.instrumentation.*
 import com.oracle.truffle.api.nodes.Node
@@ -20,6 +21,7 @@ import com.pthariensflame.sylvia.values.SylviaVal
 @GenerateNodeFactory
 @GenerateWrapper
 @GenerateUncached
+@Introspectable
 abstract class ExpressionNode
 @JvmOverloads constructor(
         @JvmField val srcSpan: SourceSpan? = null,
