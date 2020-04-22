@@ -37,4 +37,7 @@ open class ProcedureBodyNode
 
     override fun hasTag(tag: Class<out Tag>): Boolean =
         tag.kotlin == StandardTags.RootBodyTag::class || super.hasTag(tag)
+
+    @GenerateWrapper.OutgoingConverter
+    protected fun outConv(@Suppress("UNUSED_PARAMETER") v: Any?): Any? = null
 }
