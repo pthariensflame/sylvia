@@ -6,6 +6,7 @@ import com.oracle.truffle.api.instrumentation.*
 import com.oracle.truffle.api.nodes.BlockNode
 import com.oracle.truffle.api.nodes.Node
 import com.oracle.truffle.api.nodes.NodeInfo
+import com.pthariensflame.sylvia.parser.SourceSpan
 
 @NodeInfo(
         shortName = "proc",
@@ -15,6 +16,7 @@ import com.oracle.truffle.api.nodes.NodeInfo
 @GenerateWrapper
 open class ProcedureBodyNode
 @JvmOverloads constructor(
+        @JvmField val srcSpan: SourceSpan? = null,
         @Node.Children @JvmField var statements: Array<StatementNode> = emptyArray(),
                          ) : Node(), SylviaNode, InstrumentableNode {
     override fun isInstrumentable(): Boolean = true
