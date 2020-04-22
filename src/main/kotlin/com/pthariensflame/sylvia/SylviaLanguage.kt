@@ -10,43 +10,43 @@ import org.graalvm.collections.EconomicSet
 import org.graalvm.collections.Equivalence
 
 @TruffleLanguage.Registration(
-    id = "sylvia",
-    name = "Sylvia",
-    implementationName = "Reference Truffle Sylvia",
-    version = "0.0.1",
-    characterMimeTypes = ["text/x-sylvia"],
-    byteMimeTypes = [],
-    defaultMimeType = "text/x-sylvia",
-    interactive = true,
-    internal = false,
-    dependentLanguages = [],
-    contextPolicy = TruffleLanguage.ContextPolicy.EXCLUSIVE,
-    services = [],
-    fileTypeDetectors = [],
-)
+        id = "sylvia",
+        name = "Sylvia",
+        implementationName = "Reference Truffle Sylvia",
+        version = "0.0.1",
+        characterMimeTypes = ["text/x-sylvia"],
+        byteMimeTypes = [],
+        defaultMimeType = "text/x-sylvia",
+        interactive = true,
+        internal = false,
+        dependentLanguages = [],
+        contextPolicy = TruffleLanguage.ContextPolicy.EXCLUSIVE,
+        services = [],
+        fileTypeDetectors = [],
+                             )
 @ProvidedTags(
-    StandardTags.CallTag::class,
-    StandardTags.ExpressionTag::class,
-    StandardTags.ReadVariableTag::class,
-    StandardTags.RootTag::class,
-    StandardTags.RootBodyTag::class,
-    StandardTags.StatementTag::class,
-    StandardTags.WriteVariableTag::class,
-    //StandardTags.TryBlockTag::class,
-    //DebuggerTags.AlwaysHalt::class,
-)
+        StandardTags.CallTag::class,
+        StandardTags.ExpressionTag::class,
+        StandardTags.ReadVariableTag::class,
+        StandardTags.RootTag::class,
+        StandardTags.RootBodyTag::class,
+        StandardTags.StatementTag::class,
+        StandardTags.WriteVariableTag::class,
+//        StandardTags.TryBlockTag::class,
+//        DebuggerTags.AlwaysHalt::class,
+             )
 @GenerateUncached(inherit = true)
 final class SylviaLanguage : TruffleLanguage<SylviaLanguage.SylviaLangCxt>() {
 
     data class SylviaLangCxt
     @JvmOverloads constructor(
-        val env: Env,
-        val procedures: EconomicSet<ProcedureNode> =
-            EconomicSet.create(Equivalence.DEFAULT),
-    )
+            val env: Env,
+            val procedures: EconomicSet<ProcedureNode> =
+                    EconomicSet.create(Equivalence.DEFAULT),
+                             )
 
     override fun createContext(env: Env?): SylviaLangCxt? = env?.let { SylviaLangCxt(it) }
 
     override fun isObjectOfLanguage(obj: Any?): Boolean =
-        obj is Int || obj is Long || obj is Double || obj is String || obj is SylviaVal
+            obj is Int || obj is Long || obj is Double || obj is String || obj is SylviaVal
 }

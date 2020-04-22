@@ -9,7 +9,7 @@ import com.oracle.truffle.api.library.ExportMessage
 
 @ExportLibrary(InteropLibrary::class)
 @CompilerDirectives.ValueType
-data class StringVal(@JvmField val value: String): SylviaVal() {
+data class StringVal(@JvmField val value: String) : SylviaVal() {
     @ExportMessage
     fun isString(): Boolean = true
 

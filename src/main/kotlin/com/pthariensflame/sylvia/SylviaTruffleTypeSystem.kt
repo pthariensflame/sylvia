@@ -1,29 +1,26 @@
 package com.pthariensflame.sylvia
 
 import com.oracle.truffle.api.dsl.ImplicitCast
-import com.oracle.truffle.api.dsl.TypeCast
-import com.oracle.truffle.api.dsl.TypeCheck
 import com.oracle.truffle.api.dsl.TypeSystem
 import com.pthariensflame.sylvia.values.*
 import java.math.MathContext
 import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.contract
 
 @TypeSystem(
-    Boolean::class,
-    BoolVal::class,
-    Byte::class,
-    Short::class,
-    Int::class,
-    Long::class,
-    BigIntVal::class,
-    Float::class,
-    Double::class,
-    BigFloatVal::class,
-    String::class,
-    StringVal::class,
-    SylviaVal::class,
-)
+        Boolean::class,
+        BoolVal::class,
+        Byte::class,
+        Short::class,
+        Int::class,
+        Long::class,
+        BigIntVal::class,
+        Float::class,
+        Double::class,
+        BigFloatVal::class,
+        String::class,
+        StringVal::class,
+        SylviaVal::class,
+           )
 @OptIn(ExperimentalContracts::class)
 open class SylviaTruffleTypeSystem internal constructor() {
     companion object {
@@ -114,7 +111,7 @@ open class SylviaTruffleTypeSystem internal constructor() {
         @ImplicitCast
         @JvmStatic
         fun bigIntValToBigFloatVal(v: BigIntVal): BigFloatVal =
-            BigFloatVal(v.value.toBigDecimal(0, MathContext.UNLIMITED))
+                BigFloatVal(v.value.toBigDecimal(0, MathContext.UNLIMITED))
 
         @ImplicitCast
         @JvmStatic
