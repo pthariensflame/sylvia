@@ -1,4 +1,4 @@
-package com.pthariensflame.sylvia.ast
+package com.pthariensflame.sylvia.ast.expressions
 
 import com.oracle.truffle.api.CompilerAsserts
 import com.oracle.truffle.api.dsl.GenerateNodeFactory

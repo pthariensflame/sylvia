@@ -15,6 +15,7 @@ import com.oracle.truffle.api.source.Source
 import com.oracle.truffle.api.source.SourceSection
 import com.pthariensflame.sylvia.SylviaLanguage
 import com.pthariensflame.sylvia.SylviaTruffleTypeSystem
+import com.pthariensflame.sylvia.ast.expressions.TopExpressionBodyNode
 import com.pthariensflame.sylvia.parser.SourceSpan
 
 @NodeInfo(
