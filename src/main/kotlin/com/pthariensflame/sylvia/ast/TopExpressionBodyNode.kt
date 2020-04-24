@@ -24,7 +24,7 @@ import com.pthariensflame.sylvia.values.SylviaVal
 @GenerateWrapper
 @GenerateUncached
 @Introspectable
-open class zTopExpressionBodyNode
+open class TopExpressionBodyNode
 @JvmOverloads internal constructor(
     srcSpan: SourceSpan? = null,
     @JvmField @Node.Child var inner: ExpressionNode = ImpossibleExpressionNode(),
