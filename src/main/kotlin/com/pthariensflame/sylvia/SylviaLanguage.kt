@@ -1,6 +1,8 @@
 package com.pthariensflame.sylvia
 
+import com.oracle.truffle.api.Truffle
 import com.oracle.truffle.api.TruffleLanguage
+import com.oracle.truffle.api.TruffleRuntime
 import com.oracle.truffle.api.dsl.GenerateUncached
 import com.oracle.truffle.api.instrumentation.ProvidedTags
 import com.oracle.truffle.api.instrumentation.StandardTags
@@ -8,6 +10,9 @@ import com.pthariensflame.sylvia.ast.ProcedureNode
 import com.pthariensflame.sylvia.values.SylviaVal
 import org.graalvm.collections.EconomicSet
 import org.graalvm.collections.Equivalence
+
+internal val truffleRuntime: TruffleRuntime
+    inline get() = Truffle.getRuntime()
 
 @TruffleLanguage.Registration(
         id = "sylvia",

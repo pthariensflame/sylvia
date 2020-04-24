@@ -1,5 +1,6 @@
 package com.pthariensflame.sylvia.values
 
+import com.oracle.truffle.api.CompilerAsserts
 import com.oracle.truffle.api.CompilerDirectives
 import com.oracle.truffle.api.interop.InteropLibrary
 import com.oracle.truffle.api.interop.UnsupportedMessageException
@@ -8,9 +9,12 @@ import com.oracle.truffle.api.library.ExportMessage
 import java.math.BigDecimal
 import java.math.MathContext
 import java.math.RoundingMode
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
 
 @ExportLibrary(InteropLibrary::class)
 @CompilerDirectives.ValueType
+@OptIn(ExperimentalContracts::class)
 data class BigFloatVal private constructor(@JvmField val value: BigDecimal) : SylviaVal(), Comparable<BigFloatVal> {
     companion object {
         @JvmStatic
@@ -19,7 +23,12 @@ data class BigFloatVal private constructor(@JvmField val value: BigDecimal) : Sy
     }
 
     @ExportMessage
-    fun isNumber(): Boolean = true
+    fun isNumber(): Boolean {
+        contract {
+            returns(true)
+        }
+        return true
+    }
 
     @ExportMessage
     fun fitsInByte(): Boolean {
@@ -79,6 +88,7 @@ data class BigFloatVal private constructor(@JvmField val value: BigDecimal) : Sy
         try {
             return value.byteValueExact()
         } catch (ex: ArithmeticException) {
+            CompilerAsserts.neverPartOfCompilation("Exceptional case")
             throw UnsupportedMessageException.create().initCause(ex)
         }
     }
@@ -99,6 +109,7 @@ data class BigFloatVal private constructor(@JvmField val value: BigDecimal) : Sy
         try {
             return value.intValueExact()
         } catch (ex: ArithmeticException) {
+            CompilerAsserts.neverPartOfCompilation("Exceptional case")
             throw UnsupportedMessageException.create().initCause(ex)
         }
     }
@@ -109,6 +120,7 @@ data class BigFloatVal private constructor(@JvmField val value: BigDecimal) : Sy
         try {
             return value.longValueExact()
         } catch (ex: ArithmeticException) {
+            CompilerAsserts.neverPartOfCompilation("Exceptional case")
             throw UnsupportedMessageException.create().initCause(ex)
         }
     }
@@ -120,6 +132,7 @@ data class BigFloatVal private constructor(@JvmField val value: BigDecimal) : Sy
         if (v.toBigDecimal(MathContext.UNLIMITED) == value) {
             return v
         } else {
+            CompilerAsserts.neverPartOfCompilation("Exceptional case")
             throw UnsupportedMessageException.create()
         }
     }
@@ -131,6 +144,7 @@ data class BigFloatVal private constructor(@JvmField val value: BigDecimal) : Sy
         if (v.toBigDecimal(MathContext.UNLIMITED) == value) {
             return v
         } else {
+            CompilerAsserts.neverPartOfCompilation("Exceptional case")
             throw UnsupportedMessageException.create()
         }
     }

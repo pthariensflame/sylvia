@@ -17,10 +17,10 @@ import com.pthariensflame.sylvia.values.SylviaVal
 @GenerateNodeFactory
 @GenerateUncached
 @Introspectable
-open class ErroneousExpressionNode internal constructor() : ExpressionNode() {
+open class ImpossibleExpressionNode internal constructor() : ExpressionNode() {
     companion object {
         @JvmStatic
-        private val MSG: String = "Erroneous expression node; shouldn't be reached"
+        private val MSG: String = "Impossible expression node; shouldn't be reached"
     }
 
     override fun isInstrumentable(): Boolean = false

@@ -26,8 +26,8 @@ import com.pthariensflame.sylvia.values.SylviaVal
 @Introspectable
 open class TopExpressionBodyNode
 @JvmOverloads internal constructor(
-        srcSpan: SourceSpan? = null,
-        @JvmField @Node.Child var inner: ExpressionNode = ErroneousExpressionNode(),
+    srcSpan: SourceSpan? = null,
+    @JvmField @Node.Child var inner: ExpressionNode = ImpossibleExpressionNode(),
                                   ) : ExpressionNode(srcSpan) {
     override fun isInstrumentable(): Boolean = true
 
