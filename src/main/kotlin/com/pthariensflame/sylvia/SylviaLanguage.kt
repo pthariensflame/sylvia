@@ -24,7 +24,7 @@ internal val truffleRuntime: TruffleRuntime
     defaultMimeType = "text/x-sylvia",
     interactive = true,
     internal = false,
-    dependentLanguages = [],
+    dependentLanguages = ["nfi"],
     contextPolicy = TruffleLanguage.ContextPolicy.EXCLUSIVE,
     services = [],
     fileTypeDetectors = [SylviaFileDetector::class],
