@@ -3,10 +3,10 @@ package com.pthariensflame.sylvia
 import com.oracle.truffle.api.Truffle
 import com.oracle.truffle.api.TruffleLanguage
 import com.oracle.truffle.api.TruffleRuntime
-import com.oracle.truffle.api.dsl.GenerateUncached
 import com.oracle.truffle.api.instrumentation.ProvidedTags
 import com.oracle.truffle.api.instrumentation.StandardTags
 import com.pthariensflame.sylvia.ast.ProcedureNode
+import com.pthariensflame.sylvia.shell.SylviaFileDetector
 import com.pthariensflame.sylvia.values.SylviaVal
 import org.graalvm.collections.EconomicSet
 import org.graalvm.collections.Equivalence
@@ -27,7 +27,7 @@ internal val truffleRuntime: TruffleRuntime
     dependentLanguages = [],
     contextPolicy = TruffleLanguage.ContextPolicy.EXCLUSIVE,
     services = [],
-    fileTypeDetectors = [],
+    fileTypeDetectors = [SylviaFileDetector::class],
 )
 @ProvidedTags(
     StandardTags.CallTag::class,
@@ -40,7 +40,6 @@ internal val truffleRuntime: TruffleRuntime
 //        StandardTags.TryBlockTag::class,
 //        DebuggerTags.AlwaysHalt::class,
 )
-@GenerateUncached(inherit = true)
 final class SylviaLanguage : TruffleLanguage<SylviaLanguage.SylviaLangCxt>() {
 
     data class SylviaLangCxt
@@ -53,5 +52,18 @@ final class SylviaLanguage : TruffleLanguage<SylviaLanguage.SylviaLangCxt>() {
     override fun createContext(env: Env?): SylviaLangCxt? = env?.let { SylviaLangCxt(it) }
 
     override fun isObjectOfLanguage(obj: Any?): Boolean =
-        obj is Int || obj is Long || obj is Double || obj is String || obj is SylviaVal
+        when (obj) {
+            is Boolean,
+            is Byte,
+            is Short,
+            is Int,
+            is Long,
+            is Float,
+            is Double,
+            is String,
+            is SylviaVal ->
+                true
+            else ->
+                false
+        }
 }
