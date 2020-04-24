@@ -15,17 +15,17 @@ import com.pthariensflame.sylvia.parser.SourceSpan
 import com.pthariensflame.sylvia.values.SylviaVal
 
 @NodeInfo(
-        shortName = "expr",
-        description = "An expression"
-         )
+    shortName = "expr",
+    description = "An expression"
+)
 @GenerateNodeFactory
 @GenerateWrapper
 @GenerateUncached
 @Introspectable
 abstract class ExpressionNode
 @JvmOverloads constructor(
-        @JvmField val srcSpan: SourceSpan? = null,
-                         ) : Node(), SylviaNode, InstrumentableNode {
+    @JvmField val srcSpan: SourceSpan? = null,
+) : Node(), SylviaNode, InstrumentableNode {
     abstract override fun isInstrumentable(): Boolean
 
     abstract fun executeVal(frame: VirtualFrame): SylviaVal
@@ -65,10 +65,10 @@ abstract class ExpressionNode
     open fun executeString(frame: VirtualFrame): String = executeTyped(frame)
 
     override fun createWrapper(probe: ProbeNode): InstrumentableNode.WrapperNode =
-            ExpressionNodeWrapper(this, probe)
+        ExpressionNodeWrapper(this, probe)
 
     override fun hasTag(tag: Class<out Tag>): Boolean =
-            tag.kotlin == StandardTags.ExpressionTag::class || super.hasTag(tag)
+        tag.kotlin == StandardTags.ExpressionTag::class || super.hasTag(tag)
 
     @TruffleBoundary
     override fun getSourceSection(): SourceSection {

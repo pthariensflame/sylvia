@@ -10,10 +10,10 @@ import com.oracle.truffle.api.nodes.NodeInfo
 import com.pthariensflame.sylvia.values.SylviaVal
 
 @NodeInfo(
-        shortName = "⊥-expr",
-        description = "An erroneous expression, which cannot appear in valid fully-parsed code",
-        cost = NodeCost.NONE,
-         )
+    shortName = "⊥-expr",
+    description = "An erroneous expression, which cannot appear in valid fully-parsed code",
+    cost = NodeCost.NONE,
+)
 @GenerateNodeFactory
 @GenerateUncached
 @Introspectable

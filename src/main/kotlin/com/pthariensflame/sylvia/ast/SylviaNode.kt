@@ -6,9 +6,9 @@ import com.oracle.truffle.api.nodes.NodeInfo
 import com.oracle.truffle.api.nodes.NodeInterface
 
 @NodeInfo(
-        language = "Sylvia",
-        description = "An arbitrary node for the Sylvia language"
-         )
+    language = "Sylvia",
+    description = "An arbitrary node for the Sylvia language"
+)
 @ReportPolymorphism
 @Introspectable
 interface SylviaNode : NodeInterface

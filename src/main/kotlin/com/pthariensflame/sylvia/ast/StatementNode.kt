@@ -13,26 +13,26 @@ import com.oracle.truffle.api.source.SourceSection
 import com.pthariensflame.sylvia.parser.SourceSpan
 
 @NodeInfo(
-        shortName = "stmt",
-        description = "A statement"
-         )
+    shortName = "stmt",
+    description = "A statement"
+)
 @GenerateNodeFactory
 @GenerateWrapper
 @GenerateUncached
 @Introspectable
 abstract class StatementNode
 @JvmOverloads constructor(
-        @JvmField val srcSpan: SourceSpan? = null,
-                         ) : Node(), SylviaNode, InstrumentableNode {
+    @JvmField val srcSpan: SourceSpan? = null,
+) : Node(), SylviaNode, InstrumentableNode {
     override fun isInstrumentable(): Boolean = true
 
     override fun createWrapper(probe: ProbeNode): InstrumentableNode.WrapperNode =
-            StatementNodeWrapper(this, probe)
+        StatementNodeWrapper(this, probe)
 
     abstract fun executeVoid(frame: VirtualFrame)
 
     override fun hasTag(tag: Class<out Tag>): Boolean =
-            tag.kotlin == StandardTags.StatementTag::class || super.hasTag(tag)
+        tag.kotlin == StandardTags.StatementTag::class || super.hasTag(tag)
 
     @GenerateWrapper.OutgoingConverter
     protected fun outConv(@Suppress("UNUSED_PARAMETER") v: Any?): Any? = null

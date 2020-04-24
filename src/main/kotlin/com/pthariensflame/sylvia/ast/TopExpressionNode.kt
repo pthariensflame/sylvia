@@ -18,9 +18,9 @@ import com.pthariensflame.sylvia.SylviaTruffleTypeSystem
 import com.pthariensflame.sylvia.parser.SourceSpan
 
 @NodeInfo(
-        shortName = "⊤-expr",
-        description = "A top-level expression"
-         )
+    shortName = "⊤-expr",
+    description = "A top-level expression"
+)
 @GenerateNodeFactory
 @GenerateWrapper
 @GenerateUncached
@@ -28,22 +28,22 @@ import com.pthariensflame.sylvia.parser.SourceSpan
 @TypeSystemReference(SylviaTruffleTypeSystem::class)
 open class TopExpressionNode
 @JvmOverloads constructor(
-        langInstance: SylviaLanguage? = null,
-        frameDescriptor: FrameDescriptor? = null,
-        @Node.Child @JvmField var bodyNode: TopExpressionBodyNode = TopExpressionBodyNode(),
-                         ) : RootNode(langInstance, frameDescriptor), SylviaNode, InstrumentableNode {
+    langInstance: SylviaLanguage? = null,
+    frameDescriptor: FrameDescriptor? = null,
+    @Node.Child @JvmField var bodyNode: TopExpressionBodyNode = TopExpressionBodyNode(),
+) : RootNode(langInstance, frameDescriptor), SylviaNode, InstrumentableNode {
     val srcSpan: SourceSpan?
         inline get() = bodyNode.srcSpan
 
     override fun isInstrumentable(): Boolean = true
 
     override fun createWrapper(probe: ProbeNode): InstrumentableNode.WrapperNode =
-            TopExpressionNodeWrapper(this, probe)
+        TopExpressionNodeWrapper(this, probe)
 
     override fun execute(frame: VirtualFrame): Any? = bodyNode.executeVal(frame)
 
     override fun hasTag(tag: Class<out Tag>): Boolean =
-            tag.kotlin == StandardTags.RootTag::class || super.hasTag(tag)
+        tag.kotlin == StandardTags.RootTag::class || super.hasTag(tag)
 
     @TruffleBoundary
     override fun getSourceSection(): SourceSection {

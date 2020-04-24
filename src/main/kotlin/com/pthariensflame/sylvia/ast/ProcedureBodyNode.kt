@@ -13,32 +13,32 @@ import com.oracle.truffle.api.source.SourceSection
 import com.pthariensflame.sylvia.parser.SourceSpan
 
 @NodeInfo(
-        shortName = "proc-body",
-        description = "A procedure body"
-         )
+    shortName = "proc-body",
+    description = "A procedure body"
+)
 @GenerateNodeFactory
 @GenerateWrapper
 @Introspectable
 open class ProcedureBodyNode
 @JvmOverloads constructor(
-        @JvmField val srcSpan: SourceSpan? = null,
-        @Node.Children @JvmField var statements: Array<StatementNode> = emptyArray(),
-                         ) : Node(), SylviaNode, InstrumentableNode {
+    @JvmField val srcSpan: SourceSpan? = null,
+    @Node.Children @JvmField var statements: Array<StatementNode> = emptyArray(),
+) : Node(), SylviaNode, InstrumentableNode {
     override fun isInstrumentable(): Boolean = true
 
     override fun createWrapper(probe: ProbeNode): InstrumentableNode.WrapperNode =
-            ProcedureBodyNodeWrapper(this, probe)
+        ProcedureBodyNodeWrapper(this, probe)
 
     open fun executeVoid(outerFrame: VirtualFrame) {
         val block: BlockNode<StatementNode> =
-                BlockNode.create(statements) { frame: VirtualFrame, node: StatementNode, _: Int, _: Int ->
-                    node.executeVoid(frame)
-                }
+            BlockNode.create(statements) { frame: VirtualFrame, node: StatementNode, _: Int, _: Int ->
+                node.executeVoid(frame)
+            }
         block.executeVoid(outerFrame, BlockNode.NO_ARGUMENT)
     }
 
     override fun hasTag(tag: Class<out Tag>): Boolean =
-            tag.kotlin == StandardTags.RootBodyTag::class || super.hasTag(tag)
+        tag.kotlin == StandardTags.RootBodyTag::class || super.hasTag(tag)
 
     @GenerateWrapper.OutgoingConverter
     protected fun outConv(@Suppress("UNUSED_PARAMETER") v: Any?): Any? = null

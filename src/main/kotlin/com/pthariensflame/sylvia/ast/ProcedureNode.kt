@@ -18,9 +18,9 @@ import com.pthariensflame.sylvia.SylviaTruffleTypeSystem
 import com.pthariensflame.sylvia.parser.SourceSpan
 
 @NodeInfo(
-        shortName = "proc",
-        description = "A procedure"
-         )
+    shortName = "proc",
+    description = "A procedure",
+)
 @GenerateNodeFactory
 @GenerateWrapper
 @GenerateUncached
@@ -28,15 +28,15 @@ import com.pthariensflame.sylvia.parser.SourceSpan
 @TypeSystemReference(SylviaTruffleTypeSystem::class)
 open class ProcedureNode
 @JvmOverloads constructor(
-        langInstance: SylviaLanguage? = null,
-        frameDescriptor: FrameDescriptor? = null,
-        @JvmField val srcSpan: SourceSpan? = null,
-        @Node.Child @JvmField var bodyNode: ProcedureBodyNode = ProcedureBodyNode(),
-                         ) : RootNode(langInstance, frameDescriptor), SylviaNode, InstrumentableNode {
+    langInstance: SylviaLanguage? = null,
+    frameDescriptor: FrameDescriptor? = null,
+    @JvmField val srcSpan: SourceSpan? = null,
+    @Node.Child @JvmField var bodyNode: ProcedureBodyNode = ProcedureBodyNode(),
+) : RootNode(langInstance, frameDescriptor), SylviaNode, InstrumentableNode {
     override fun isInstrumentable(): Boolean = super.isInstrumentable()
 
     override fun createWrapper(probe: ProbeNode): InstrumentableNode.WrapperNode =
-            ProcedureNodeWrapper(this, probe)
+        ProcedureNodeWrapper(this, probe)
 
     override fun execute(frame: VirtualFrame): Any? {
         bodyNode.executeVoid(frame)
@@ -44,7 +44,7 @@ open class ProcedureNode
     }
 
     override fun hasTag(tag: Class<out Tag>): Boolean =
-            tag.kotlin == StandardTags.RootTag::class || super.hasTag(tag)
+        tag.kotlin == StandardTags.RootTag::class || super.hasTag(tag)
 
     @GenerateWrapper.OutgoingConverter
     protected fun outConv(@Suppress("UNUSED_PARAMETER") v: Any?): Any? = null
