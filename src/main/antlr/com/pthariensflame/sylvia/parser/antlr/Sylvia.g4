@@ -31,7 +31,8 @@ grammar Sylvia;
             || idn.equals("import")
             || idn.equals("true")
             || idn.equals("false")
-            || idn.equals("of"));
+            || idn.equals("of")
+            || idn.equals("_"));
     }
 }
 
@@ -78,7 +79,8 @@ keyword : PROC
         | IMPORT
         | TRUE
         | FALSE
-        | OF;
+        | OF
+        | UNDERSCORE;
 
 // identifiers
 
