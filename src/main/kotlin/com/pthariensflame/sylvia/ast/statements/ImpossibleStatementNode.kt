@@ -1,4 +1,4 @@
-package com.pthariensflame.sylvia.ast.expressions
+package com.pthariensflame.sylvia.ast.statements
 
 import com.oracle.truffle.api.CompilerAsserts
 import com.oracle.truffle.api.dsl.GenerateNodeFactory
@@ -7,25 +7,26 @@ import com.oracle.truffle.api.dsl.Introspectable
 import com.oracle.truffle.api.frame.VirtualFrame
 import com.oracle.truffle.api.nodes.NodeCost
 import com.oracle.truffle.api.nodes.NodeInfo
+import com.pthariensflame.sylvia.ast.expressions.ExpressionNode
 import com.pthariensflame.sylvia.values.SylviaVal
 
 @NodeInfo(
-    shortName = "⊥-expr",
-    description = "An erroneous expression, which cannot appear in valid fully-parsed code",
+    shortName = "⊥-stmt",
+    description = "An erroneous statement, which cannot appear in valid fully-parsed code",
     cost = NodeCost.NONE,
 )
 @GenerateNodeFactory
 @GenerateUncached(inherit = true)
 @Introspectable
-open class ImpossibleExpressionNode internal constructor() : ExpressionNode() {
+open class ImpossibleStatementNode internal constructor() : StatementNode() {
     companion object {
         private const val MSG: String =
-            "Impossible expression node; shouldn't be reached"
+            "Impossible statement node; shouldn't be reached"
     }
 
     override fun isInstrumentable(): Boolean = false
 
-    override fun executeVal(frame: VirtualFrame): SylviaVal {
+    override fun executeVoid(frame: VirtualFrame) {
         CompilerAsserts.neverPartOfCompilation(MSG)
         throw UnsupportedOperationException(MSG)
     }

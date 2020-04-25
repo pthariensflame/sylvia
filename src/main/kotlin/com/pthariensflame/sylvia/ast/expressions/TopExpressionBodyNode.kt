@@ -12,6 +12,7 @@ import com.oracle.truffle.api.nodes.NodeInfo
 import com.oracle.truffle.api.source.Source
 import com.oracle.truffle.api.source.SourceSection
 import com.pthariensflame.sylvia.parser.SourceSpan
+import com.pthariensflame.sylvia.parser.createSection
 import com.pthariensflame.sylvia.values.SylviaVal
 
 
@@ -22,18 +23,16 @@ import com.pthariensflame.sylvia.values.SylviaVal
 )
 @GenerateNodeFactory
 @GenerateWrapper
-@GenerateUncached
+@GenerateUncached(inherit = true)
 @Introspectable
 open class TopExpressionBodyNode
 @JvmOverloads internal constructor(
-    srcSpan: SourceSpan? = null,
     @JvmField @Node.Child var inner: ExpressionNode = ImpossibleExpressionNode(),
-) : ExpressionNode(srcSpan) {
+) : ExpressionNode(inner.srcSpan) {
     override fun isInstrumentable(): Boolean = true
 
-    override fun createWrapper(probe: ProbeNode): InstrumentableNode.WrapperNode {
-        return TopExpressionBodyNodeWrapper(this, probe)
-    }
+    override fun createWrapper(probe: ProbeNode): InstrumentableNode.WrapperNode =
+        TopExpressionBodyNodeWrapper(this, probe)
 
     override fun executeVal(frame: VirtualFrame): SylviaVal = inner.executeVal(frame)
 
@@ -60,7 +59,7 @@ open class TopExpressionBodyNode
     override fun getSourceSection(): SourceSection {
         val src: Source = encapsulatingSourceSection.source
         return srcSpan?.run {
-            src.createSection(start, len)
+            src.createSection(this)
         } ?: src.createUnavailableSection()
     }
 }

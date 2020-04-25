@@ -12,6 +12,7 @@ import com.oracle.truffle.api.source.Source
 import com.oracle.truffle.api.source.SourceSection
 import com.pthariensflame.sylvia.ast.SylviaNode
 import com.pthariensflame.sylvia.parser.SourceSpan
+import com.pthariensflame.sylvia.parser.createSection
 
 @NodeInfo(
     shortName = "stmt",
@@ -19,13 +20,13 @@ import com.pthariensflame.sylvia.parser.SourceSpan
 )
 @GenerateNodeFactory
 @GenerateWrapper
-@GenerateUncached
+@GenerateUncached(inherit = true)
 @Introspectable
 abstract class StatementNode
 @JvmOverloads constructor(
     @JvmField val srcSpan: SourceSpan? = null,
 ) : Node(), SylviaNode, InstrumentableNode {
-    override fun isInstrumentable(): Boolean = true
+    abstract override fun isInstrumentable(): Boolean
 
     override fun createWrapper(probe: ProbeNode): InstrumentableNode.WrapperNode =
         StatementNodeWrapper(this, probe)
@@ -42,7 +43,7 @@ abstract class StatementNode
     override fun getSourceSection(): SourceSection {
         val src: Source = encapsulatingSourceSection.source
         return srcSpan?.run {
-            src.createSection(start, len)
+            src.createSection(this)
         } ?: src.createUnavailableSection()
     }
 }

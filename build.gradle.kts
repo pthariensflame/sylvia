@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     `java-library`
-    `antlr`
+    antlr
     kotlin("jvm") version "1.4-M1"
     kotlin("kapt") version "1.4-M1"
     id("org.jetbrains.dokka") version "0.10.1"
@@ -39,6 +39,7 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:5.6.+"))
     constraints {
         testImplementation("junit", "junit", "4.+")
+        implementation("com.ibm.icu", "icu4j", "[67.1,)")
     }
 
     api(kotlin("stdlib-jdk8"))
@@ -49,8 +50,6 @@ dependencies {
     testImplementation("org.junit.jupiter", "junit-jupiter-api")
     testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine")
     testRuntimeOnly("org.junit.vintage", "junit-vintage-engine")
-
-    implementation("com.ibm.icu", "icu4j", "[66.1,)")
 
     antlr("org.antlr", "antlr4", "4.8-1")
     runtimeOnly("org.antlr", "antlr4-runtime", "4.8-1")
@@ -94,11 +93,19 @@ kapt {
 }
 
 tasks {
+    compileKotlin.configure { dependsOn.add(generateGrammarSource) }
+    compileTestKotlin.configure { dependsOn.add(generateTestGrammarSource) }
+
 //    withType<JavaCompile>().configureEach {
 //    }
 
-//    withType<AntlrTask>().configureEach {
-//    }
+    withType<AntlrTask>().configureEach {
+        arguments = arguments + sequenceOf(
+            "-no-listener",
+            "-visitor",
+            "-long-messages"
+        )
+    }
 
     withType<KotlinCompile>().configureEach {
         usePreciseJavaTracking = true
@@ -140,6 +147,9 @@ tasks {
     }
 }
 
+//kraal {
+//}
+
 idea {
     project {
         jdkName = "GraalVM 1.8 (20)"
@@ -148,5 +158,11 @@ idea {
     module {
         isDownloadJavadoc = true
         isDownloadSources = true
+        sourceDirs = sourceDirs + sequenceOf(
+            File("src/main/antlr")
+        )
+        testSourceDirs = testSourceDirs + sequenceOf(
+            File("src/test/antlr")
+        )
     }
 }

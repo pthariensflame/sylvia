@@ -1,18 +1,28 @@
 package com.pthariensflame.sylvia.values
 
-import com.oracle.truffle.api.CompilerDirectives
+import com.oracle.truffle.api.CompilerDirectives.ValueType
 import com.oracle.truffle.api.interop.InteropLibrary
 import com.oracle.truffle.api.interop.UnsupportedMessageException
 import com.oracle.truffle.api.library.ExportLibrary
 import com.oracle.truffle.api.library.ExportMessage
+import com.pthariensflame.sylvia.UnicodeCodepoint
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
 
 @ExportLibrary(InteropLibrary::class)
-@CompilerDirectives.ValueType
+@ValueType
 @OptIn(ExperimentalContracts::class)
 data class StringVal(@JvmField val value: String) : SylviaVal() {
+    constructor(c: Char) : this(
+        c.toString()
+    )
+
+    constructor(codepoint: UnicodeCodepoint) : this(
+        codepoint.asStringChecked()
+            ?: throw IllegalArgumentException(codepoint.toString())
+    )
+
     @ExportMessage
     fun isString(): Boolean {
         contract {

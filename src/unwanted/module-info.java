@@ -1,5 +1,4 @@
 open module com.pthariensflame.sylvia {
-    requires com.ibm.icu;
     requires transitive org.graalvm.truffle;
     requires org.graalvm.sdk;
     requires org.graalvm.launcher;
@@ -14,5 +13,6 @@ open module com.pthariensflame.sylvia {
     exports com.pthariensflame.sylvia.ast.statements;
     exports com.pthariensflame.sylvia.values;
     exports com.pthariensflame.sylvia.parser;
+    exports com.pthariensflame.sylvia.parser.antlr;
     exports com.pthariensflame.sylvia.shell;
 }

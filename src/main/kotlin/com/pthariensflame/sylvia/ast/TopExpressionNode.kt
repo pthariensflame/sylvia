@@ -24,7 +24,7 @@ import com.pthariensflame.sylvia.parser.SourceSpan
 )
 @GenerateNodeFactory
 @GenerateWrapper
-@GenerateUncached
+@GenerateUncached(inherit = true)
 @Introspectable
 @TypeSystemReference(SylviaTruffleTypeSystem::class)
 open class TopExpressionNode

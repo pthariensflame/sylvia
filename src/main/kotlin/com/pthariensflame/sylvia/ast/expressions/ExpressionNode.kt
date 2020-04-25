@@ -21,7 +21,7 @@ import com.pthariensflame.sylvia.values.SylviaVal
 )
 @GenerateNodeFactory
 @GenerateWrapper
-@GenerateUncached
+@GenerateUncached(inherit = true)
 @Introspectable
 abstract class ExpressionNode
 @JvmOverloads constructor(
@@ -74,8 +74,6 @@ abstract class ExpressionNode
     @TruffleBoundary
     override fun getSourceSection(): SourceSection {
         val src: Source = encapsulatingSourceSection.source
-        return srcSpan?.run {
-            src.createSection(start, len)
-        } ?: src.createUnavailableSection()
+        return srcSpan?.asSectionOf(src) ?: src.createUnavailableSection()
     }
 }
