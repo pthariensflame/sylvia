@@ -85,9 +85,7 @@ keyword : PROC
 fragment IDENT_START : [\p{XID_START}];
 fragment IDENT_CONT : IDENT_START | [\p{XID_CONTINUE}];
 IDENT : IDENT_START IDENT_CONT*;
-identifier : IDENT {
-    checkNotKeyword($IDENT.text)
-}?;
+identifier : IDENT {checkNotKeyword($IDENT.text)}?;
 path : identifier (DOT identifier)*;
 
 // numbers
