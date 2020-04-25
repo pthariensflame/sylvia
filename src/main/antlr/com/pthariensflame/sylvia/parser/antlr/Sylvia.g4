@@ -6,6 +6,7 @@ grammar Sylvia;
     import java.util.Deque;
     import org.jetbrains.annotations.NotNull;
     import org.jetbrains.annotations.Nullable;
+    import org.jetbrains.annotations.Contract;
     import com.pthariensflame.sylvia.parser.SourceSpan;
 }
 
@@ -14,8 +15,24 @@ grammar Sylvia;
 }
 
 @parser::members {
-    @NotNull Deque<String> syntacticCommentMarks = new ArrayDeque<>();
-    @NotNull Deque<String> semanticCommentMarks = new ArrayDeque<>();
+    @Contract(value = "null -> false", pure = true)
+    static boolean checkNotKeyword(@Nullable String idn) {
+        return !(null == idn
+            || idn.equals("proc")
+            || idn.equals("get")
+            || idn.equals("from")
+            || idn.equals("convention")
+            || idn.equals("effect")
+            || idn.equals("typeAlias")
+            || idn.equals("newType")
+            || idn.equals("module")
+            || idn.equals("doc")
+            || idn.equals("export")
+            || idn.equals("import")
+            || idn.equals("true")
+            || idn.equals("false")
+            || idn.equals("of"));
+    }
 }
 
 // Keywords and symbols
@@ -66,11 +83,11 @@ keyword : PROC
 // identifiers
 
 fragment IDENT_START : [\p{XID_START}];
-fragment IDENT_CONT : [\p{XID_CONTINUE}];
-NAME_PART : IDENT_START IDENT_CONT+;
-fragment SUBNAME : (UNDERSCORE | NAME_PART)*;
-NAME : SUBNAME NAME_PART SUBNAME; // at least one name part
-identifier : NAME {true}?;
+fragment IDENT_CONT : IDENT_START | [\p{XID_CONTINUE}];
+IDENT : IDENT_START IDENT_CONT*;
+identifier : IDENT {
+    checkNotKeyword($IDENT.text)
+}?;
 path : identifier (DOT identifier)*;
 
 // numbers
@@ -114,14 +131,15 @@ string_literal : straight_double_string
 
 // procedure declarations
 
-procedure_decl : PROC identifier OPEN_PAREN parameter_list CLOSE_PAREN;
-parameter_list : parameter (COMMA parameter_list)*;
+procedure_decl : PROC identifier parameter_list;
+anon_procedure_decl : PROC parameter_list;
+parameter_list : OPEN_PAREN parameter (COMMA parameter_list)* CLOSE_PAREN;
 parameter : (AT_SYM expression OF)? (identifier COLON)? expression;
 
 // procedure calls
 
-procedure_call : path OPEN_PAREN argument_list CLOSE_PAREN;
-argument_list : argument (COMMA argument_list)*;
+procedure_call : path argument_list;
+argument_list : OPEN_PAREN argument (COMMA argument_list)* CLOSE_PAREN;
 argument : expression | UNDERSCORE;
 
 // collections
@@ -131,11 +149,12 @@ collection_literal : OPEN_BRACK argument_list CLOSE_BRACK;
 // statements
 
 statement : procedure_call
-          | block
+          | get_phrase
+          | procedure_decl
           | module_statement
-          | semantic_comment_statement;
-
-block : OPEN_BRACE statement* CLOSE_BRACE;
+          | comment_statement
+          | OPEN_BRACE statement* CLOSE_BRACE;
+comment_statement : syntactic_comment_statement | semantic_comment_statement;
 
 module_statement : MODULE identifier OF statement;
 
@@ -146,23 +165,26 @@ literal : boolean_literal
         | string_literal
         | collection_literal;
 
-get_expression : GET parameter_list FROM statement;
+get_phrase : get_identifier_list statement;
+get_identifier_list : GET identifier (COMMA identifier) FROM;
 
 expression : procedure_call
            | literal
-           | identifier
-           | get_expression
+           | path
+           | get_phrase
+           | anon_procedure_decl
            | module_expression
-           | semantic_comment_expression expression
-           | expression semantic_comment_expression
+           | comment_expression expression
+           | expression comment_expression
            | OPEN_PAREN expression CLOSE_PAREN;
+comment_expression : syntactic_comment_expression | semantic_comment_expression;
 
 module_expression : MODULE identifier OF expression;
 
 // comments
 
-SEMANTIC_COMMENT_START : HASH_SYM (SUBNAME | NUMERIC_SUBSEQUENCE | HASH_SYM)* OPEN_BRACE;
-SEMANTIC_COMMENT_END : CLOSE_BRACE (SUBNAME | NUMERIC_SUBSEQUENCE | HASH_SYM)* HASH_SYM;
+SEMANTIC_COMMENT_START : HASH_SYM (IDENT_CONT | NUMERIC_SUBSEQUENCE | HASH_SYM)* OPEN_BRACE;
+SEMANTIC_COMMENT_END : CLOSE_BRACE (IDENT_CONT | NUMERIC_SUBSEQUENCE | HASH_SYM)* HASH_SYM;
 semantic_comment_start : SEMANTIC_COMMENT_START {true}? {
 };
 semantic_comment_end : SEMANTIC_COMMENT_END {true}? {
@@ -170,8 +192,8 @@ semantic_comment_end : SEMANTIC_COMMENT_END {true}? {
 semantic_comment_statement : semantic_comment_start statement semantic_comment_end;
 semantic_comment_expression : semantic_comment_start expression semantic_comment_end;
 
-SYNTACTIC_COMMENT_START : HASH_SYM (SUBNAME | NUMERIC_SUBSEQUENCE | HASH_SYM)* OPEN_BRACK;
-SYNTACTIC_COMMENT_END : CLOSE_BRACK (SUBNAME | NUMERIC_SUBSEQUENCE | HASH_SYM)* HASH_SYM;
+SYNTACTIC_COMMENT_START : HASH_SYM (IDENT_CONT | NUMERIC_SUBSEQUENCE | HASH_SYM)* OPEN_BRACK;
+SYNTACTIC_COMMENT_END : CLOSE_BRACK (IDENT_CONT | NUMERIC_SUBSEQUENCE | HASH_SYM)* HASH_SYM;
 syntactic_comment_start : SYNTACTIC_COMMENT_START {true}? {
 };
 syntactic_comment_end : SYNTACTIC_COMMENT_END {true}? {
@@ -180,11 +202,11 @@ syntactic_comment_statement : syntactic_comment_start statement syntactic_commen
 syntactic_comment_expression : syntactic_comment_start expression syntactic_comment_end;
 
 
-LEXICAL_COMMENT_START : HASH_SYM (SUBNAME | NUMERIC_SUBSEQUENCE | HASH_SYM)* OPEN_PAREN {
+LEXICAL_COMMENT_START : HASH_SYM (IDENT_CONT | NUMERIC_SUBSEQUENCE | HASH_SYM)* OPEN_PAREN {
     setChannel(HIDDEN);
     lexicalCommentMarks.push(getText().substring(1, getText().length() - 2));
 };
-LEXICAL_COMMENT_END : CLOSE_PAREN (SUBNAME | NUMERIC_SUBSEQUENCE | HASH_SYM)* HASH_SYM {
+LEXICAL_COMMENT_END : CLOSE_PAREN (IDENT_CONT | NUMERIC_SUBSEQUENCE | HASH_SYM)* HASH_SYM {
     setChannel(HIDDEN);
     if (lexicalCommentMarks.peek().equals(getText().substring(1, getText().length() - 2))) {
         lexicalCommentMarks.pop();
