@@ -12,7 +12,7 @@ import kotlin.contracts.contract
 @ExportLibrary(InteropLibrary::class)
 @CompilerDirectives.ValueType
 @OptIn(ExperimentalContracts::class)
-data class BoolVal(@JvmField val value: Boolean) : SylviaVal() {
+data class BoolVal(@JvmField val value: Boolean) : SylviaVal(), Comparable<BoolVal>, Cloneable {
     @ExportMessage
     fun isBoolean(): Boolean {
         contract {
@@ -24,4 +24,7 @@ data class BoolVal(@JvmField val value: Boolean) : SylviaVal() {
     @ExportMessage
     @Throws(UnsupportedMessageException::class)
     fun asBoolean(): Boolean = value
+
+    override fun compareTo(other: BoolVal): Int = value.compareTo(other.value)
+    override fun clone(): BoolVal = BoolVal(value)
 }

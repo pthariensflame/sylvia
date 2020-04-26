@@ -15,7 +15,9 @@ import kotlin.contracts.contract
 @ExportLibrary(InteropLibrary::class)
 @CompilerDirectives.ValueType
 @OptIn(ExperimentalContracts::class)
-data class BigFloatVal private constructor(@JvmField val value: BigDecimal) : SylviaVal(), Comparable<BigFloatVal> {
+@Suppress("ProtectedInFinal")
+data class BigFloatVal protected constructor(@JvmField val value: BigDecimal) : SylviaVal(), Comparable<BigFloatVal>,
+    Cloneable {
     companion object {
         @JvmStatic
         @JvmName("create")
@@ -150,4 +152,5 @@ data class BigFloatVal private constructor(@JvmField val value: BigDecimal) : Sy
     }
 
     override fun compareTo(other: BigFloatVal): Int = value.compareTo(other.value)
+    override fun clone(): BigFloatVal = BigFloatVal(value)
 }

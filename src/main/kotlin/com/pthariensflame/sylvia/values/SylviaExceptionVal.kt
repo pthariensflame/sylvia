@@ -14,7 +14,7 @@ import kotlin.contracts.contract
 @OptIn(ExperimentalContracts::class)
 data class SylviaExceptionVal(
     @JvmField val inner: SylviaException,
-) : SylviaVal(), TruffleException {
+) : SylviaVal(), TruffleException, Cloneable {
     override fun getLocation(): Node? = inner.location
 
     @ExportMessage
@@ -32,4 +32,6 @@ data class SylviaExceptionVal(
         }
         return inner
     }
+
+    override fun clone(): SylviaExceptionVal = SylviaExceptionVal(inner)
 }

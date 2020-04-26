@@ -8,7 +8,7 @@ import com.oracle.truffle.api.instrumentation.StandardTags
 import com.pthariensflame.sylvia.ast.ProcedureNode
 import com.pthariensflame.sylvia.shell.SylviaFileDetector
 import com.pthariensflame.sylvia.values.SylviaVal
-import org.graalvm.collections.EconomicSet
+import org.graalvm.collections.EconomicMap
 import org.graalvm.collections.Equivalence
 
 internal val truffleRuntime: TruffleRuntime
@@ -45,11 +45,21 @@ final class SylviaLanguage : TruffleLanguage<SylviaLanguage.SylviaLangCxt>() {
     data class SylviaLangCxt
     @JvmOverloads constructor(
         val env: Env,
-        val procedures: EconomicSet<ProcedureNode> =
-            EconomicSet.create(Equivalence.DEFAULT),
+        val globalScope: EconomicMap<String, ProcedureNode> =
+            EconomicMap.create(Equivalence.DEFAULT),
     )
 
     override fun createContext(env: Env?): SylviaLangCxt? = env?.let { SylviaLangCxt(it) }
+
+    @Throws(Exception::class)
+    override fun initializeContext(context: SylviaLangCxt) {
+        super.initializeContext(context)
+    }
+
+    @Throws(Exception::class)
+    override fun finalizeContext(context: SylviaLangCxt) {
+        super.finalizeContext(context)
+    }
 
     override fun isObjectOfLanguage(obj: Any?): Boolean =
         when (obj) {

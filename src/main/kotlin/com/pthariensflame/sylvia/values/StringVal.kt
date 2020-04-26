@@ -13,7 +13,7 @@ import kotlin.contracts.contract
 @ExportLibrary(InteropLibrary::class)
 @ValueType
 @OptIn(ExperimentalContracts::class)
-data class StringVal(@JvmField val value: String) : SylviaVal() {
+data class StringVal(@JvmField val value: String) : SylviaVal(), Comparable<StringVal>, Cloneable {
     constructor(c: Char) : this(
         c.toString()
     )
@@ -34,4 +34,7 @@ data class StringVal(@JvmField val value: String) : SylviaVal() {
     @ExportMessage
     @Throws(UnsupportedMessageException::class)
     fun asString(): String = value
+
+    override fun compareTo(other: StringVal): Int = value.compareTo(other.value)
+    override fun clone(): StringVal = StringVal(value)
 }

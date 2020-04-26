@@ -19,8 +19,8 @@ import kotlin.contracts.ExperimentalContracts
     BigFloatVal::class,
     String::class,
     StringVal::class,
-    SylviaExceptionVal::class,
     SylviaException::class,
+    SylviaExceptionVal::class,
     SylviaVal::class,
 )
 @OptIn(ExperimentalContracts::class)

@@ -20,7 +20,7 @@ import kotlin.contracts.contract
 @ExportLibrary(InteropLibrary::class)
 @CompilerDirectives.ValueType
 @OptIn(ExperimentalContracts::class)
-data class BigIntVal(@JvmField val value: BigInteger) : SylviaVal(), Comparable<BigIntVal> {
+data class BigIntVal(@JvmField val value: BigInteger) : SylviaVal(), Comparable<BigIntVal>, Cloneable {
 
     @ExportMessage
     fun isNumber(): Boolean {
@@ -97,4 +97,5 @@ data class BigIntVal(@JvmField val value: BigInteger) : SylviaVal(), Comparable<
     fun asDouble(): Double = asInt().toDouble()
 
     override fun compareTo(other: BigIntVal): Int = value.compareTo(other.value)
+    override fun clone(): BigIntVal = BigIntVal(value)
 }
