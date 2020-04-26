@@ -16,12 +16,12 @@ grammar Sylvia;
 
 @parser::members {
     @Contract(value = "null -> false", pure = true)
-    static boolean checkNotKeyword(@Nullable String idn) {
+    private static boolean checkNotKeyword(@Nullable String idn) {
         return !(null == idn
             || idn.equals("proc")
             || idn.equals("get")
             || idn.equals("from")
-            || idn.equals("convention")
+            || idn.equals("nature")
             || idn.equals("effect")
             || idn.equals("typeAlias")
             || idn.equals("newType")
@@ -32,7 +32,18 @@ grammar Sylvia;
             || idn.equals("true")
             || idn.equals("false")
             || idn.equals("of")
-            || idn.equals("_"));
+            || idn.equals("do")
+            || idn.equals("bind")
+            || idn.equals("_")
+            || idn.equals("@"));
+    }
+
+    @Contract(pure = true)
+    private static boolean hasAllArgsConcrete(@NotNull Procedure_callContext ctx) {
+        for (ArgumentContext arg : ctx.arg_list.args) {
+            if (arg instanceof MissingArgContext) return false;
+        }
+        return true;
     }
 }
 
@@ -41,7 +52,7 @@ grammar Sylvia;
 PROC : 'proc';
 GET : 'get';
 FROM : 'from';
-CONVENTION : 'convention';
+NATURE : 'nature';
 EFFECT : 'effect';
 TYPEALIAS : 'typeAlias';
 NEWTYPE : 'newType';
@@ -52,6 +63,8 @@ IMPORT : 'import';
 TRUE : 'true';
 FALSE : 'false';
 OF : 'of';
+DO : 'do';
+BIND : 'bind';
 OPEN_PAREN : '(';
 CLOSE_PAREN : ')';
 COLON : ':';
@@ -60,16 +73,20 @@ OPEN_BRACE : '{';
 CLOSE_BRACE : '}';
 OPEN_BRACK : '[';
 CLOSE_BRACK : ']';
+OPEN_DOUBLE_BRACK : '⟦';
+CLOSE_DOUBLE_BRACK : '⟧';
 COMMA : ',';
-SEMICOLON : ';';
+//SEMICOLON : ';';
 UNDERSCORE : '_';
 DOT : '.';
 HASH_SYM : '#';
+//ARROW_TO : '->' | '→';
+//ARROW_FROM : '<-' | '←';
 
 keyword : PROC
         | GET
         | FROM
-        | CONVENTION
+        | NATURE
         | EFFECT
         | TYPEALIAS
         | NEWTYPE
@@ -80,7 +97,10 @@ keyword : PROC
         | TRUE
         | FALSE
         | OF
-        | UNDERSCORE;
+        | DO
+        | BIND
+        | UNDERSCORE
+        | AT_SYM;
 
 // identifiers
 
@@ -88,7 +108,9 @@ fragment IDENT_START : [\p{XID_START}];
 fragment IDENT_CONT : IDENT_START | [\p{XID_CONTINUE}];
 IDENT : IDENT_START IDENT_CONT*;
 identifier : IDENT {checkNotKeyword($IDENT.text)}?;
-path : identifier (DOT identifier)*;
+path : segments+=identifier (DOT segments+=identifier)*;
+
+name_declarator : AT_SYM nature=expression OF name=identifier COLON type=expression;
 
 // numbers
 
@@ -104,59 +126,82 @@ boolean_literal : TRUE | FALSE;
 // strings
 
 STRAIGHT_DOUBLE_STRING : '"' STRAIGHT_DOUBLE_STRING_INNER* '"';
-fragment STRAIGHT_DOUBLE_STRING_INNER : ~'"' | '\\"';
+fragment STRAIGHT_DOUBLE_STRING_INNER : ~["\\] | '\\' ["\\];
 straight_double_string : STRAIGHT_DOUBLE_STRING;
 
 STRAIGHT_SINGLE_STRING : '\'' STRAIGHT_SINGLE_STRING_INNER* '\'';
-fragment STRAIGHT_SINGLE_STRING_INNER : ~'\'' | '\\\'';
+fragment STRAIGHT_SINGLE_STRING_INNER : ~['\\] | '\\' ['\\];
 straight_single_string : STRAIGHT_SINGLE_STRING;
 
-BACKTICK_STRING : '`' BACKTICK_STRING_INNER* '`';
-fragment BACKTICK_STRING_INNER : ~'`' | '\\`';
-backtick_string : BACKTICK_STRING;
+STRAIGHT_BACKTICK_STRING : '`' STRAIGHT_BACKTICK_STRING_INNER* '`';
+fragment STRAIGHT_BACKTICK_STRING_INNER : ~[`\\] | '\\' [`\\];
+straight_backtick_string : STRAIGHT_BACKTICK_STRING;
 
 SMART_DOUBLE_STRING : '“' SMART_DOUBLE_STRING_INNER* '”';
-fragment SMART_DOUBLE_STRING_INNER : ~[“”] | '\\' [“”] | SMART_DOUBLE_STRING;
+fragment SMART_DOUBLE_STRING_INNER : ~[“”\\] | '\\' [“”\\] | SMART_STRING_ANY;
 smart_double_string : SMART_DOUBLE_STRING;
 
 SMART_SINGLE_STRING : '‘' SMART_SINGLE_STRING_INNER* '’';
-fragment SMART_SINGLE_STRING_INNER : ~[‘’] | '\\' [‘’] | SMART_SINGLE_STRING;
+fragment SMART_SINGLE_STRING_INNER : ~[‘’\\] | '\\' [‘’\\] | SMART_STRING_ANY;
 smart_single_string : SMART_SINGLE_STRING;
 
+SMART_CHEVRON_STRING : '«' SMART_CHEVRON_STRING_INNER* '»';
+fragment SMART_CHEVRON_STRING_INNER : ~[«»\\] | '\\' [«»\\] | SMART_STRING_ANY;
+smart_chevron_string : SMART_CHEVRON_STRING;
+
+fragment SMART_STRING_ANY : SMART_DOUBLE_STRING
+                          | SMART_SINGLE_STRING
+                          | SMART_CHEVRON_STRING;
 string_literal : straight_double_string
                | straight_single_string
-               | backtick_string
+               | straight_backtick_string
                | smart_double_string
-               | smart_single_string;
+               | smart_single_string
+               | smart_chevron_string;
 
 // procedure declarations
 
-procedure_decl : PROC identifier parameter_list;
-anon_procedure_decl : PROC parameter_list;
-parameter_list : OPEN_PAREN parameter (COMMA parameter_list)* CLOSE_PAREN;
-parameter : (AT_SYM expression OF)? (identifier COLON)? expression;
+procedure_decl : PROC name=identifier param_list=parameter_list;
+anon_procedure_decl : PROC param_list=parameter_list;
+parameter_list : OPEN_PAREN (params+=parameter (COMMA params+=parameter)*)? CLOSE_PAREN;
+parameter : parts=name_declarator # FullParam
+          | name=identifier # SimpleParam;
 
 // procedure calls
 
-procedure_call : path argument_list;
-argument_list : OPEN_PAREN argument (COMMA argument_list)* CLOSE_PAREN;
-argument : expression | UNDERSCORE;
+procedure_call : name=path arg_list=argument_list;
+argument_list : OPEN_PAREN (args+=argument (COMMA args+=argument)*)? CLOSE_PAREN;
+argument : expr=expression # ExprArg
+         | missing_arg # MissingArg;
+missing_arg : UNDERSCORE;
 
 // collections
 
-collection_literal : OPEN_BRACK argument_list CLOSE_BRACK;
+collection_literal : OPEN_BRACK arg_list=argument_list CLOSE_BRACK # SingleBrackCollLit
+                   | OPEN_DOUBLE_BRACK arg_list=argument_list CLOSE_DOUBLE_BRACK # DoubleBrackCollLit;
+
+// declarations
+
+bind_decl : BIND param_list=parameter_list FROM block;
+
+module_decl : MODULE name=identifier OF decl_block;
+
+decl_block : OPEN_BRACE declaration* CLOSE_BRACE;
+
+declaration : bind_decl
+            | module_decl
+            | procedure_decl
+            | documented_decl;
+documented_decl : DOC documentation=string_literal declaration;
 
 // statements
 
-statement : procedure_call
-          | get_phrase
-          | procedure_decl
-          | module_statement
-          | comment_statement
-          | OPEN_BRACE statement* CLOSE_BRACE;
-comment_statement : syntactic_comment_statement | semantic_comment_statement;
-
-module_statement : MODULE identifier OF statement;
+statement : call=procedure_call {hasAllArgsConcrete($call.ctx)}?  # ProcedureCallStmt
+          | declaration # DeclarationStmt
+//          | comment_statement
+          | DO block # DoBlockStmt;
+block : OPEN_BRACE statement* CLOSE_BRACE;
+//comment_statement : syntactic_comment_statement | semantic_comment_statement;
 
 // expressions
 
@@ -165,41 +210,38 @@ literal : boolean_literal
         | string_literal
         | collection_literal;
 
-get_phrase : get_identifier_list statement;
-get_identifier_list : GET identifier (COMMA identifier) FROM;
+get_expr : GET param_list=parameter_list FROM block;
 
-expression : procedure_call
-           | literal
-           | path
-           | get_phrase
-           | anon_procedure_decl
-           | module_expression
-           | comment_expression expression
-           | expression comment_expression
-           | OPEN_PAREN expression CLOSE_PAREN;
-comment_expression : syntactic_comment_expression | semantic_comment_expression;
-
-module_expression : MODULE identifier OF expression;
+expression : call=procedure_call # ProcedureCallExpr
+           | literal # LiteralExpr
+           | name=path # UseValueExpr
+           | get_expr # GetExpr
+           | anon_procedure_decl # AnonProcExpr
+           | DO block # DoBlockExpr
+//           | comment_expression expression # CommentBeforeExpr
+//           | expression comment_expression # CommentAfterExpr
+           | OPEN_PAREN inner_expr=expression CLOSE_PAREN # ParenExpr;
+//comment_expression : syntactic_comment_expression | semantic_comment_expression;
 
 // comments
 
-SEMANTIC_COMMENT_START : HASH_SYM (IDENT_CONT | NUMERIC_SUBSEQUENCE | HASH_SYM)* OPEN_BRACE;
-SEMANTIC_COMMENT_END : CLOSE_BRACE (IDENT_CONT | NUMERIC_SUBSEQUENCE | HASH_SYM)* HASH_SYM;
-semantic_comment_start : SEMANTIC_COMMENT_START {true}? {
-};
-semantic_comment_end : SEMANTIC_COMMENT_END {true}? {
-};
-semantic_comment_statement : semantic_comment_start statement semantic_comment_end;
-semantic_comment_expression : semantic_comment_start expression semantic_comment_end;
-
-SYNTACTIC_COMMENT_START : HASH_SYM (IDENT_CONT | NUMERIC_SUBSEQUENCE | HASH_SYM)* OPEN_BRACK;
-SYNTACTIC_COMMENT_END : CLOSE_BRACK (IDENT_CONT | NUMERIC_SUBSEQUENCE | HASH_SYM)* HASH_SYM;
-syntactic_comment_start : SYNTACTIC_COMMENT_START {true}? {
-};
-syntactic_comment_end : SYNTACTIC_COMMENT_END {true}? {
-};
-syntactic_comment_statement : syntactic_comment_start statement syntactic_comment_end;
-syntactic_comment_expression : syntactic_comment_start expression syntactic_comment_end;
+//SEMANTIC_COMMENT_START : HASH_SYM (IDENT_CONT | NUMERIC_SUBSEQUENCE | HASH_SYM)* OPEN_BRACE;
+//SEMANTIC_COMMENT_END : CLOSE_BRACE (IDENT_CONT | NUMERIC_SUBSEQUENCE | HASH_SYM)* HASH_SYM;
+//semantic_comment_start : SEMANTIC_COMMENT_START {true}? {
+//};
+//semantic_comment_end : SEMANTIC_COMMENT_END {true}? {
+//};
+//semantic_comment_statement : semantic_comment_start statement semantic_comment_end;
+//semantic_comment_expression : semantic_comment_start expression semantic_comment_end;
+//
+//SYNTACTIC_COMMENT_START : HASH_SYM (IDENT_CONT | NUMERIC_SUBSEQUENCE | HASH_SYM)* OPEN_BRACK;
+//SYNTACTIC_COMMENT_END : CLOSE_BRACK (IDENT_CONT | NUMERIC_SUBSEQUENCE | HASH_SYM)* HASH_SYM;
+//syntactic_comment_start : SYNTACTIC_COMMENT_START {true}? {
+//};
+//syntactic_comment_end : SYNTACTIC_COMMENT_END {true}? {
+//};
+//syntactic_comment_statement : syntactic_comment_start statement syntactic_comment_end;
+//syntactic_comment_expression : syntactic_comment_start expression syntactic_comment_end;
 
 
 LEXICAL_COMMENT_START : HASH_SYM (IDENT_CONT | NUMERIC_SUBSEQUENCE | HASH_SYM)* OPEN_PAREN {

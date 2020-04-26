@@ -1,5 +1,6 @@
 import org.jetbrains.dokka.gradle.DokkaTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.net.URL
 
 plugins {
     `java-library`
@@ -48,14 +49,15 @@ dependencies {
     testImplementation(kotlin("test-junit5"))
 
     testImplementation("org.junit.jupiter", "junit-jupiter-api")
+    testImplementation("org.junit.jupiter", "junit-jupiter-params")
     testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine")
     testRuntimeOnly("org.junit.vintage", "junit-vintage-engine")
 
     antlr("org.antlr", "antlr4", "4.8-1")
-    runtimeOnly("org.antlr", "antlr4-runtime", "4.8-1")
+    implementation("org.antlr", "antlr4-runtime", "4.8-1")
 
     api("org.graalvm.truffle", "truffle-api", graalVMVersion)
-    implementation("org.graalvm.truffle", "truffle-nfi", graalVMVersion)
+    runtimeOnly("org.graalvm.truffle", "truffle-nfi", graalVMVersion)
     implementation("org.graalvm.sdk", "graal-sdk", graalVMVersion)
     implementation("org.graalvm.sdk", "launcher-common", graalVMVersion)
     kapt("org.graalvm.truffle", "truffle-dsl-processor", graalVMVersion)
@@ -82,6 +84,8 @@ java {
 //    target {
 //    }
 //}
+
+kraal {}
 
 kapt {
     correctErrorTypes = true
@@ -116,6 +120,9 @@ tasks {
             apiVersion = "1.4"
             languageVersion = "1.4"
             jdkHome = jdkHomePath
+            (project.findProperty("warningsAsErrors") as? String)?.toBoolean()?.let {
+                allWarningsAsErrors = it
+            }
             freeCompilerArgs += sequenceOf(
                 "-progressive",
                 "-Xopt-in=kotlin.RequiresOptIn",
@@ -127,28 +134,81 @@ tasks {
                 "-Xread-deserialized-contracts",
                 "-Xassertions=jvm",
                 "-Xstrict-java-nullability-assertions",
-                "-Xgenerate-strict-metadata-version"
+                "-Xgenerate-strict-metadata-version",
+                "-Xemit-jvm-type-annotations"
 //                "-Xmodule-path=$javaClasspath"
             )
         }
     }
 
     withType<DokkaTask>().configureEach {
-        outputFormat = "html"
-        outputDirectory = "$buildDir/dokka"
+        dependsOn(compileJava, javadoc)
+
+        outputFormat = "gfm"
+        outputDirectory = "$buildDir/docs/dokka"
 
         configuration {
+            //reportUndocumented = true
             jdkVersion = 8
+            platform = "JVM"
+
+            // remember to keep up to date
+            externalDocumentationLink { url = URL("https://javadoc.io/static/org.antlr/antlr4/4.8-1/") }
+            externalDocumentationLink { url = URL("https://javadoc.io/static/org.antlr/antlr4-runtime/4.8-1/") }
+            externalDocumentationLink { url = URL("https://javadoc.io/static/org.graalvm.truffle/truffle-api/$graalVMVersion/") }
+            externalDocumentationLink { url = URL("https://javadoc.io/static/org.graalvm.truffle/truffle-nfi/$graalVMVersion/") }
+            externalDocumentationLink { url = URL("https://javadoc.io/static/org.graalvm.sdk/graal-sdk/$graalVMVersion/") }
+            externalDocumentationLink { url = URL("https://javadoc.io/static/org.graalvm.sdk/launcher-common/$graalVMVersion/") }
+            externalDocumentationLink { url = URL("https://javadoc.io/static/org.graalvm.compiler/compiler/$graalVMVersion/") }
+            externalDocumentationLink { url = URL("https://javadoc.io/static/org.graalvm.truffle/truffle-tck/$graalVMVersion/") }
+            externalDocumentationLink { url = URL("https://javadoc.io/static/org.graalvm.sdk/polyglot-tck/$graalVMVersion/") }
+            externalDocumentationLink { url = URL("https://javadoc.io/static/org.graalvm.truffle/truffle-dsl-processor/$graalVMVersion/") }
+            externalDocumentationLink { url = URL("https://javadoc.io/static/org.junit.jupiter/junit-jupiter-api/5.6.2/") }
+            externalDocumentationLink { url = URL("https://javadoc.io/static/org.junit.jupiter/junit-jupiter-params/5.6.2/") }
+            externalDocumentationLink { url = URL("https://javadoc.io/static/com.ibm.icu/icu4j/67.1/") }
         }
+    }
+    val javadocJar by getting(Jar::class) {
+        dependsOn(dokka)
     }
 
     withType<Test>().configureEach {
         useJUnitPlatform()
     }
-}
 
-//kraal {
-//}
+    jar.configure {
+        manifest {
+            attributes(
+                "Main-Class" to "com.pthariensflame.sylvia.shell.SylviaShellMainKt",
+                "Automatic-Module-Name" to "com.pthariensflame.sylvia"
+            )
+        }
+    }
+    val fatJar by creating(Jar::class) {
+        dependsOn(jar)
+
+        from(kraal.get().outputZipTree) {
+            exclude("META-INF/*.SF")
+            exclude("META-INF/*.DSA")
+            exclude("META-INF/*.RSA")
+        }
+
+        manifest {
+            attributes(
+                "Main-Class" to "com.pthariensflame.sylvia.shell.SylviaShellMainKt",
+                "Automatic-Module-Name" to "com.pthariensflame.sylvia"
+            )
+        }
+
+        destinationDirectory.set(project.buildDir.resolve("fatjar"))
+        archiveFileName.set("sylvia-full-${archiveVersion.get()}.jar")
+    }
+
+    named("assemble").configure { dependsOn(fatJar) }
+
+    withType<PublishToMavenLocal>().configureEach { dependsOn(assemble) }
+    withType<PublishToMavenRepository>().configureEach { dependsOn(assemble) }
+}
 
 idea {
     project {
