@@ -40,7 +40,7 @@ grammar Sylvia;
 
     @Contract(pure = true)
     private static boolean hasAllArgsConcrete(@NotNull Procedure_callContext ctx) {
-        for (ArgumentContext arg : ctx.arg_list.args) {
+        for (ArgumentContext arg : ctx.argList.args) {
             if (arg instanceof MissingArgContext) return false;
         }
         return true;
@@ -137,56 +137,56 @@ STRAIGHT_BACKTICK_STRING : '`' STRAIGHT_BACKTICK_STRING_INNER* '`';
 fragment STRAIGHT_BACKTICK_STRING_INNER : ~[`\\] | '\\' [`\\];
 straight_backtick_string : STRAIGHT_BACKTICK_STRING;
 
-SMART_DOUBLE_STRING : '“' SMART_DOUBLE_STRING_INNER* '”';
-fragment SMART_DOUBLE_STRING_INNER : ~[“”\\] | '\\' [“”\\] | SMART_STRING_ANY;
+SMART_DOUBLE_STRING : '“' SMART_STRING_INNER* '”';
 smart_double_string : SMART_DOUBLE_STRING;
 
-SMART_SINGLE_STRING : '‘' SMART_SINGLE_STRING_INNER* '’';
-fragment SMART_SINGLE_STRING_INNER : ~[‘’\\] | '\\' [‘’\\] | SMART_STRING_ANY;
+SMART_SINGLE_STRING : '‘' SMART_STRING_INNER* '’';
 smart_single_string : SMART_SINGLE_STRING;
 
-SMART_CHEVRON_STRING : '«' SMART_CHEVRON_STRING_INNER* '»';
-fragment SMART_CHEVRON_STRING_INNER : ~[«»\\] | '\\' [«»\\] | SMART_STRING_ANY;
+SMART_CHEVRON_STRING : '«' SMART_STRING_INNER* '»';
 smart_chevron_string : SMART_CHEVRON_STRING;
 
 fragment SMART_STRING_ANY : SMART_DOUBLE_STRING
                           | SMART_SINGLE_STRING
                           | SMART_CHEVRON_STRING;
-string_literal : straight_double_string
-               | straight_single_string
-               | straight_backtick_string
-               | smart_double_string
-               | smart_single_string
-               | smart_chevron_string;
+fragment SMART_STRING_INNER : ~[“”‘’«»\\] | '\\' [“”‘’«»\\] | SMART_STRING_ANY;
+
+string_literal : contentStD=straight_double_string
+               | contentStS=straight_single_string
+               | contentStB=straight_backtick_string
+               | contentSmD=smart_double_string
+               | contentSmS=smart_single_string
+               | contentSmC=smart_chevron_string;
 
 // procedure declarations
 
-procedure_decl : PROC name=identifier param_list=parameter_list;
-anon_procedure_decl : PROC param_list=parameter_list;
+procedure_decl : head=procedure_decl_head body=block;
+procedure_decl_head : PROC name=identifier paramList=parameter_list;
+anon_procedure_decl : PROC paramList=parameter_list;
 parameter_list : OPEN_PAREN (params+=parameter (COMMA params+=parameter)*)? CLOSE_PAREN;
 parameter : parts=name_declarator # FullParam
           | name=identifier # SimpleParam;
 
 // procedure calls
 
-procedure_call : name=path arg_list=argument_list;
+procedure_call : name=path argList=argument_list;
 argument_list : OPEN_PAREN (args+=argument (COMMA args+=argument)*)? CLOSE_PAREN;
 argument : expr=expression # ExprArg
-         | missing_arg # MissingArg;
+         | missing=missing_arg # MissingArg;
 missing_arg : UNDERSCORE;
 
 // collections
 
-collection_literal : OPEN_BRACK arg_list=argument_list CLOSE_BRACK # SingleBrackCollLit
-                   | OPEN_DOUBLE_BRACK arg_list=argument_list CLOSE_DOUBLE_BRACK # DoubleBrackCollLit;
+collection_literal : OPEN_BRACK argList=argument_list CLOSE_BRACK # SingleBrackCollLit
+                   | OPEN_DOUBLE_BRACK argList=argument_list CLOSE_DOUBLE_BRACK # DoubleBrackCollLit;
 
 // declarations
 
-bind_decl : BIND param_list=parameter_list FROM block;
+bind_decl : BIND paramList=parameter_list FROM body=block;
 
-module_decl : MODULE name=identifier OF decl_block;
+module_decl : MODULE name=identifier OF body=decl_block;
 
-decl_block : OPEN_BRACE declaration* CLOSE_BRACE;
+decl_block : OPEN_BRACE decls+=declaration* CLOSE_BRACE;
 
 declaration : bind_decl
             | module_decl
@@ -197,30 +197,30 @@ documented_decl : DOC documentation=string_literal declaration;
 // statements
 
 statement : call=procedure_call {hasAllArgsConcrete($call.ctx)}?  # ProcedureCallStmt
-          | declaration # DeclarationStmt
+          | decl=declaration # DeclarationStmt
 //          | comment_statement
-          | DO block # DoBlockStmt;
-block : OPEN_BRACE statement* CLOSE_BRACE;
+          | DO body=block # DoBlockStmt;
+block : OPEN_BRACE stmts+=statement* CLOSE_BRACE;
 //comment_statement : syntactic_comment_statement | semantic_comment_statement;
 
 // expressions
 
-literal : boolean_literal
-        | numeric_literal
-        | string_literal
-        | collection_literal;
+literal : contentB=boolean_literal
+        | contentN=numeric_literal
+        | contentS=string_literal
+        | contentC=collection_literal;
 
-get_expr : GET param_list=parameter_list FROM block;
+get_expr : GET paramList=parameter_list FROM block;
 
 expression : call=procedure_call # ProcedureCallExpr
-           | literal # LiteralExpr
+           | lit=literal # LiteralExpr
            | name=path # UseValueExpr
-           | get_expr # GetExpr
+           | getExpr=get_expr # GetExpr
            | anon_procedure_decl # AnonProcExpr
-           | DO block # DoBlockExpr
+           | DO body=block # DoBlockExpr
 //           | comment_expression expression # CommentBeforeExpr
 //           | expression comment_expression # CommentAfterExpr
-           | OPEN_PAREN inner_expr=expression CLOSE_PAREN # ParenExpr;
+           | OPEN_PAREN innerExpr=expression CLOSE_PAREN # ParenExpr;
 //comment_expression : syntactic_comment_expression | semantic_comment_expression;
 
 // comments

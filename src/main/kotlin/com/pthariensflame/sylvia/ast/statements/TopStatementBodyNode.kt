@@ -7,19 +7,14 @@ import com.oracle.truffle.api.dsl.Introspectable
 import com.oracle.truffle.api.frame.VirtualFrame
 import com.oracle.truffle.api.instrumentation.*
 import com.oracle.truffle.api.nodes.Node
-import com.oracle.truffle.api.nodes.NodeCost
 import com.oracle.truffle.api.nodes.NodeInfo
 import com.oracle.truffle.api.source.Source
 import com.oracle.truffle.api.source.SourceSection
-import com.pthariensflame.sylvia.ast.expressions.ImpossibleExpressionNode
-import com.pthariensflame.sylvia.parser.SourceSpan
-import com.pthariensflame.sylvia.values.SylviaVal
 
 
 @NodeInfo(
-    shortName = "⊤-expr-body",
-    description = "A top-level expression's “body”",
-    cost = NodeCost.NONE
+    shortName = "⊤-stmt-body",
+    description = "A top-level statement's “body”",
 )
 @GenerateNodeFactory
 @GenerateWrapper

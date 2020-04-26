@@ -9,29 +9,33 @@ import com.oracle.truffle.api.frame.FrameDescriptor
 import com.oracle.truffle.api.frame.VirtualFrame
 import com.oracle.truffle.api.instrumentation.*
 import com.oracle.truffle.api.nodes.Node
+import com.oracle.truffle.api.nodes.NodeCost
 import com.oracle.truffle.api.nodes.NodeInfo
 import com.oracle.truffle.api.nodes.RootNode
 import com.oracle.truffle.api.source.Source
 import com.oracle.truffle.api.source.SourceSection
 import com.pthariensflame.sylvia.SylviaLanguage
 import com.pthariensflame.sylvia.SylviaTruffleTypeSystem
-import com.pthariensflame.sylvia.ast.expressions.TopExpressionBodyNode
+import com.pthariensflame.sylvia.ast.statements.TopStatementBodyNode
 import com.pthariensflame.sylvia.parser.SourceSpan
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
 
 @NodeInfo(
-    shortName = "⊤-expr",
-    description = "A top-level expression"
+    shortName = "⊤-stmt",
+    description = "A top-level statment",
+    cost = NodeCost.NONE
 )
 @GenerateNodeFactory
 @GenerateWrapper
 @GenerateUncached(inherit = true)
 @Introspectable
 @TypeSystemReference(SylviaTruffleTypeSystem::class)
-open class TopExpressionNode
+open class TopStatementNode
 @JvmOverloads constructor(
     langInstance: SylviaLanguage? = null,
     frameDescriptor: FrameDescriptor? = null,
-    @Node.Child @JvmField var bodyNode: TopExpressionBodyNode = TopExpressionBodyNode(),
+    @Node.Child @JvmField var bodyNode: TopStatementBodyNode = TopStatementBodyNode(),
 ) : RootNode(langInstance, frameDescriptor), SylviaNode, InstrumentableNode {
     val srcSpan: SourceSpan?
         inline get() = bodyNode.srcSpan
@@ -39,9 +43,12 @@ open class TopExpressionNode
     override fun isInstrumentable(): Boolean = true
 
     override fun createWrapper(probe: ProbeNode): InstrumentableNode.WrapperNode =
-        TopExpressionNodeWrapper(this, probe)
+        TopStatementNodeWrapper(this, probe)
 
-    override fun execute(frame: VirtualFrame): Any? = bodyNode.executeVal(frame)
+    override fun execute(frame: VirtualFrame): Any? {
+        bodyNode.executeVoid(frame)
+        return null
+    }
 
     override fun hasTag(tag: Class<out Tag>): Boolean =
         tag.kotlin == StandardTags.RootTag::class || super.hasTag(tag)

@@ -19,6 +19,8 @@ import kotlin.contracts.ExperimentalContracts
     BigFloatVal::class,
     String::class,
     StringVal::class,
+    SylviaExceptionVal::class,
+    SylviaException::class,
     SylviaVal::class,
 )
 @OptIn(ExperimentalContracts::class)
@@ -132,6 +134,14 @@ open class SylviaTruffleTypeSystem internal constructor() {
         @ImplicitCast
         @JvmStatic
         fun stringValToString(v: StringVal): String = v.value
+
+        @ImplicitCast
+        @JvmStatic
+        fun exceptionToSylvExVal(v: SylviaException): SylviaExceptionVal = SylviaExceptionVal(v)
+
+        @ImplicitCast
+        @JvmStatic
+        fun sylvExValToException(v: SylviaExceptionVal): SylviaException = v.inner
     }
 }
 
