@@ -19,6 +19,7 @@ grammar Sylvia;
     private static boolean checkNotKeyword(@Nullable String idn) {
         return !(null == idn
             || idn.equals("proc")
+            || idn.equals("Proc")
             || idn.equals("get")
             || idn.equals("from")
             || idn.equals("nature")
@@ -40,7 +41,7 @@ grammar Sylvia;
 
     @Contract(pure = true)
     private static boolean hasAllArgsConcrete(@NotNull Procedure_callContext ctx) {
-        for (ArgumentContext arg : ctx.argList.args) {
+        for (ArgumentContext arg : ctx.argList.elemList.args) {
             if (arg instanceof MissingArgContext) return false;
         }
         return true;
@@ -50,6 +51,7 @@ grammar Sylvia;
 // Keywords and symbols
 
 PROC : 'proc';
+PROC_TYPE : 'Proc';
 GET : 'get';
 FROM : 'from';
 NATURE : 'nature';
@@ -67,23 +69,26 @@ DO : 'do';
 BIND : 'bind';
 OPEN_PAREN : '(';
 CLOSE_PAREN : ')';
+OPEN_DOUBLE_PAREN : '⦅' | '(|';
+CLOSE_DOUBLE_PAREN : '⦆' | '|)';
 COLON : ':';
 AT_SYM : '@';
 OPEN_BRACE : '{';
 CLOSE_BRACE : '}';
 OPEN_BRACK : '[';
 CLOSE_BRACK : ']';
-OPEN_DOUBLE_BRACK : '⟦';
-CLOSE_DOUBLE_BRACK : '⟧';
+OPEN_DOUBLE_BRACK : '⟦' | '[|';
+CLOSE_DOUBLE_BRACK : '⟧' | '|]';
 COMMA : ',';
-//SEMICOLON : ';';
+SEMICOLON : ';';
 UNDERSCORE : '_';
 DOT : '.';
 HASH_SYM : '#';
-//ARROW_TO : '->' | '→';
-//ARROW_FROM : '<-' | '←';
+ARROW_TO : '->' | '→';
+ARROW_FROM : '<-' | '←';
 
 keyword : PROC
+        | PROC_TYPE
         | GET
         | FROM
         | NATURE
@@ -101,6 +106,11 @@ keyword : PROC
         | BIND
         | UNDERSCORE
         | AT_SYM;
+
+separator_symbol : COMMA
+                 | SEMICOLON
+                 | ARROW_FROM
+                 | ARROW_TO;
 
 // identifiers
 
@@ -151,34 +161,46 @@ fragment SMART_STRING_ANY : SMART_DOUBLE_STRING
                           | SMART_CHEVRON_STRING;
 fragment SMART_STRING_INNER : ~[“”‘’«»\\] | '\\' [“”‘’«»\\] | SMART_STRING_ANY;
 
-string_literal : contentStD=straight_double_string
-               | contentStS=straight_single_string
-               | contentStB=straight_backtick_string
-               | contentSmD=smart_double_string
-               | contentSmS=smart_single_string
-               | contentSmC=smart_chevron_string;
+string_literal : contentStD=straight_double_string # StraightDoubleStringLiteral
+               | contentStS=straight_single_string # StraightSingleStringLiteral
+               | contentStB=straight_backtick_string # StraightBacktickStringLiteral
+               | contentSmD=smart_double_string # SmartDoubleStringLiteral
+               | contentSmS=smart_single_string # SmartSingleStringLiteral
+               | contentSmC=smart_chevron_string # SmartChevronStringLiteral;
 
 // procedure declarations
 
 procedure_decl : head=procedure_decl_head body=block;
-procedure_decl_head : PROC name=identifier paramList=parameter_list;
-anon_procedure_decl : PROC paramList=parameter_list;
-parameter_list : OPEN_PAREN (params+=parameter (COMMA params+=parameter)*)? CLOSE_PAREN;
+procedure_decl_head : PROC name=identifier paramList=single_or_brack_param;
+anon_procedure_decl : head=anon_procedure_decl_head body=block;
+anon_procedure_decl_head : PROC paramList=single_or_brack_param;
+parameter_list : (params+=parameter (seps+=separator_symbol params+=parameter)*)?;
 parameter : parts=name_declarator # FullParam
-          | name=identifier # SimpleParam;
-
-// procedure calls
-
-procedure_call : name=path argList=argument_list;
-argument_list : OPEN_PAREN (args+=argument (COMMA args+=argument)*)? CLOSE_PAREN;
-argument : expr=expression # ExprArg
-         | missing=missing_arg # MissingArg;
-missing_arg : UNDERSCORE;
+          | name=identifier # SimpleParam
+          | brack_param # BrackParam
+          | paren_param # ParenParam;
+brack_param : OPEN_BRACK parameter_list CLOSE_BRACK # SingleBrackParam
+            | OPEN_DOUBLE_BRACK parameter_list CLOSE_DOUBLE_BRACK # DoubleBrackParam;
+paren_param : OPEN_PAREN inner=parameter CLOSE_PAREN;
+single_or_brack_param : brack_param | paren_param;
 
 // collections
 
-collection_literal : OPEN_BRACK argList=argument_list CLOSE_BRACK # SingleBrackCollLit
-                   | OPEN_DOUBLE_BRACK argList=argument_list CLOSE_DOUBLE_BRACK # DoubleBrackCollLit;
+collection_literal returns [@NotNull Argument_listContext elemList]
+    : OPEN_BRACK elemListS=argument_list CLOSE_BRACK { $ctx.elemList=$elemListS.ctx; } # SingleBrackCollLit
+    | OPEN_DOUBLE_BRACK elemListD=argument_list CLOSE_DOUBLE_BRACK { $ctx.elemList=$elemListD.ctx; }# DoubleBrackCollLit;
+argument_list returns [boolean hasMissings = false]
+    : (args+=argument (seps+=separator_symbol args+=argument)*)? {
+    };
+argument returns [boolean hasMissings]
+    : expr=expression { $ctx.hasMissings = false; } # ExprArg
+    | missing=missing_arg { $ctx.hasMissings = true; } # MissingArg
+    | sublist=collection_literal { $ctx.hasMissings = $sublist.elemList.hasMissings; } #SublistArg;
+missing_arg : UNDERSCORE;
+
+// procedure calls
+
+procedure_call : name=path argList=collection_literal;
 
 // declarations
 
@@ -188,11 +210,11 @@ module_decl : MODULE name=identifier OF body=decl_block;
 
 decl_block : OPEN_BRACE decls+=declaration* CLOSE_BRACE;
 
-declaration : bind_decl
-            | module_decl
-            | procedure_decl
-            | documented_decl;
-documented_decl : DOC documentation=string_literal declaration;
+declaration : bind_decl # BindDecl
+            | module_decl # ModuleDecl
+            | procedure_decl # ProcedureDecl
+            | documented_decl # DocumentedDecl;
+documented_decl : DOC documentation=string_literal inner=declaration;
 
 // statements
 
@@ -207,8 +229,7 @@ block : OPEN_BRACE stmts+=statement* CLOSE_BRACE;
 
 literal : contentB=boolean_literal
         | contentN=numeric_literal
-        | contentS=string_literal
-        | contentC=collection_literal;
+        | contentS=string_literal;
 
 get_expr : GET paramList=parameter_list FROM block;
 
