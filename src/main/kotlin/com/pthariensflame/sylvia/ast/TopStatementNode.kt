@@ -36,7 +36,7 @@ open class TopStatementNode
     langInstance: SylviaLanguage? = null,
     frameDescriptor: FrameDescriptor? = null,
     @Node.Child @JvmField var bodyNode: TopStatementBodyNode = TopStatementBodyNode(),
-) : SylviaTopNode(langInstance, frameDescriptor), InstrumentableNode {
+) : SylviaTopNode(langInstance, frameDescriptor) {
     val srcSpan: SourceSpan?
         inline get() = bodyNode.srcSpan
 

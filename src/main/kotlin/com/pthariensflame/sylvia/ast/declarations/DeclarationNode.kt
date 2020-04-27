@@ -16,8 +16,8 @@ import com.pthariensflame.sylvia.parser.SourceSpan
 import com.pthariensflame.sylvia.parser.createSection
 
 @NodeInfo(
-    shortName = "stmt",
-    description = "A statement"
+    shortName = "decl",
+    description = "A declaration"
 )
 @GenerateNodeFactory
 @GenerateWrapper
@@ -26,7 +26,7 @@ import com.pthariensflame.sylvia.parser.createSection
 abstract class DeclarationNode
 @JvmOverloads constructor(
     srcSpan: SourceSpan? = null,
-) : StatementNode(srcSpan), SylviaNode, InstrumentableNode {
+) : StatementNode(srcSpan), SylviaNode {
     abstract override fun isInstrumentable(): Boolean
 
     override fun createWrapper(probe: ProbeNode): InstrumentableNode.WrapperNode =
@@ -37,14 +37,5 @@ abstract class DeclarationNode
     override fun hasTag(tag: Class<out Tag>): Boolean =
         tag.kotlin == StandardTags.StatementTag::class || super.hasTag(tag)
 
-    @GenerateWrapper.OutgoingConverter
-    protected fun outConvDecl(@Suppress("UNUSED_PARAMETER") v: Any?): Any? = null
-
-    @TruffleBoundary
-    override fun getSourceSection(): SourceSection {
-        val src: Source = encapsulatingSourceSection.source
-        return srcSpan?.run {
-            src.createSection(this)
-        } ?: src.createUnavailableSection()
-    }
+    // outConv and getSourceSection handled in StatementNode
 }

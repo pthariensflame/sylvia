@@ -4,9 +4,12 @@ import com.oracle.truffle.api.dsl.GenerateNodeFactory
 import com.oracle.truffle.api.dsl.GenerateUncached
 import com.oracle.truffle.api.frame.FrameDescriptor
 import com.oracle.truffle.api.instrumentation.GenerateWrapper
+import com.oracle.truffle.api.instrumentation.InstrumentableNode
+import com.oracle.truffle.api.instrumentation.ProbeNode
 import com.oracle.truffle.api.nodes.NodeInfo
 import com.oracle.truffle.api.nodes.RootNode
 import com.pthariensflame.sylvia.SylviaLanguage
+import com.pthariensflame.sylvia.ast.declarations.DeclarationNodeWrapper
 
 @NodeInfo(
     shortName = "⊤-sylv",
@@ -19,4 +22,9 @@ abstract class SylviaTopNode
 @JvmOverloads internal constructor(
     langInstance: SylviaLanguage? = null,
     frameDescriptor: FrameDescriptor? = null,
-) : RootNode(langInstance, frameDescriptor), SylviaNode
+) : RootNode(langInstance, frameDescriptor), SylviaNode, InstrumentableNode {
+    override fun isInstrumentable(): Boolean = true
+
+    override fun createWrapper(probe: ProbeNode): InstrumentableNode.WrapperNode =
+        SylviaTopNodeWrapper(this, probe)
+}

@@ -37,7 +37,7 @@ abstract class StatementNode
         tag.kotlin == StandardTags.StatementTag::class || super.hasTag(tag)
 
     @GenerateWrapper.OutgoingConverter
-    protected fun outConvStmt(@Suppress("UNUSED_PARAMETER") v: Any?): Any? = null
+    protected fun outConv(@Suppress("UNUSED_PARAMETER") v: Any?): Any? = null
 
     @TruffleBoundary
     override fun getSourceSection(): SourceSection {

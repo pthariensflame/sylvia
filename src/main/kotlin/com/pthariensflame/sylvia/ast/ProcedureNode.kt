@@ -32,7 +32,7 @@ open class ProcedureNode
     frameDescriptor: FrameDescriptor? = null,
     @JvmField val srcSpan: SourceSpan? = null,
     @Node.Child @JvmField var bodyNode: ProcedureBodyNode = ProcedureBodyNode(),
-) : SylviaTopNode(langInstance, frameDescriptor), InstrumentableNode {
+) : SylviaTopNode(langInstance, frameDescriptor) {
     override fun isInstrumentable(): Boolean = super.isInstrumentable()
 
     override fun createWrapper(probe: ProbeNode): InstrumentableNode.WrapperNode =

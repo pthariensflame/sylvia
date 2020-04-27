@@ -32,7 +32,7 @@ open class TopExpressionNode
     langInstance: SylviaLanguage? = null,
     frameDescriptor: FrameDescriptor? = null,
     @Node.Child @JvmField var bodyNode: TopExpressionBodyNode = TopExpressionBodyNode(),
-) : SylviaTopNode(langInstance, frameDescriptor), InstrumentableNode {
+) : SylviaTopNode(langInstance, frameDescriptor) {
     val srcSpan: SourceSpan?
         inline get() = bodyNode.srcSpan
 

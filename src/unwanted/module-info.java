@@ -11,6 +11,7 @@ open module com.pthariensflame.sylvia {
     exports com.pthariensflame.sylvia.ast;
     exports com.pthariensflame.sylvia.ast.expressions;
     exports com.pthariensflame.sylvia.ast.statements;
+    exports com.pthariensflame.sylvia.ast.declarations;
     exports com.pthariensflame.sylvia.values;
     exports com.pthariensflame.sylvia.parser;
     exports com.pthariensflame.sylvia.parser.antlr;
