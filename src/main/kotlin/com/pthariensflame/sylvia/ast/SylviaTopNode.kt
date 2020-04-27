@@ -9,7 +9,6 @@ import com.oracle.truffle.api.instrumentation.ProbeNode
 import com.oracle.truffle.api.nodes.NodeInfo
 import com.oracle.truffle.api.nodes.RootNode
 import com.pthariensflame.sylvia.SylviaLanguage
-import com.pthariensflame.sylvia.ast.declarations.DeclarationNodeWrapper
 
 @NodeInfo(
     shortName = "⊤-sylv",
