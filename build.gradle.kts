@@ -35,12 +35,22 @@ dependencies {
         if (id.group.startsWith("org.junit")) {
             belongsTo("org.junit:junit-bom:${id.version}", false)
         }
+        if (id.group.startsWith("io.kotest")) {
+            belongsTo("io.kotest:kotest-virtual-platform:${id.version}", true)
+        }
     }
     api(enforcedPlatform("org.graalvm:graalvm-virtual-platform:$graalVMVersion"))
     testImplementation(platform("org.junit:junit-bom:5.6.+"))
+    testImplementation(enforcedPlatform("io.kotest:kotest-virtual-platform:4.0.+"))
     constraints {
-        testImplementation("junit", "junit", "4.+")
-        implementation("com.ibm.icu", "icu4j", "[67.1,)")
+        testImplementation("junit", "junit", "[4.13,)")
+        implementation("org.antlr", "antlr-runtime", "[3.5.2,)")
+        implementation("org.antlr", "ST4", "[4.3,)")
+        implementation("org.abego.treelayout", "org.abego.treelayout.core", "[1.0.3,)")
+        implementation("org.apiguardian", "apiguardian-api", "[1.1.0,)")
+        implementation("org.glassfish", "javax.json", "[1.1.4,)")
+        implementation("org.hamcrest", "hamcrest-core", "1.+")
+        implementation("org.opentest4j", "opentest4j", "[1.2.0,)")
     }
 
     api(kotlin("stdlib-jdk8"))
@@ -53,8 +63,15 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine")
     testRuntimeOnly("org.junit.vintage", "junit-vintage-engine")
 
+    testImplementation("io.kotest:kotest-runner-junit5-jvm")
+    testImplementation("io.kotest:kotest-assertions-core-jvm")
+    testApi("io.kotest:kotest-property-jvm")
+    testImplementation("io.kotest:kotest-assertions-compiler-jvm")
+
     antlr("org.antlr", "antlr4", "4.8-1")
     implementation("org.antlr", "antlr4-runtime", "4.8-1")
+
+    implementation("com.ibm.icu", "icu4j", "[67.1,)")
 
     api("org.graalvm.truffle", "truffle-api", graalVMVersion)
     runtimeOnly("org.graalvm.truffle", "truffle-nfi", graalVMVersion)
@@ -163,8 +180,8 @@ tasks {
             externalDocumentationLink { url = URL("https://javadoc.io/static/org.graalvm.truffle/truffle-tck/$graalVMVersion/") }
             externalDocumentationLink { url = URL("https://javadoc.io/static/org.graalvm.sdk/polyglot-tck/$graalVMVersion/") }
             externalDocumentationLink { url = URL("https://javadoc.io/static/org.graalvm.truffle/truffle-dsl-processor/$graalVMVersion/") }
-            externalDocumentationLink { url = URL("https://javadoc.io/static/org.junit.jupiter/junit-jupiter-api/5.6.2/") }
-            externalDocumentationLink { url = URL("https://javadoc.io/static/org.junit.jupiter/junit-jupiter-params/5.6.2/") }
+//            externalDocumentationLink { url = URL("https://javadoc.io/static/org.junit.jupiter/junit-jupiter-api/5.6.2/") }
+//            externalDocumentationLink { url = URL("https://javadoc.io/static/org.junit.jupiter/junit-jupiter-params/5.6.2/") }
             externalDocumentationLink { url = URL("https://javadoc.io/static/com.ibm.icu/icu4j/67.1/") }
         }
     }
