@@ -41,16 +41,10 @@ dependencies {
     }
     api(enforcedPlatform("org.graalvm:graalvm-virtual-platform:$graalVMVersion"))
     testImplementation(platform("org.junit:junit-bom:5.6.+"))
-    //testImplementation(enforcedPlatform("io.kotest:kotest-virtual-platform:4.0.+"))
+    testApi(enforcedPlatform("io.kotest:kotest-virtual-platform:4.0.5"))
     constraints {
         testImplementation("junit", "junit", "[4.13,)")
-        implementation("org.antlr", "antlr-runtime", "[3.5.2,)")
-        implementation("org.antlr", "ST4", "[4.3,)")
-        implementation("org.abego.treelayout", "org.abego.treelayout.core", "[1.0.3,)")
-        implementation("org.apiguardian", "apiguardian-api", "[1.1.0,)")
-        implementation("org.glassfish", "javax.json", "[1.1.4,)")
-        implementation("org.hamcrest", "hamcrest-core", "1.+")
-        implementation("org.opentest4j", "opentest4j", "[1.2.0,)")
+        //compileOnly("org.jetbrains", "annotations", "19.+")
     }
 
     api(kotlin("stdlib-jdk8"))
