@@ -41,7 +41,7 @@ dependencies {
     }
     api(enforcedPlatform("org.graalvm:graalvm-virtual-platform:$graalVMVersion"))
     testImplementation(platform("org.junit:junit-bom:5.6.+"))
-    testImplementation(enforcedPlatform("io.kotest:kotest-virtual-platform:4.0.+"))
+    //testImplementation(enforcedPlatform("io.kotest:kotest-virtual-platform:4.0.+"))
     constraints {
         testImplementation("junit", "junit", "[4.13,)")
         implementation("org.antlr", "antlr-runtime", "[3.5.2,)")
@@ -63,10 +63,10 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter", "junit-jupiter-engine")
     testRuntimeOnly("org.junit.vintage", "junit-vintage-engine")
 
-    testImplementation("io.kotest:kotest-runner-junit5-jvm")
-    testImplementation("io.kotest:kotest-assertions-core-jvm")
-    testApi("io.kotest:kotest-property-jvm")
-    testImplementation("io.kotest:kotest-assertions-compiler-jvm")
+    testImplementation("io.kotest:kotest-runner-junit5-jvm:4.0.5")
+    testImplementation("io.kotest:kotest-assertions-core-jvm:4.0.5")
+    testApi("io.kotest:kotest-property-jvm:4.0.5")
+    testImplementation("io.kotest:kotest-assertions-compiler-jvm:4.0.5")
 
     antlr("org.antlr", "antlr4", "4.8-1")
     implementation("org.antlr", "antlr4-runtime", "4.8-1")
