@@ -26,6 +26,9 @@ grammar Sylvia;
             || idn.equals("effect")
             || idn.equals("typeAlias")
             || idn.equals("newType")
+            || idn.equals("enum")
+            || idn.equals("record")
+            || idn.equals("cases")
             || idn.equals("module")
             || idn.equals("doc")
             || idn.equals("export")
@@ -33,8 +36,10 @@ grammar Sylvia;
             || idn.equals("true")
             || idn.equals("false")
             || idn.equals("of")
+            || idn.equals("over")
             || idn.equals("do")
             || idn.equals("bind")
+            || idn.equals("case")
             || idn.equals("_")
             || idn.equals("@"));
     }
@@ -58,6 +63,9 @@ NATURE : 'nature';
 EFFECT : 'effect';
 TYPEALIAS : 'typeAlias';
 NEWTYPE : 'newType';
+ENUM : 'enum';
+RECORD : 'record';
+CASES : 'cases';
 MODULE : 'module';
 DOC : 'doc';
 EXPORT : 'export';
@@ -65,8 +73,10 @@ IMPORT : 'import';
 TRUE : 'true';
 FALSE : 'false';
 OF : 'of';
+OVER : 'over';
 DO : 'do';
 BIND : 'bind';
+CASE : 'case';
 OPEN_PAREN : '(';
 CLOSE_PAREN : ')';
 OPEN_DOUBLE_PAREN : '⦅' | '(|';
@@ -95,6 +105,9 @@ keyword : PROC
         | EFFECT
         | TYPEALIAS
         | NEWTYPE
+        | ENUM
+        | RECORD
+        | CASES
         | MODULE
         | DOC
         | EXPORT
@@ -102,8 +115,10 @@ keyword : PROC
         | TRUE
         | FALSE
         | OF
+        | OVER
         | DO
         | BIND
+        | CASE
         | UNDERSCORE
         | AT_SYM;
 

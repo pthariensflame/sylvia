@@ -40,11 +40,11 @@ dependencies {
         }
     }
     api(enforcedPlatform("org.graalvm:graalvm-virtual-platform:$graalVMVersion"))
-    testImplementation(platform("org.junit:junit-bom:5.6.+"))
+    testImplementation(platform("org.junit:junit-bom:5.7.+"))
     testApi(enforcedPlatform("io.kotest:kotest-virtual-platform:4.0.5"))
     constraints {
         testImplementation("junit", "junit", "[4.13,)")
-        //compileOnly("org.jetbrains", "annotations", "19.+")
+        api("org.jetbrains", "annotations", "19.+")
     }
 
     api(kotlin("stdlib-jdk8"))
