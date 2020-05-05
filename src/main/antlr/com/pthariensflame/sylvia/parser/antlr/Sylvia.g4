@@ -11,7 +11,7 @@ grammar Sylvia;
 }
 
 @lexer::members {
-    @NotNull Deque<String> lexicalCommentMarks = new ArrayDeque<>();
+    @NotNull private Deque<String> lexicalCommentMarks = new ArrayDeque<>();
 }
 
 @parser::members {
