@@ -10,12 +10,12 @@ import com.oracle.truffle.api.frame.VirtualFrame
 import com.oracle.truffle.api.instrumentation.*
 import com.oracle.truffle.api.nodes.Node
 import com.oracle.truffle.api.nodes.NodeInfo
-import com.oracle.truffle.api.nodes.RootNode
 import com.oracle.truffle.api.source.Source
 import com.oracle.truffle.api.source.SourceSection
 import com.pthariensflame.sylvia.SylviaLanguage
 import com.pthariensflame.sylvia.SylviaTruffleTypeSystem
 import com.pthariensflame.sylvia.parser.SourceSpan
+import org.jetbrains.annotations.Contract
 
 @NodeInfo(
     shortName = "proc",
@@ -33,8 +33,7 @@ open class ProcedureNode
     @JvmField val srcSpan: SourceSpan? = null,
     @Node.Child @JvmField var bodyNode: ProcedureBodyNode = ProcedureBodyNode(),
 ) : SylviaTopNode(langInstance, frameDescriptor) {
-    override fun isInstrumentable(): Boolean = super.isInstrumentable()
-
+    @Contract("-> new")
     override fun createWrapper(probe: ProbeNode): InstrumentableNode.WrapperNode =
         ProcedureNodeWrapper(this, probe)
 
@@ -52,8 +51,6 @@ open class ProcedureNode
     @TruffleBoundary
     override fun getSourceSection(): SourceSection {
         val src: Source = encapsulatingSourceSection.source
-        return srcSpan?.run {
-            src.createSection(start, len)
-        } ?: src.createUnavailableSection()
+        return srcSpan?.asSectionOf(src) ?: src.createUnavailableSection()
     }
 }

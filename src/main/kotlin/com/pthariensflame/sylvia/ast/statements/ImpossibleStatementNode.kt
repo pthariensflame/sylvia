@@ -7,8 +7,6 @@ import com.oracle.truffle.api.dsl.Introspectable
 import com.oracle.truffle.api.frame.VirtualFrame
 import com.oracle.truffle.api.nodes.NodeCost
 import com.oracle.truffle.api.nodes.NodeInfo
-import com.pthariensflame.sylvia.ast.expressions.ExpressionNode
-import com.pthariensflame.sylvia.values.SylviaVal
 
 @NodeInfo(
     shortName = "⊥-stmt",

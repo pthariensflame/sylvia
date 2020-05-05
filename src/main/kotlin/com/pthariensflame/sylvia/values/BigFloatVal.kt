@@ -6,6 +6,7 @@ import com.oracle.truffle.api.interop.InteropLibrary
 import com.oracle.truffle.api.interop.UnsupportedMessageException
 import com.oracle.truffle.api.library.ExportLibrary
 import com.oracle.truffle.api.library.ExportMessage
+import org.jetbrains.annotations.Contract
 import java.math.BigDecimal
 import java.math.MathContext
 import java.math.RoundingMode
@@ -25,6 +26,7 @@ data class BigFloatVal protected constructor(@JvmField val value: BigDecimal) : 
     }
 
     @ExportMessage
+    @Contract("-> true", pure = true)
     fun isNumber(): Boolean {
         contract {
             returns(true)
@@ -33,6 +35,7 @@ data class BigFloatVal protected constructor(@JvmField val value: BigDecimal) : 
     }
 
     @ExportMessage
+    @Contract(pure = true)
     fun fitsInByte(): Boolean {
         return try {
             value.byteValueExact() // return ignored
@@ -43,6 +46,7 @@ data class BigFloatVal protected constructor(@JvmField val value: BigDecimal) : 
     }
 
     @ExportMessage
+    @Contract(pure = true)
     fun fitsInShort(): Boolean {
         return try {
             value.shortValueExact() // return ignored
@@ -53,6 +57,7 @@ data class BigFloatVal protected constructor(@JvmField val value: BigDecimal) : 
     }
 
     @ExportMessage
+    @Contract(pure = true)
     fun fitsInInt(): Boolean {
         return try {
             value.intValueExact() // return ignored
@@ -63,6 +68,7 @@ data class BigFloatVal protected constructor(@JvmField val value: BigDecimal) : 
     }
 
     @ExportMessage
+    @Contract(pure = true)
     fun fitsInLong(): Boolean {
         return try {
             value.longValueExact() // return ignored
@@ -73,12 +79,14 @@ data class BigFloatVal protected constructor(@JvmField val value: BigDecimal) : 
     }
 
     @ExportMessage
+    @Contract(pure = true)
     fun fitsInFloat(): Boolean {
         val v = value.toFloat()
         return v.toBigDecimal(MathContext.UNLIMITED) == value
     }
 
     @ExportMessage
+    @Contract(pure = true)
     fun fitsInDouble(): Boolean {
         val v = value.toDouble()
         return v.toBigDecimal(MathContext.UNLIMITED) == value
@@ -86,6 +94,7 @@ data class BigFloatVal protected constructor(@JvmField val value: BigDecimal) : 
 
     @ExportMessage
     @Throws(UnsupportedMessageException::class)
+    @Contract(pure = true)
     fun asByte(): Byte {
         try {
             return value.byteValueExact()
@@ -97,6 +106,7 @@ data class BigFloatVal protected constructor(@JvmField val value: BigDecimal) : 
 
     @ExportMessage
     @Throws(UnsupportedMessageException::class)
+    @Contract(pure = true)
     fun asShort(): Short {
         try {
             return value.shortValueExact()
@@ -118,6 +128,7 @@ data class BigFloatVal protected constructor(@JvmField val value: BigDecimal) : 
 
     @ExportMessage
     @Throws(UnsupportedMessageException::class)
+    @Contract(pure = true)
     fun asLong(): Long {
         try {
             return value.longValueExact()
@@ -129,6 +140,7 @@ data class BigFloatVal protected constructor(@JvmField val value: BigDecimal) : 
 
     @ExportMessage
     @Throws(UnsupportedMessageException::class)
+    @Contract(pure = true)
     fun asFloat(): Float {
         val v = value.toFloat()
         if (v.toBigDecimal(MathContext.UNLIMITED) == value) {
@@ -141,6 +153,7 @@ data class BigFloatVal protected constructor(@JvmField val value: BigDecimal) : 
 
     @ExportMessage
     @Throws(UnsupportedMessageException::class)
+    @Contract(pure = true)
     fun asDouble(): Double {
         val v = value.toDouble()
         if (v.toBigDecimal(MathContext.UNLIMITED) == value) {
@@ -151,6 +164,9 @@ data class BigFloatVal protected constructor(@JvmField val value: BigDecimal) : 
         }
     }
 
+    @Contract(pure = true)
     override fun compareTo(other: BigFloatVal): Int = value.compareTo(other.value)
+
+    @Contract("-> new", pure = true)
     override fun clone(): BigFloatVal = BigFloatVal(value)
 }

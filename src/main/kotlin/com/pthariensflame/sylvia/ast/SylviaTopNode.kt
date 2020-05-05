@@ -9,6 +9,7 @@ import com.oracle.truffle.api.instrumentation.ProbeNode
 import com.oracle.truffle.api.nodes.NodeInfo
 import com.oracle.truffle.api.nodes.RootNode
 import com.pthariensflame.sylvia.SylviaLanguage
+import org.jetbrains.annotations.Contract
 
 @NodeInfo(
     shortName = "⊤-sylv",
@@ -24,6 +25,7 @@ abstract class SylviaTopNode
 ) : RootNode(langInstance, frameDescriptor), SylviaNode, InstrumentableNode {
     override fun isInstrumentable(): Boolean = true
 
+    @Contract("-> new")
     override fun createWrapper(probe: ProbeNode): InstrumentableNode.WrapperNode =
         SylviaTopNodeWrapper(this, probe)
 }

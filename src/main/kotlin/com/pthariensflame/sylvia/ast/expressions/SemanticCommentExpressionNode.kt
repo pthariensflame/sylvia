@@ -11,7 +11,6 @@ import com.oracle.truffle.api.nodes.NodeInfo
 import com.oracle.truffle.api.source.Source
 import com.oracle.truffle.api.source.SourceSection
 import com.pthariensflame.sylvia.parser.SourceSpan
-import com.pthariensflame.sylvia.parser.createSection
 import com.pthariensflame.sylvia.values.SylviaVal
 
 @NodeInfo(

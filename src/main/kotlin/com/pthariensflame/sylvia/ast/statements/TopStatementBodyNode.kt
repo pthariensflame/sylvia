@@ -37,8 +37,6 @@ open class TopStatementBodyNode
     @TruffleBoundary
     override fun getSourceSection(): SourceSection {
         val src: Source = encapsulatingSourceSection.source
-        return srcSpan?.run {
-            src.createSection(start, len)
-        } ?: src.createUnavailableSection()
+        return srcSpan?.asSectionOf(src) ?: src.createUnavailableSection()
     }
 }

@@ -8,8 +8,6 @@ plugins {
     kotlin("jvm") version "1.4-M1"
     kotlin("kapt") version "1.4-M1"
     id("org.jetbrains.dokka") version "0.10.1"
-    id("com.hpe.kraal") version "0.0.15"
-//    id("ch.tutteli.kotlin.utils") version "0.33.0"
     `maven-publish`
     idea
 }
@@ -91,13 +89,6 @@ java {
 //val compileJava: JavaCompile by tasks
 //val javaClasspath = compileJava.classpath.asPath
 
-//kotlin {
-//    target {
-//    }
-//}
-
-kraal {}
-
 kapt {
     correctErrorTypes = true
     includeCompileClasspath = false
@@ -166,14 +157,30 @@ tasks {
             // remember to keep up to date
             externalDocumentationLink { url = URL("https://javadoc.io/static/org.antlr/antlr4/4.8-1/") }
             externalDocumentationLink { url = URL("https://javadoc.io/static/org.antlr/antlr4-runtime/4.8-1/") }
-            externalDocumentationLink { url = URL("https://javadoc.io/static/org.graalvm.truffle/truffle-api/$graalVMVersion/") }
-            externalDocumentationLink { url = URL("https://javadoc.io/static/org.graalvm.truffle/truffle-nfi/$graalVMVersion/") }
-            externalDocumentationLink { url = URL("https://javadoc.io/static/org.graalvm.sdk/graal-sdk/$graalVMVersion/") }
-            externalDocumentationLink { url = URL("https://javadoc.io/static/org.graalvm.sdk/launcher-common/$graalVMVersion/") }
-            externalDocumentationLink { url = URL("https://javadoc.io/static/org.graalvm.compiler/compiler/$graalVMVersion/") }
-            externalDocumentationLink { url = URL("https://javadoc.io/static/org.graalvm.truffle/truffle-tck/$graalVMVersion/") }
-            externalDocumentationLink { url = URL("https://javadoc.io/static/org.graalvm.sdk/polyglot-tck/$graalVMVersion/") }
-            externalDocumentationLink { url = URL("https://javadoc.io/static/org.graalvm.truffle/truffle-dsl-processor/$graalVMVersion/") }
+            externalDocumentationLink {
+                url = URL("https://javadoc.io/static/org.graalvm.truffle/truffle-api/$graalVMVersion/")
+            }
+            externalDocumentationLink {
+                url = URL("https://javadoc.io/static/org.graalvm.truffle/truffle-nfi/$graalVMVersion/")
+            }
+            externalDocumentationLink {
+                url = URL("https://javadoc.io/static/org.graalvm.sdk/graal-sdk/$graalVMVersion/")
+            }
+            externalDocumentationLink {
+                url = URL("https://javadoc.io/static/org.graalvm.sdk/launcher-common/$graalVMVersion/")
+            }
+            externalDocumentationLink {
+                url = URL("https://javadoc.io/static/org.graalvm.compiler/compiler/$graalVMVersion/")
+            }
+            externalDocumentationLink {
+                url = URL("https://javadoc.io/static/org.graalvm.truffle/truffle-tck/$graalVMVersion/")
+            }
+            externalDocumentationLink {
+                url = URL("https://javadoc.io/static/org.graalvm.sdk/polyglot-tck/$graalVMVersion/")
+            }
+            externalDocumentationLink {
+                url = URL("https://javadoc.io/static/org.graalvm.truffle/truffle-dsl-processor/$graalVMVersion/")
+            }
 //            externalDocumentationLink { url = URL("https://javadoc.io/static/org.junit.jupiter/junit-jupiter-api/5.6.2/") }
 //            externalDocumentationLink { url = URL("https://javadoc.io/static/org.junit.jupiter/junit-jupiter-params/5.6.2/") }
             externalDocumentationLink { url = URL("https://javadoc.io/static/com.ibm.icu/icu4j/67.1/") }
@@ -195,27 +202,6 @@ tasks {
             )
         }
     }
-    val fatJar by creating(Jar::class) {
-        dependsOn(jar)
-
-        from(kraal.get().outputZipTree) {
-            exclude("META-INF/*.SF")
-            exclude("META-INF/*.DSA")
-            exclude("META-INF/*.RSA")
-        }
-
-        manifest {
-            attributes(
-                "Main-Class" to "com.pthariensflame.sylvia.shell.SylviaShellMainKt",
-                "Automatic-Module-Name" to "com.pthariensflame.sylvia"
-            )
-        }
-
-        destinationDirectory.set(project.buildDir.resolve("fatjar"))
-        archiveFileName.set("sylvia-full-${archiveVersion.get()}.jar")
-    }
-
-    named("assemble").configure { dependsOn(fatJar) }
 
     withType<PublishToMavenLocal>().configureEach { dependsOn(assemble) }
     withType<PublishToMavenRepository>().configureEach { dependsOn(assemble) }

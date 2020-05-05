@@ -6,6 +6,7 @@ import com.oracle.truffle.api.interop.InteropLibrary
 import com.oracle.truffle.api.library.ExportLibrary
 import com.oracle.truffle.api.library.ExportMessage
 import com.oracle.truffle.api.nodes.Node
+import org.jetbrains.annotations.Contract
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
@@ -18,6 +19,7 @@ data class SylviaExceptionVal(
     override fun getLocation(): Node? = inner.location
 
     @ExportMessage
+    @Contract("-> true", pure = true)
     fun isException(): Boolean {
         contract {
             returns(true)
@@ -26,6 +28,7 @@ data class SylviaExceptionVal(
     }
 
     @ExportMessage
+    @Contract(pure = true)
     fun throwException(): RuntimeException {
         contract {
             returns()
@@ -33,5 +36,6 @@ data class SylviaExceptionVal(
         return inner
     }
 
+    @Contract("-> new", pure = true)
     override fun clone(): SylviaExceptionVal = SylviaExceptionVal(inner)
 }

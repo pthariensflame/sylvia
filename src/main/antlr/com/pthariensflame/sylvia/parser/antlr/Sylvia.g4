@@ -1,20 +1,16 @@
 grammar Sylvia;
 
-@header {
+options {
+    language = Java;
+}
+
+@lexer::header {
     package com.pthariensflame.sylvia.parser.antlr;
-    import java.util.ArrayDeque;
-    import java.util.Deque;
-    import org.jetbrains.annotations.NotNull;
-    import org.jetbrains.annotations.Nullable;
-    import org.jetbrains.annotations.Contract;
-    import com.pthariensflame.sylvia.parser.SourceSpan;
+    import static com.pthariensflame.sylvia.parser.SylviaASTGenVisitor.checkMatchedComment;
 }
 
-@lexer::members {
-    @NotNull private Deque<String> lexicalCommentMarks = new ArrayDeque<>();
-}
-
-@parser::members {
+@parser::header {
+    package com.pthariensflame.sylvia.parser.antlr;
 }
 
 // comments
@@ -37,19 +33,9 @@ grammar Sylvia;
 //syntactic_comment_statement : syntactic_comment_start statement syntactic_comment_end;
 //syntactic_comment_expression : syntactic_comment_start expression syntactic_comment_end;
 
-LEXICAL_COMMENT_START : HASH_SYM (IDENT_CONT | NUMERIC_SUBSEQUENCE | HASH_SYM)* OPEN_PAREN {
-    setChannel(HIDDEN);
-    lexicalCommentMarks.push(getText().substring(1, getText().length() - 2));
-};
-LEXICAL_COMMENT_END : CLOSE_PAREN (IDENT_CONT | NUMERIC_SUBSEQUENCE | HASH_SYM)* HASH_SYM {
-    setChannel(HIDDEN);
-    if (lexicalCommentMarks.peek().equals(getText().substring(1, getText().length() - 2))) {
-        lexicalCommentMarks.pop();
-    } else {
-        more();
-    }
-};
-LEXICAL_COMMENT : LEXICAL_COMMENT_START .*? LEXICAL_COMMENT_END -> channel(HIDDEN);
+LEXICAL_COMMENT_START : HASH_SYM (IDENT_CONT | NUMERIC_SUBSEQUENCE | HASH_SYM)* (OPEN_PAREN | OPEN_DOUBLE_PAREN);
+LEXICAL_COMMENT_END : (CLOSE_PAREN | CLOSE_DOUBLE_PAREN) (IDENT_CONT | NUMERIC_SUBSEQUENCE | HASH_SYM)* HASH_SYM;
+LEXICAL_COMMENT : LEXICAL_COMMENT_START (LEXICAL_COMMENT | ANY_CHAR)* LEXICAL_COMMENT_END {checkMatchedComment(getText())}? -> channel(HIDDEN);
 
 // strings
 
@@ -212,9 +198,10 @@ parameter : parts=name_declarator # FullParam
           | UNDERSCORE # IgnoredParam
           | brack_param # BrackParam
           | paren_param # ParenParam;
-brack_param : OPEN_BRACK parameter_list CLOSE_BRACK # SingleBrackParam
-            | OPEN_DOUBLE_BRACK parameter_list CLOSE_DOUBLE_BRACK # DoubleBrackParam;
-paren_param : OPEN_PAREN inner=parameter CLOSE_PAREN;
+brack_param : OPEN_BRACK params=parameter_list CLOSE_BRACK # SingleBrackParam
+            | OPEN_DOUBLE_BRACK params=parameter_list CLOSE_DOUBLE_BRACK # DoubleBrackParam;
+paren_param : OPEN_PAREN inner=parameter CLOSE_PAREN # SingleParenParam
+            | OPEN_DOUBLE_PAREN inner=parameter CLOSE_DOUBLE_PAREN # DoubleParenParam;
 single_or_brack_param : brack_param | paren_param;
 
 // collections
@@ -235,7 +222,8 @@ missing_arg : UNDERSCORE;
 
 procedure_call : invokee=procedure_call_head argExpr=expression;
 procedure_call_head : name=path # PathProcCallHead
-                    | OPEN_PAREN expr=expression CLOSE_PAREN # ParenProcCallHead;
+                    | OPEN_PAREN expr=expression CLOSE_PAREN # SingleParenProcCallHead
+                    | OPEN_DOUBLE_PAREN expr=expression CLOSE_DOUBLE_PAREN # DoubleParenProcCallHead;
 
 // declarations
 
@@ -283,3 +271,7 @@ expression : getExpr=get_expr # GetExpr
 
 WHITESPACE : [\p{WHITE_SPACE}]
            -> skip;
+
+// anything
+
+fragment ANY_CHAR : .;

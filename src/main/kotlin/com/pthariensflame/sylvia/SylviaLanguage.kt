@@ -11,9 +11,6 @@ import com.pthariensflame.sylvia.values.SylviaVal
 import org.graalvm.collections.EconomicMap
 import org.graalvm.collections.Equivalence
 
-internal val truffleRuntime: TruffleRuntime
-    inline get() = Truffle.getRuntime()
-
 @TruffleLanguage.Registration(
     id = "sylvia",
     name = "Sylvia",
@@ -40,7 +37,12 @@ internal val truffleRuntime: TruffleRuntime
 //        StandardTags.TryBlockTag::class,
 //        DebuggerTags.AlwaysHalt::class,
 )
-final class SylviaLanguage : TruffleLanguage<SylviaLanguage.SylviaLangCxt>() {
+class SylviaLanguage : TruffleLanguage<SylviaLanguage.SylviaLangCxt>() {
+    companion object {
+        @JvmStatic
+        internal val truffleRuntime: TruffleRuntime
+            inline get() = Truffle.getRuntime()
+    }
 
     data class SylviaLangCxt
     @JvmOverloads constructor(

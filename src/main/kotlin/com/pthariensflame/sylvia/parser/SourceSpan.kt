@@ -20,16 +20,20 @@ data class SourceSpan(
         asSectionOf(srcSec.source)
 
     override fun clone(): SourceSpan = copy()
-}
 
-@TruffleBoundary(allowInlining = true)
-fun Source.createSection(span: SourceSpan): SourceSection = span.asSectionOf(this)
+    companion object {
+        @JvmStatic
+        @TruffleBoundary(allowInlining = true)
+        fun Source.createSection(span: SourceSpan): SourceSection = span.asSectionOf(this)
 
-@TruffleBoundary(allowInlining = true)
-fun ParserRuleContext.sourceSpan(): SourceSpan {
-    val startIx: Int = getStart().startIndex
-    return SourceSpan(
-        startIx,
-        getStop().stopIndex - startIx + 1
-    )
+        @JvmStatic
+        @TruffleBoundary(allowInlining = true)
+        fun ParserRuleContext.sourceSpan(): SourceSpan {
+            val startIx: Int = getStart().startIndex
+            return SourceSpan(
+                startIx,
+                getStop().stopIndex - startIx + 1
+            )
+        }
+    }
 }

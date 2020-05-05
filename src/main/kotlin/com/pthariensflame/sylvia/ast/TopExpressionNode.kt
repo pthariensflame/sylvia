@@ -10,13 +10,12 @@ import com.oracle.truffle.api.frame.VirtualFrame
 import com.oracle.truffle.api.instrumentation.*
 import com.oracle.truffle.api.nodes.Node
 import com.oracle.truffle.api.nodes.NodeInfo
-import com.oracle.truffle.api.nodes.RootNode
-import com.oracle.truffle.api.source.Source
 import com.oracle.truffle.api.source.SourceSection
 import com.pthariensflame.sylvia.SylviaLanguage
 import com.pthariensflame.sylvia.SylviaTruffleTypeSystem
 import com.pthariensflame.sylvia.ast.expressions.TopExpressionBodyNode
 import com.pthariensflame.sylvia.parser.SourceSpan
+import org.jetbrains.annotations.Contract
 
 @NodeInfo(
     shortName = "⊤-expr",
@@ -38,6 +37,7 @@ open class TopExpressionNode
 
     override fun isInstrumentable(): Boolean = true
 
+    @Contract("-> new")
     override fun createWrapper(probe: ProbeNode): InstrumentableNode.WrapperNode =
         TopExpressionNodeWrapper(this, probe)
 

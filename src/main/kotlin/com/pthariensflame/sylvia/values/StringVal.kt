@@ -6,6 +6,7 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException
 import com.oracle.truffle.api.library.ExportLibrary
 import com.oracle.truffle.api.library.ExportMessage
 import com.pthariensflame.sylvia.UnicodeCodepoint
+import org.jetbrains.annotations.Contract
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
@@ -24,6 +25,7 @@ data class StringVal(@JvmField val value: String) : SylviaVal(), Comparable<Stri
     )
 
     @ExportMessage
+    @Contract("-> true", pure = true)
     fun isString(): Boolean {
         contract {
             returns(true)
@@ -33,8 +35,12 @@ data class StringVal(@JvmField val value: String) : SylviaVal(), Comparable<Stri
 
     @ExportMessage
     @Throws(UnsupportedMessageException::class)
+    @Contract(pure = true)
     fun asString(): String = value
 
+    @Contract(pure = true)
     override fun compareTo(other: StringVal): Int = value.compareTo(other.value)
+
+    @Contract("-> new", pure = true)
     override fun clone(): StringVal = StringVal(value)
 }

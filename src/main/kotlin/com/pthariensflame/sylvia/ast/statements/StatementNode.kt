@@ -12,7 +12,6 @@ import com.oracle.truffle.api.source.Source
 import com.oracle.truffle.api.source.SourceSection
 import com.pthariensflame.sylvia.ast.SylviaNode
 import com.pthariensflame.sylvia.parser.SourceSpan
-import com.pthariensflame.sylvia.parser.createSection
 
 @NodeInfo(
     shortName = "stmt",
@@ -42,8 +41,6 @@ abstract class StatementNode
     @TruffleBoundary
     override fun getSourceSection(): SourceSection {
         val src: Source = encapsulatingSourceSection.source
-        return srcSpan?.run {
-            src.createSection(this)
-        } ?: src.createUnavailableSection()
+        return srcSpan?.asSectionOf(src) ?: src.createUnavailableSection()
     }
 }
