@@ -14,8 +14,7 @@ options {
     import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 }
 
-program : expr=expression # ExpressionProgram
-        | stmts+=statement* # StatementsProgram;
+program : stmts+=statement*;
 
 // comments
 
@@ -37,9 +36,12 @@ program : expr=expression # ExpressionProgram
 //syntactic_comment_statement : syntactic_comment_start statement syntactic_comment_end;
 //syntactic_comment_expression : syntactic_comment_start expression syntactic_comment_end;
 
+fragment LEXICAL_LINE_COMMENT_BEGIN : HASH_SYM (HASH_SYM | DOT | AT_SYM | COLON)* COLON;
 fragment LEXICAL_COMMENT_START : HASH_SYM (IDENT_CONT | NUMERIC_SUBSEQUENCE | HASH_SYM)* (OPEN_PAREN | OPEN_DOUBLE_PAREN);
 fragment LEXICAL_COMMENT_END : (CLOSE_PAREN | CLOSE_DOUBLE_PAREN) (IDENT_CONT | NUMERIC_SUBSEQUENCE | HASH_SYM)* HASH_SYM;
-LEXICAL_COMMENT : LEXICAL_COMMENT_START (LEXICAL_COMMENT | ANY_CHAR)* LEXICAL_COMMENT_END {checkMatchedComment(getText())}? -> channel(HIDDEN);
+LEXICAL_COMMENT : LEXICAL_LINE_COMMENT_BEGIN NON_LINE_END* LINE_END
+                | LEXICAL_COMMENT_START (LEXICAL_COMMENT | ANY_CHAR)* LEXICAL_COMMENT_END {checkMatchedComment(getText())}?
+    -> channel(HIDDEN);
 
 // strings
 
@@ -260,7 +262,7 @@ literal : contentB=boolean_literal
         | contentN=numeric_literal
         | contentS=string_literal;
 
-get_expr : GET paramList=parameter_list FROM block;
+get_expr : GET paramList=parameter_list FROM body=block;
 
 expression : getExpr=get_expr # GetExpr
            | anonProc=anon_procedure_expr # AnonProcExpr
@@ -278,6 +280,9 @@ expression : getExpr=get_expr # GetExpr
 WHITESPACE : [\p{WHITE_SPACE}]
            -> skip;
 
-// anything
+// assorted
+
+fragment LINE_END : [\u000D\u000A\u0085\u000B\u000C\u2028\u2029];
+fragment NON_LINE_END : [^\u000D\u000A\u0085\u000B\u000C\u2028\u2029];
 
 fragment ANY_CHAR : .;
