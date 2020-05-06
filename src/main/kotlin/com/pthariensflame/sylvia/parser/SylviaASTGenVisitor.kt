@@ -31,7 +31,7 @@ class SylviaASTGenVisitor
     companion object {
         private val commentCheckRegex: Regex by lazy {
             Regex(
-                """^#([^\p{Space}|()⦅⦆]*?)(?:\(\|.*\|\)|⦅.*⦆|\((?:|[^|]|[^|].*[^|])\))([^\p{Space}|()⦅⦆]*?)#$""",
+                """^#([^\p{Space}()⦅⦆]*)(?:\(.*\)|⦅.*⦆)([^\p{Space}()⦅⦆]*)#$""",
                 setOf(CANON_EQ, DOT_MATCHES_ALL)
             )
         }

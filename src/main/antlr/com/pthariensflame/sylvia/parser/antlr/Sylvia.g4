@@ -11,7 +11,11 @@ options {
 
 @parser::header {
     package com.pthariensflame.sylvia.parser.antlr;
+    import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 }
+
+program : expr=expression # ExpressionProgram
+        | stmts+=statement* # StatementsProgram;
 
 // comments
 
@@ -33,8 +37,8 @@ options {
 //syntactic_comment_statement : syntactic_comment_start statement syntactic_comment_end;
 //syntactic_comment_expression : syntactic_comment_start expression syntactic_comment_end;
 
-LEXICAL_COMMENT_START : HASH_SYM (IDENT_CONT | NUMERIC_SUBSEQUENCE | HASH_SYM)* (OPEN_PAREN | OPEN_DOUBLE_PAREN);
-LEXICAL_COMMENT_END : (CLOSE_PAREN | CLOSE_DOUBLE_PAREN) (IDENT_CONT | NUMERIC_SUBSEQUENCE | HASH_SYM)* HASH_SYM;
+fragment LEXICAL_COMMENT_START : HASH_SYM (IDENT_CONT | NUMERIC_SUBSEQUENCE | HASH_SYM)* (OPEN_PAREN | OPEN_DOUBLE_PAREN);
+fragment LEXICAL_COMMENT_END : (CLOSE_PAREN | CLOSE_DOUBLE_PAREN) (IDENT_CONT | NUMERIC_SUBSEQUENCE | HASH_SYM)* HASH_SYM;
 LEXICAL_COMMENT : LEXICAL_COMMENT_START (LEXICAL_COMMENT | ANY_CHAR)* LEXICAL_COMMENT_END {checkMatchedComment(getText())}? -> channel(HIDDEN);
 
 // strings
@@ -103,17 +107,17 @@ ARROW_FROM : '<-' | '←';
 ARROW_TO : '->' | '→';
 COMMA : ',';
 SEMICOLON : ';';
-CLOSE_DOUBLE_BRACE : '⦄' | '|}';
+CLOSE_DOUBLE_BRACE : '⦄';
 CLOSE_BRACE : '}';
-CLOSE_DOUBLE_BRACK : '⟧' | '|]';
+CLOSE_DOUBLE_BRACK : '⟧';
 CLOSE_BRACK : ']';
-CLOSE_DOUBLE_PAREN : '⦆' | '|)';
+CLOSE_DOUBLE_PAREN : '⦆';
 CLOSE_PAREN : ')';
-OPEN_DOUBLE_BRACE : '⦃' | '{|';
+OPEN_DOUBLE_BRACE : '⦃';
 OPEN_BRACE : '{';
-OPEN_DOUBLE_BRACK : '⟦' | '[|';
+OPEN_DOUBLE_BRACK : '⟦';
 OPEN_BRACK : '[';
-OPEN_DOUBLE_PAREN : '⦅' | '(|';
+OPEN_DOUBLE_PAREN : '⦅';
 OPEN_PAREN : '(';
 HASH_SYM : '#';
 DOT : '.';
@@ -174,7 +178,9 @@ numeric_literal : NUMBER;
 
 // booleans
 
-boolean_literal : TRUE | FALSE;
+boolean_literal returns [@CompilationFinal boolean boolValue]
+    : TRUE { $ctx.boolValue = true; } # TrueLiteral
+    | FALSE { $ctx.boolValue = false; } # FalseLiteral;
 
 // identifiers
 
@@ -190,19 +196,19 @@ name_declarator : AT_SYM nature=expression OF name=identifier COLON type=express
 
 procedure_decl : head=procedure_decl_head body=block;
 procedure_decl_head : PROC name=identifier paramList=single_or_brack_param;
-anon_procedure_decl : head=anon_procedure_decl_head body=block;
+anon_procedure_expr : head=anon_procedure_decl_head body=block;
 anon_procedure_decl_head : PROC paramList=single_or_brack_param;
 parameter_list : (params+=parameter (seps+=separator_symbol params+=parameter)*)?;
 parameter : parts=name_declarator # FullParam
           | name=identifier # SimpleParam
           | UNDERSCORE # IgnoredParam
-          | brack_param # BrackParam
-          | paren_param # ParenParam;
+          | inner=single_or_brack_param # NestedParam;
 brack_param : OPEN_BRACK params=parameter_list CLOSE_BRACK # SingleBrackParam
             | OPEN_DOUBLE_BRACK params=parameter_list CLOSE_DOUBLE_BRACK # DoubleBrackParam;
 paren_param : OPEN_PAREN inner=parameter CLOSE_PAREN # SingleParenParam
             | OPEN_DOUBLE_PAREN inner=parameter CLOSE_DOUBLE_PAREN # DoubleParenParam;
-single_or_brack_param : brack_param | paren_param;
+single_or_brack_param : contentB=brack_param # BrackParam
+                      | contentP=paren_param # ParenParam;
 
 // collections
 
@@ -233,15 +239,15 @@ module_decl : MODULE name=identifier OF body=decl_block;
 
 decl_block : OPEN_BRACE decls+=declaration* CLOSE_BRACE;
 
-declaration : bind_decl # BindDecl
-            | module_decl # ModuleDecl
-            | procedure_decl # ProcedureDecl
-            | documented_decl # DocumentedDecl;
+declaration : bind=bind_decl # BindDecl
+            | module=module_decl # ModuleDecl
+            | procedure=procedure_decl # ProcedureDecl
+            | documented=documented_decl # DocumentedDecl;
 documented_decl : DOC documentation=string_literal inner=declaration;
 
 // statements
 
-statement : call=procedure_call  # ProcedureCallStmt
+statement : expr=expression  # ExpressionStmt
           | decl=declaration # DeclarationStmt
 //          | comment_statement
           | DO body=block # DoBlockStmt;
@@ -257,7 +263,7 @@ literal : contentB=boolean_literal
 get_expr : GET paramList=parameter_list FROM block;
 
 expression : getExpr=get_expr # GetExpr
-           | anon_procedure_decl # AnonProcExpr
+           | anonProc=anon_procedure_expr # AnonProcExpr
            | DO body=block # DoBlockExpr
 //           | comment_expression expression # CommentBeforeExpr
 //           | expression comment_expression # CommentAfterExpr
