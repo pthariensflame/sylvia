@@ -3,9 +3,7 @@ package com.pthariensflame.sylvia.ast
 import com.oracle.truffle.api.dsl.GenerateNodeFactory
 import com.oracle.truffle.api.dsl.GenerateUncached
 import com.oracle.truffle.api.frame.FrameDescriptor
-import com.oracle.truffle.api.instrumentation.GenerateWrapper
-import com.oracle.truffle.api.instrumentation.InstrumentableNode
-import com.oracle.truffle.api.instrumentation.ProbeNode
+import com.oracle.truffle.api.instrumentation.*
 import com.oracle.truffle.api.nodes.NodeInfo
 import com.oracle.truffle.api.nodes.RootNode
 import com.pthariensflame.sylvia.SylviaLanguage
@@ -28,4 +26,7 @@ abstract class SylviaTopNode
     @Contract("-> new")
     override fun createWrapper(probe: ProbeNode): InstrumentableNode.WrapperNode =
         SylviaTopNodeWrapper(this, probe)
+
+    override fun hasTag(tag: Class<out Tag>): Boolean =
+        tag.kotlin == StandardTags.RootTag::class || super.hasTag(tag)
 }

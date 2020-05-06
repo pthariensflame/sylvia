@@ -29,8 +29,5 @@ abstract class DeclarationNode
 
     abstract override fun executeVoid(frame: VirtualFrame)
 
-    override fun hasTag(tag: Class<out Tag>): Boolean =
-        tag.kotlin == StandardTags.StatementTag::class || super.hasTag(tag)
-
-    // outConv and getSourceSection handled in StatementNode
+    // outConv handled in StatementNode
 }

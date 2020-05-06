@@ -42,9 +42,6 @@ open class ProcedureNode
         return null
     }
 
-    override fun hasTag(tag: Class<out Tag>): Boolean =
-        tag.kotlin == StandardTags.RootTag::class || super.hasTag(tag)
-
     @GenerateWrapper.OutgoingConverter
     protected fun outConv(@Suppress("UNUSED_PARAMETER") v: Any?): Any? = null
 

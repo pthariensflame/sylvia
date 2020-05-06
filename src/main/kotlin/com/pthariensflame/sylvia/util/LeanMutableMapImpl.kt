@@ -11,7 +11,7 @@ import java.util.function.Predicate
 
 @PublishedApi
 internal inline class LeanMutableMapImpl<K : Any, V : Any>
-@JvmOverloads constructor(
+constructor(
     override val underlying: EconomicMap<K, V> = EconomicMap.create(),
 ) : LeanMutableMap<K, V> {
     constructor(

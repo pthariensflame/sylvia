@@ -82,10 +82,10 @@ string_literal : contentStD=straight_double_string # StraightDoubleStringLiteral
 
 ALIAS : 'alias';
 BIND : 'bind';
-CASE : 'case';
 CASES : 'cases';
-DO : 'do';
+CASE : 'case';
 DOC : 'doc';
+DO : 'do';
 EFFECT : 'effect';
 ENUM : 'enum';
 EXPORT : 'export';

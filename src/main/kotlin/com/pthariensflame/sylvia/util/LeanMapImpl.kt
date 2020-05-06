@@ -10,7 +10,7 @@ import java.util.function.Consumer
 
 @PublishedApi
 internal inline class LeanMapImpl<K : Any, out V : Any>
-@JvmOverloads constructor(
+constructor(
     override val underlying: UnmodifiableEconomicMap<K, @UnsafeVariance V> = EconomicMap.create(),
 ) : LeanMap<K, V> {
     constructor(
