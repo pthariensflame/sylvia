@@ -6,7 +6,7 @@ options {
 
 @lexer::header {
     package com.pthariensflame.sylvia.parser.antlr;
-    import static com.pthariensflame.sylvia.parser.SylviaASTGenVisitor.checkMatchedComment;
+    import static com.pthariensflame.sylvia.parser.antlr.PredicatesKt.checkMatchedComment;
 }
 
 @parser::header {
@@ -40,7 +40,8 @@ fragment LEXICAL_LINE_COMMENT_BEGIN : HASH_SYM (HASH_SYM | DOT | AT_SYM | COLON)
 fragment LEXICAL_COMMENT_START : HASH_SYM (IDENT_CONT | NUMERIC_SUBSEQUENCE | HASH_SYM)* (OPEN_PAREN | OPEN_DOUBLE_PAREN);
 fragment LEXICAL_COMMENT_END : (CLOSE_PAREN | CLOSE_DOUBLE_PAREN) (IDENT_CONT | NUMERIC_SUBSEQUENCE | HASH_SYM)* HASH_SYM;
 LEXICAL_LINE_COMMENT : LEXICAL_LINE_COMMENT_BEGIN NON_LINE_END* LINE_END -> channel(HIDDEN);
-LEXICAL_BLOCK_COMMENT : LEXICAL_COMMENT_START (LEXICAL_BLOCK_COMMENT | ANY_CHAR)* LEXICAL_COMMENT_END {checkMatchedComment(getText())}? -> channel(HIDDEN);
+LEXICAL_BLOCK_COMMENT : LEXICAL_COMMENT_START (LEXICAL_BLOCK_COMMENT | ANY_CHAR)* LEXICAL_COMMENT_END
+    {checkMatchedComment(getText())}? -> channel(HIDDEN);
 
 // strings
 
