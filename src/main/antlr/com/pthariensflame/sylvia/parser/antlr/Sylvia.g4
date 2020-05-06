@@ -80,6 +80,7 @@ string_literal : contentStD=straight_double_string # StraightDoubleStringLiteral
 
 // Keywords and symbols
 
+ALIAS : 'alias';
 BIND : 'bind';
 CASE : 'case';
 CASES : 'cases';
@@ -97,6 +98,7 @@ NATURE : 'nature';
 NEWTYPE : 'newType';
 OF : 'of';
 OVER : 'over';
+PRIMITIVE : 'primitive';
 PROC : 'proc';
 PROC_TYPE : 'Proc';
 RECORD : 'record';
@@ -106,7 +108,9 @@ AT_SYM : '@';
 COLON : ':';
 UNDERSCORE : '_';
 ARROW_FROM : '<-' | '←';
+THICK_ARROW_FROM : '<=' | '⇐';
 ARROW_TO : '->' | '→';
+THICK_ARROW_TO : '=>' | '⇒';
 COMMA : ',';
 SEMICOLON : ';';
 CLOSE_DOUBLE_BRACE : '⦄';
@@ -124,7 +128,8 @@ OPEN_PAREN : '(';
 HASH_SYM : '#';
 DOT : '.';
 
-keyword : BIND
+keyword : ALIAS
+        | BIND
         | CASE
         | CASES
         | DO
@@ -141,6 +146,7 @@ keyword : BIND
         | NEWTYPE
         | OF
         | OVER
+        | PRIMITIVE
         | PROC
         | PROC_TYPE
         | RECORD
@@ -151,7 +157,9 @@ keyword : BIND
         | UNDERSCORE;
 
 separator_symbol : ARROW_FROM
+                 | THICK_ARROW_FROM
                  | ARROW_TO
+                 | THICK_ARROW_TO
                  | COMMA
                  | SEMICOLON;
 
@@ -201,7 +209,7 @@ procedure_decl_head : PROC name=identifier paramList=single_or_brack_param;
 anon_procedure_expr : head=anon_procedure_decl_head body=block;
 anon_procedure_decl_head : PROC paramList=single_or_brack_param;
 parameter_list : (params+=parameter (seps+=separator_symbol params+=parameter)*)?;
-parameter : parts=name_declarator # FullParam
+parameter : declarator=name_declarator # FullParam
           | name=identifier # SimpleParam
           | UNDERSCORE # IgnoredParam
           | inner=single_or_brack_param # NestedParam;
@@ -235,16 +243,20 @@ procedure_call_head : name=path # PathProcCallHead
 
 // declarations
 
+bind_prim_decl : BIND PRIMITIVE declarator=name_declarator FROM primID=string_literal;
+
 bind_decl : BIND paramList=parameter_list FROM body=block;
 
 module_decl : MODULE name=identifier OF body=decl_block;
 
 decl_block : OPEN_BRACE decls+=declaration* CLOSE_BRACE;
 
-declaration : bind=bind_decl # BindDecl
+declaration : bindPrim=bind_prim_decl # BindPrimDecl
+            | bind=bind_decl # BindDecl
             | module=module_decl # ModuleDecl
             | procedure=procedure_decl # ProcedureDecl
-            | documented=documented_decl # DocumentedDecl;
+            | documented=documented_decl # DocumentedDecl
+            | DO body=decl_block # DoBlockDecl;
 documented_decl : DOC documentation=string_literal inner=declaration;
 
 // statements
