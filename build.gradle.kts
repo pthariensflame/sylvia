@@ -137,7 +137,8 @@ tasks {
                 "-Xassertions=jvm",
                 "-Xstrict-java-nullability-assertions",
                 "-Xgenerate-strict-metadata-version",
-                "-Xemit-jvm-type-annotations"
+                "-Xemit-jvm-type-annotations",
+                "-XXLanguage:+InlineClasses"
 //                "-Xmodule-path=$javaClasspath"
             )
         }

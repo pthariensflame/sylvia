@@ -1,6 +1,5 @@
-package com.pthariensflame.sylvia.parser.antlr
+package com.pthariensflame.sylvia.parser
 
-import com.pthariensflame.sylvia.util.assertCompilationConstant
 import com.pthariensflame.sylvia.util.assertPartialEvaluationConstant
 import org.jetbrains.annotations.Contract
 import kotlin.contracts.ExperimentalContracts

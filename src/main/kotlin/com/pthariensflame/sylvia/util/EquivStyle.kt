@@ -1,11 +1,9 @@
 package com.pthariensflame.sylvia.util
 
-import com.oracle.truffle.api.CompilerDirectives.ValueType
 import org.graalvm.collections.Equivalence
 import org.jetbrains.annotations.Contract
 
-@ValueType
-data class EquivStyle<in T : Any>(
+inline class EquivStyle<in T : Any>(
     @JvmField val underlying: Equivalence,
 ) : Cloneable {
     fun equalityOf(a: T, b: T): Boolean =
@@ -14,7 +12,7 @@ data class EquivStyle<in T : Any>(
     fun hashCodeOf(o: T): Int =
         underlying.hashCode(o)
 
-    override fun clone(): Any = copy()
+    override fun clone(): EquivStyle<T> = EquivStyle<T>(underlying)
 
     companion object {
         @Contract("-> new", pure = true)
@@ -36,7 +34,7 @@ data class EquivStyle<in T : Any>(
         @Contract("_, _ -> new", pure = true)
         inline fun <reified T : Any> of(
             crossinline eqFn: (T, T) -> Boolean,
-            crossinline hashFn: (T) -> Int
+            crossinline hashFn: (T) -> Int,
         ): EquivStyle<T> =
             EquivStyle<T>(object : Equivalence() {
                 override fun hashCode(o: Any): Int = hashFn(o as T)

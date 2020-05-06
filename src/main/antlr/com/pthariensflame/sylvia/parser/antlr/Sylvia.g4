@@ -6,7 +6,7 @@ options {
 
 @lexer::header {
     package com.pthariensflame.sylvia.parser.antlr;
-    import static com.pthariensflame.sylvia.parser.antlr.PredicatesKt.checkMatchedComment;
+    import static com.pthariensflame.sylvia.parser.PredicatesKt.checkMatchedComment;
 }
 
 @parser::header {
