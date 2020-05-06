@@ -31,7 +31,7 @@ open class ProcedureNode
     langInstance: SylviaLanguage? = null,
     frameDescriptor: FrameDescriptor? = null,
     @JvmField val srcSpan: SourceSpan? = null,
-    @Node.Child @JvmField var bodyNode: ProcedureBodyNode = ProcedureBodyNode(),
+    @Node.Child @JvmField var bodyNode: ProcedureBodyNode = NormalProcedureBodyNode(),
 ) : SylviaTopNode(langInstance, frameDescriptor) {
     @Contract("-> new")
     override fun createWrapper(probe: ProbeNode): InstrumentableNode.WrapperNode =

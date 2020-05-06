@@ -203,10 +203,15 @@ path : segments+=identifier (DOT segments+=identifier)*;
 name_declarator : AT_SYM nature=expression OF name=identifier COLON type=expression;
 
 // procedure declarations
-
-procedure_decl : head=procedure_decl_head body=block;
+procedure_decl : norm=norm_procedure_decl # NormProcedureDecl
+               | prim=prim_procedure_decl # PrimProcedureDecl;
+norm_procedure_decl : head=procedure_decl_head body=block;
+prim_procedure_decl : head=procedure_decl_head PRIMITIVE primID=string_literal;
 procedure_decl_head : PROC name=identifier paramList=single_or_brack_param;
-anon_procedure_expr : head=anon_procedure_decl_head body=block;
+anon_procedure_expr : norm=norm_anon_procedure_expr # NormAnonProcExpr
+                    | prim=prim_anon_procedure_expr # PrimAnonProcExpr;
+norm_anon_procedure_expr : head=anon_procedure_decl_head body=block;
+prim_anon_procedure_expr : head=anon_procedure_decl_head PRIMITIVE primID=string_literal;
 anon_procedure_decl_head : PROC paramList=single_or_brack_param;
 parameter_list : (params+=parameter (seps+=separator_symbol params+=parameter)*)?;
 parameter : declarator=name_declarator # FullParam
