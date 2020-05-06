@@ -287,14 +287,13 @@ expression : getExpr=get_expr # GetExpr
            | OPEN_PAREN innerExpr=expression CLOSE_PAREN # ParenExpr;
 //comment_expression : syntactic_comment_expression | semantic_comment_expression;
 
-// whitespace
-
-WHITESPACE : [\p{WHITE_SPACE}]
-           -> skip;
-
-// assorted
+// whitespace and line endings
 
 fragment LINE_END : [\u000D\u000A\u0085\u000B\u000C\u2028\u2029];
 fragment NON_LINE_END : [^\u000D\u000A\u0085\u000B\u000C\u2028\u2029];
+
+WHITESPACE : [\p{WHITE_SPACE}] -> skip;
+
+// assorted
 
 fragment ANY_CHAR : .;
