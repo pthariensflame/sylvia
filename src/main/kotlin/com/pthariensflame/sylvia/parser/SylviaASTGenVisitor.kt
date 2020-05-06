@@ -44,13 +44,9 @@ class SylviaASTGenVisitor
     }
 
     @TruffleBoundary
-    @Contract(pure = true)
+    @Contract("_ -> fail", pure = true)
     override fun visitErrorNode(node: ErrorNode): SylviaNode =
         throw ErrorNodeSyntaxException
-
-    @TruffleBoundary
-    @Contract("-> null", pure = true)
-    override fun defaultResult(): SylviaNode? = null
 
     companion object {
         @JvmStatic

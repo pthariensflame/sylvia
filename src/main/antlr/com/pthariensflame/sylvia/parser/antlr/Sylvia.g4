@@ -288,7 +288,7 @@ expression : getExpr=get_expr # GetExpr
 //           | expression comment_expression # CommentAfterExpr
            | call=procedure_call # ProcedureCallExpr
            | lit=literal # LiteralExpr
-           | name=path # UseValueExpr
+           | name=path # PathUseExpr
            | OPEN_PAREN innerExpr=expression CLOSE_PAREN # ParenExpr;
 //comment_expression : syntactic_comment_expression | semantic_comment_expression;
 
