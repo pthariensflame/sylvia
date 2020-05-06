@@ -1,5 +1,6 @@
 package com.pthariensflame.sylvia.parser
 
+import com.oracle.truffle.api.CompilerAsserts
 import com.oracle.truffle.api.CompilerDirectives
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary
 import com.oracle.truffle.api.interop.InteropLibrary
@@ -28,15 +29,24 @@ class SylviaASTGenVisitor
     @JvmField val langInstance: SylviaLanguage? = null,
 ) : SylviaBaseVisitor<SylviaNode>() {
     companion object {
+        private val commentCheckRegex: Regex by lazy {
+            Regex(
+                """^#([^\p{Space}|()⦅⦆]*?)(?:\(\|.*\|\)|⦅.*⦆|\((?:|[^|]|[^|].*[^|])\))([^\p{Space}|()⦅⦆]*?)#$""",
+                setOf(CANON_EQ, DOT_MATCHES_ALL)
+            )
+        }
+
         @JvmStatic
         @Contract(pure = true)
-        fun checkMatchedComment(txt: String): Boolean {
+        fun checkMatchedComment(txt: CharSequence): Boolean {
             contract {
                 returns()
             }
-            Regex("", setOf(CANON_EQ, DOT_MATCHES_ALL)).run {
-                return true // TODO
-            }
+            return commentCheckRegex.also {
+                CompilerAsserts.partialEvaluationConstant<Regex>(it)
+            }.matchEntire(txt)?.run {
+                groups[1] == groups[2]
+            } ?: false
         }
     }
 

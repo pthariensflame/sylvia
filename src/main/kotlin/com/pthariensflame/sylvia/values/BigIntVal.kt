@@ -5,6 +5,7 @@ import com.oracle.truffle.api.interop.InteropLibrary
 import com.oracle.truffle.api.interop.UnsupportedMessageException
 import com.oracle.truffle.api.library.ExportLibrary
 import com.oracle.truffle.api.library.ExportMessage
+import com.pthariensflame.sylvia.util.assertPartialEvaluationConstant
 import com.pthariensflame.sylvia.values.TypeLimits.MAX_BYTE
 import com.pthariensflame.sylvia.values.TypeLimits.MAX_INT
 import com.pthariensflame.sylvia.values.TypeLimits.MAX_LONG
@@ -34,19 +35,23 @@ data class BigIntVal(@JvmField val value: BigInteger) : SylviaVal(), Comparable<
 
     @ExportMessage
     @Contract(pure = true)
-    fun fitsInByte(): Boolean = value >= MIN_BYTE && value <= MAX_BYTE
+    fun fitsInByte(): Boolean =
+        value >= MIN_BYTE.assertPartialEvaluationConstant() && value <= MAX_BYTE.assertPartialEvaluationConstant()
 
     @ExportMessage
     @Contract(pure = true)
-    fun fitsInShort(): Boolean = value >= MIN_SHORT && value <= MAX_SHORT
+    fun fitsInShort(): Boolean =
+        value >= MIN_SHORT.assertPartialEvaluationConstant() && value <= MAX_SHORT.assertPartialEvaluationConstant()
 
     @ExportMessage
     @Contract(pure = true)
-    fun fitsInInt(): Boolean = value >= MIN_INT && value <= MAX_INT
+    fun fitsInInt(): Boolean =
+        value >= MIN_INT.assertPartialEvaluationConstant() && value <= MAX_INT.assertPartialEvaluationConstant()
 
     @ExportMessage
     @Contract(pure = true)
-    fun fitsInLong(): Boolean = value >= MIN_LONG && value <= MAX_LONG
+    fun fitsInLong(): Boolean =
+        value >= MIN_LONG.assertPartialEvaluationConstant() && value <= MAX_LONG.assertPartialEvaluationConstant()
 
     @ExportMessage
     @Contract(pure = true)
