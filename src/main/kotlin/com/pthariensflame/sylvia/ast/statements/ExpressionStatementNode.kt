@@ -25,9 +25,8 @@ import com.pthariensflame.sylvia.parser.SourceSpan
 @Introspectable
 open class ExpressionStatementNode
 @JvmOverloads constructor(
-    srcSpan: SourceSpan? = null,
     @JvmField @Node.Child var inner: ExpressionNode = ImpossibleExpressionNode(),
-) : StatementNode(srcSpan) {
+) : StatementNode(inner.srcSpan) {
     override fun isInstrumentable(): Boolean = true
 
     override fun createWrapper(probe: ProbeNode): InstrumentableNode.WrapperNode =

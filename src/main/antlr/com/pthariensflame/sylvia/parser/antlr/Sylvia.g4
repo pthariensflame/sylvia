@@ -275,9 +275,9 @@ block : OPEN_BRACE stmts+=statement* CLOSE_BRACE;
 
 // expressions
 
-literal : contentB=boolean_literal
-        | contentN=numeric_literal
-        | contentS=string_literal;
+literal : contentB=boolean_literal # BoolLiteral
+        | contentN=numeric_literal # NumLiteral
+        | contentS=string_literal # StringLiteral;
 
 get_expr : GET paramList=parameter_list FROM body=block;
 

@@ -21,6 +21,8 @@ data class SourceSpan(
 
     override fun clone(): SourceSpan = copy()
 
+    val end: Int get() = start + len - 1
+
     companion object {
         @JvmStatic
         @TruffleBoundary(allowInlining = true)
