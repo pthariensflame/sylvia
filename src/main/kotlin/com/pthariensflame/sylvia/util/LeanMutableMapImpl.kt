@@ -109,17 +109,17 @@ constructor(
                 throw UnsupportedOperationException("mutable map view error: cannot insert a key without a value")
 
             override fun removeIf(filter: Predicate<in K>): Boolean =
-                myKeys.assertPartialEvaluationConstant().removeAll(filter::test)
+                myKeys.removeAll(filter::test)
 
-            override fun forEach(action: Consumer<in K>?) = myKeys.assertPartialEvaluationConstant().forEach(action)
+            override fun forEach(action: Consumer<in K>?) = myKeys.forEach(action)
 
             override fun clear() = this@LeanMutableMapImpl.clear()
 
-            override fun contains(element: K): Boolean = myKeys.assertPartialEvaluationConstant().contains(element)
+            override fun contains(element: K): Boolean = myKeys.contains(element)
 
-            override fun iterator(): MutableIterator<K> = myKeys.assertPartialEvaluationConstant().iterator()
+            override fun iterator(): MutableIterator<K> = myKeys.iterator()
 
-            override fun spliterator(): Spliterator<K> = myKeys.assertPartialEvaluationConstant().spliterator()
+            override fun spliterator(): Spliterator<K> = myKeys.spliterator()
         }
 
     override val values: MutableCollection<V>
@@ -138,17 +138,17 @@ constructor(
                 throw UnsupportedOperationException("mutable map view error: cannot insert a value without a key")
 
             override fun removeIf(filter: Predicate<in V>): Boolean =
-                myValues.assertPartialEvaluationConstant().removeAll(filter::test)
+                myValues.removeAll(filter::test)
 
-            override fun forEach(action: Consumer<in V>?) = myValues.assertPartialEvaluationConstant().forEach(action)
+            override fun forEach(action: Consumer<in V>?) = myValues.forEach(action)
 
             override fun clear() = this@LeanMutableMapImpl.clear()
 
-            override fun contains(element: V): Boolean = myValues.assertPartialEvaluationConstant().contains(element)
+            override fun contains(element: V): Boolean = myValues.contains(element)
 
-            override fun iterator(): MutableIterator<V> = myValues.assertPartialEvaluationConstant().iterator()
+            override fun iterator(): MutableIterator<V> = myValues.iterator()
 
-            override fun spliterator(): Spliterator<V> = myValues.assertPartialEvaluationConstant().spliterator()
+            override fun spliterator(): Spliterator<V> = myValues.spliterator()
         }
 
     constructor(other: LeanMap<K, V>) : this(EconomicMap.create(other.underlying))

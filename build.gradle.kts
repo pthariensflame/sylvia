@@ -7,6 +7,7 @@ plugins {
     antlr
     kotlin("jvm") version "1.4-M1"
     kotlin("kapt") version "1.4-M1"
+    id("kotlinx-atomicfu") version "0.14.2-1.4-M1"
     id("org.jetbrains.dokka") version "0.10.1"
     `maven-publish`
     idea
@@ -75,9 +76,12 @@ dependencies {
     testImplementation("org.graalvm.sdk", "polyglot-tck", graalVMVersion)
 }
 
-//kotlinutils {
-//    kotlinVersion.set("1.4-M1")
-//}
+atomicfu {
+    dependenciesVersion = "0.14.2-1.4-M1"
+    transformJvm = true
+    variant = "BOTH"
+    transformJs = false
+}
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
@@ -129,7 +133,7 @@ tasks {
                 "-progressive",
                 "-Xopt-in=kotlin.RequiresOptIn",
                 "-Xjsr305=strict",
-                "-Xjsr305=under-migration:warn",
+                "-Xjsr305=under-migration:strict",
                 "-Xjvm-default=enable",
                 "-Xuse-mixed-named-arguments",
                 "-Xnew-inference",

@@ -63,7 +63,7 @@ constructor(
 
     override val keys: Set<K>
         get() = object : AbstractSet<K>() {
-            private val myKeys: Iterable<K> by lazy {
+            private val myKeys: Iterable<K> by CFLazy {
                 underlying.keys
             }
 
@@ -73,18 +73,18 @@ constructor(
             override fun isEmpty(): Boolean =
                 this@LeanMapImpl.isEmpty()
 
-            override fun contains(element: K): Boolean = myKeys.assertPartialEvaluationConstant().contains(element)
+            override fun contains(element: K): Boolean = myKeys.contains(element)
 
-            override fun forEach(action: Consumer<in K>?) = myKeys.assertPartialEvaluationConstant().forEach(action)
+            override fun forEach(action: Consumer<in K>?) = myKeys.forEach(action)
 
-            override fun iterator(): Iterator<K> = myKeys.assertPartialEvaluationConstant().iterator()
+            override fun iterator(): Iterator<K> = myKeys.iterator()
 
-            override fun spliterator(): Spliterator<K> = myKeys.assertPartialEvaluationConstant().spliterator()
+            override fun spliterator(): Spliterator<K> = myKeys.spliterator()
         }
 
     override val values: Collection<V>
         get() = object : AbstractCollection<V>() {
-            private val myValues: Iterable<V> by lazy {
+            private val myValues: Iterable<V> by CFLazy {
                 underlying.values
             }
 
@@ -95,15 +95,15 @@ constructor(
                 this@LeanMapImpl.isEmpty()
 
             override fun contains(element: @UnsafeVariance V): Boolean =
-                myValues.assertPartialEvaluationConstant().contains(element)
+                myValues.contains(element)
 
             override fun forEach(action: Consumer<in V>?) =
-                myValues.assertPartialEvaluationConstant().forEach(action)
+                myValues.forEach(action)
 
-            override fun iterator(): Iterator<V> = myValues.assertPartialEvaluationConstant().iterator()
+            override fun iterator(): Iterator<V> = myValues.iterator()
 
             override fun spliterator(): Spliterator<@UnsafeVariance V> =
-                myValues.assertPartialEvaluationConstant().spliterator()
+                myValues.spliterator()
         }
 
 

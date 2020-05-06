@@ -1,24 +1,16 @@
 package com.pthariensflame.sylvia.parser
 
-import com.pthariensflame.sylvia.util.assertPartialEvaluationConstant
+import com.pthariensflame.sylvia.util.CFLazy
 import org.jetbrains.annotations.Contract
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
-@PublishedApi
-internal object PredicatesImpl {
-    @JvmStatic
-    @PublishedApi
-    internal val commentCheckRegex: Regex by lazy {
-        Regex(
-            """^#([^\p{Space}()⦅⦆]*)(?:\(.*\)|⦅.*⦆)([^\p{Space}()⦅⦆]*)#$""",
-            setOf(RegexOption.CANON_EQ, RegexOption.DOT_MATCHES_ALL)
-        )
-    }
+private val commentCheckRegex: Regex by CFLazy {
+    Regex(
+        """^#([^\p{Space}()⦅⦆]*)(?:\(.*\)|⦅.*⦆)([^\p{Space}()⦅⦆]*)#$""",
+        setOf(RegexOption.CANON_EQ, RegexOption.DOT_MATCHES_ALL)
+    )
 }
-
-inline val commentCheckRegex: Regex
-    get() = PredicatesImpl.commentCheckRegex.assertPartialEvaluationConstant()
 
 
 @Contract(pure = true)

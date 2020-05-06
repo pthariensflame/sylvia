@@ -36,22 +36,22 @@ data class BigIntVal(@JvmField val value: BigInteger) : SylviaVal(), Comparable<
     @ExportMessage
     @Contract(pure = true)
     fun fitsInByte(): Boolean =
-        value >= MIN_BYTE.assertPartialEvaluationConstant() && value <= MAX_BYTE.assertPartialEvaluationConstant()
+        value >= MIN_BYTE && value <= MAX_BYTE
 
     @ExportMessage
     @Contract(pure = true)
     fun fitsInShort(): Boolean =
-        value >= MIN_SHORT.assertPartialEvaluationConstant() && value <= MAX_SHORT.assertPartialEvaluationConstant()
+        value >= MIN_SHORT && value <= MAX_SHORT
 
     @ExportMessage
     @Contract(pure = true)
     fun fitsInInt(): Boolean =
-        value >= MIN_INT.assertPartialEvaluationConstant() && value <= MAX_INT.assertPartialEvaluationConstant()
+        value >= MIN_INT && value <= MAX_INT
 
     @ExportMessage
     @Contract(pure = true)
     fun fitsInLong(): Boolean =
-        value >= MIN_LONG.assertPartialEvaluationConstant() && value <= MAX_LONG.assertPartialEvaluationConstant()
+        value >= MIN_LONG && value <= MAX_LONG
 
     @ExportMessage
     @Contract(pure = true)
