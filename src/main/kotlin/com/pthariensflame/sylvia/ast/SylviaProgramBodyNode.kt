@@ -6,9 +6,7 @@ import com.oracle.truffle.api.dsl.GenerateNodeFactory
 import com.oracle.truffle.api.dsl.GenerateUncached
 import com.oracle.truffle.api.dsl.Introspectable
 import com.oracle.truffle.api.frame.VirtualFrame
-import com.oracle.truffle.api.instrumentation.GenerateWrapper
-import com.oracle.truffle.api.instrumentation.InstrumentableNode
-import com.oracle.truffle.api.instrumentation.ProbeNode
+import com.oracle.truffle.api.instrumentation.*
 import com.oracle.truffle.api.nodes.BlockNode
 import com.oracle.truffle.api.nodes.Node
 import com.oracle.truffle.api.nodes.NodeInfo
@@ -38,6 +36,9 @@ open class SylviaProgramBodyNode
 
     override fun createWrapper(probe: ProbeNode): InstrumentableNode.WrapperNode =
         SylviaProgramBodyNodeWrapper(this, probe)
+
+    override fun hasTag(tag: Class<out Tag>): Boolean =
+        tag.kotlin == StandardTags.RootBodyTag::class || super.hasTag(tag)
 
     open fun executeVoid(outerFrame: VirtualFrame) {
         val allStatements =

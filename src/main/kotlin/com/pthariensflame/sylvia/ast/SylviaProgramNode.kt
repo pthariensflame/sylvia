@@ -38,4 +38,7 @@ open class SylviaProgramNode
 
     override fun execute(frame: VirtualFrame): Any? =
         bodyNode.executeVal(frame)
+
+    override fun hasTag(tag: Class<out Tag>): Boolean =
+        tag.kotlin == StandardTags.RootTag::class || super.hasTag(tag)
 }
