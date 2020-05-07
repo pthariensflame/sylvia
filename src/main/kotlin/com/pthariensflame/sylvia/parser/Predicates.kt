@@ -1,11 +1,11 @@
 package com.pthariensflame.sylvia.parser
 
-import com.pthariensflame.sylvia.util.CFLazy
+import com.pthariensflame.sylvia.util.LazyConstant
 import org.jetbrains.annotations.Contract
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
-private val commentCheckRegex: Regex by CFLazy {
+private val commentCheckRegex: Regex by LazyConstant {
     Regex(
         """^#([^\p{Space}()⦅⦆]*)(?:\(.*\)|⦅.*⦆)([^\p{Space}()⦅⦆]*)#$""",
         setOf(RegexOption.CANON_EQ, RegexOption.DOT_MATCHES_ALL)

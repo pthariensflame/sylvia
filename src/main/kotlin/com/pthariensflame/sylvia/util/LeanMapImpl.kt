@@ -63,7 +63,7 @@ constructor(
 
     override val keys: Set<K>
         get() = object : AbstractSet<K>() {
-            private val myKeys: Iterable<K> by CFLazy {
+            private val myKeys: Iterable<K> by LazyConstant {
                 underlying.keys
             }
 
@@ -84,7 +84,7 @@ constructor(
 
     override val values: Collection<V>
         get() = object : AbstractCollection<V>() {
-            private val myValues: Iterable<V> by CFLazy {
+            private val myValues: Iterable<V> by LazyConstant {
                 underlying.values
             }
 

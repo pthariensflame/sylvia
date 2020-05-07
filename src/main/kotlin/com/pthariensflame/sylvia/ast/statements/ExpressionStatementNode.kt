@@ -32,7 +32,6 @@ open class ExpressionStatementNode
     override fun createWrapper(probe: ProbeNode): InstrumentableNode.WrapperNode =
         ExpressionStatementNodeWrapper(this, probe)
 
-    override fun executeVoid(frame: VirtualFrame) {
-        inner.executeVal(frame)
-    }
+    override fun executeVoid(frame: VirtualFrame) =
+        inner.executeVoid(frame)
 }

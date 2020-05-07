@@ -30,9 +30,9 @@ open class ProcedureNode
 @JvmOverloads constructor(
     langInstance: SylviaLanguage? = null,
     frameDescriptor: FrameDescriptor? = null,
-    @JvmField val srcSpan: SourceSpan? = null,
+    srcSpan: SourceSpan? = null,
     @Node.Child @JvmField var bodyNode: ProcedureBodyNode = NormalProcedureBodyNode(),
-) : SylviaTopNode(langInstance, frameDescriptor) {
+) : SylviaTopNode(langInstance, frameDescriptor, srcSpan) {
     @Contract("-> new")
     override fun createWrapper(probe: ProbeNode): InstrumentableNode.WrapperNode =
         ProcedureNodeWrapper(this, probe)
@@ -44,10 +44,4 @@ open class ProcedureNode
 
     @GenerateWrapper.OutgoingConverter
     protected fun outConv(@Suppress("UNUSED_PARAMETER") v: Any?): Any? = null
-
-    @TruffleBoundary
-    override fun getSourceSection(): SourceSection {
-        val src: Source = encapsulatingSourceSection.source
-        return srcSpan?.asSectionOf(src) ?: src.createUnavailableSection()
-    }
 }

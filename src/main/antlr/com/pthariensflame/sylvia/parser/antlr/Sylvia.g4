@@ -261,6 +261,8 @@ declaration : bindPrim=bind_prim_decl # BindPrimDecl
             | module=module_decl # ModuleDecl
             | procedure=procedure_decl # ProcedureDecl
             | documented=documented_decl # DocumentedDecl
+            | EXPORT exported=declaration # ExportedDecl
+            | IMPORT identifier FROM path # ImportedDecl
             | DO body=decl_block # DoBlockDecl;
 documented_decl : DOC documentation=string_literal inner=declaration;
 

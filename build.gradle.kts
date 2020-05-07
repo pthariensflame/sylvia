@@ -7,7 +7,7 @@ plugins {
     antlr
     kotlin("jvm") version "1.4-M1"
     kotlin("kapt") version "1.4-M1"
-    id("kotlinx-atomicfu") version "0.14.2-1.4-M1"
+//    id("kotlinx-atomicfu") version "0.14.2-1.4-M1"
     id("org.jetbrains.dokka") version "0.10.1"
     `maven-publish`
     idea
@@ -76,13 +76,6 @@ dependencies {
     testImplementation("org.graalvm.sdk", "polyglot-tck", graalVMVersion)
 }
 
-atomicfu {
-    dependenciesVersion = "0.14.2-1.4-M1"
-    transformJvm = true
-    variant = "BOTH"
-    transformJs = false
-}
-
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
@@ -101,6 +94,13 @@ kapt {
 //        option("--module-path", javaClasspath)
     }
 }
+
+//atomicfu {
+//    dependenciesVersion = "0.14.2-1.4-M1"
+//    transformJvm = true
+//    variant = "BOTH"
+//    transformJs = false
+//}
 
 tasks {
     compileKotlin.configure { dependsOn.add(generateGrammarSource) }

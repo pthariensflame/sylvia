@@ -1,5 +1,7 @@
 package com.pthariensflame.sylvia.ast.expressions
 
+import com.oracle.truffle.api.CompilerDirectives
+import com.oracle.truffle.api.CompilerDirectives.SLOWPATH_PROBABILITY
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary
 import com.oracle.truffle.api.dsl.GenerateNodeFactory
 import com.oracle.truffle.api.dsl.GenerateUncached
@@ -13,6 +15,7 @@ import com.oracle.truffle.api.source.Source
 import com.oracle.truffle.api.source.SourceSection
 import com.pthariensflame.sylvia.ast.SylviaNode
 import com.pthariensflame.sylvia.parser.SourceSpan
+import com.pthariensflame.sylvia.util.TruffleUtil
 import com.pthariensflame.sylvia.values.*
 
 @NodeInfo(
@@ -31,11 +34,15 @@ abstract class ExpressionNode
 
     abstract fun executeVal(frame: VirtualFrame): SylviaVal
 
+    open fun executeVoid(frame: VirtualFrame) {
+        executeVal(frame)
+    }
+
     @Throws(UnexpectedResultException::class)
     inline fun <reified T : Any> executeTyped(frame: VirtualFrame): T {
         val r = executeVal(frame)
-        return if (r is T) {
-            r
+        return if (TruffleUtil.injectBranchProbability(SLOWPATH_PROBABILITY, r is T)) {
+            r as T
         } else {
             throw UnexpectedResultException(r)
         }
@@ -46,48 +53,57 @@ abstract class ExpressionNode
 
     @Throws(UnexpectedResultException::class)
     open fun executeByte(frame: VirtualFrame): Byte = executeTyped<BigIntVal>(frame).apply {
-        if (!fitsInByte()) {
+        if (TruffleUtil.injectBranchProbability(SLOWPATH_PROBABILITY, !fitsInByte())) {
             throw UnexpectedResultException(this)
         }
     }.asByte()
 
     @Throws(UnexpectedResultException::class)
     open fun executeShort(frame: VirtualFrame): Short = executeTyped<BigIntVal>(frame).apply {
-        if (!fitsInShort()) {
+        if (TruffleUtil.injectBranchProbability(SLOWPATH_PROBABILITY, !fitsInShort())) {
             throw UnexpectedResultException(this)
         }
     }.asShort()
 
     @Throws(UnexpectedResultException::class)
     open fun executeInt(frame: VirtualFrame): Int = executeTyped<BigIntVal>(frame).apply {
-        if (!fitsInInt()) {
+        if (TruffleUtil.injectBranchProbability(SLOWPATH_PROBABILITY, !fitsInInt())) {
             throw UnexpectedResultException(this)
         }
     }.asInt()
 
     @Throws(UnexpectedResultException::class)
     open fun executeLong(frame: VirtualFrame): Long = executeTyped<BigIntVal>(frame).apply {
-        if (!fitsInLong()) {
+        if (TruffleUtil.injectBranchProbability(SLOWPATH_PROBABILITY, !fitsInLong())) {
             throw UnexpectedResultException(this)
         }
     }.asLong()
 
     @Throws(UnexpectedResultException::class)
     open fun executeFloat(frame: VirtualFrame): Float = executeTyped<BigFloatVal>(frame).apply {
-        if (!fitsInFloat()) {
+        if (TruffleUtil.injectBranchProbability(SLOWPATH_PROBABILITY, !fitsInFloat())) {
             throw UnexpectedResultException(this)
         }
     }.asFloat()
 
     @Throws(UnexpectedResultException::class)
     open fun executeDouble(frame: VirtualFrame): Double = executeTyped<BigFloatVal>(frame).apply {
-        if (!fitsInDouble()) {
+        if (TruffleUtil.injectBranchProbability(SLOWPATH_PROBABILITY, !fitsInDouble())) {
             throw UnexpectedResultException(this)
         }
     }.asDouble()
 
     @Throws(UnexpectedResultException::class)
     open fun executeString(frame: VirtualFrame): String = executeTyped<StringVal>(frame).value
+
+    @Throws(UnexpectedResultException::class)
+    open fun executeChar(frame: VirtualFrame): Char = executeString(frame).run {
+        if (TruffleUtil.injectBranchProbability(CompilerDirectives.FASTPATH_PROBABILITY, length == 1)) {
+            get(0)
+        } else { // SLOWPATH_PROBABILITY
+            throw UnexpectedResultException(this)
+        }
+    }
 
     override fun createWrapper(probe: ProbeNode): InstrumentableNode.WrapperNode =
         ExpressionNodeWrapper(this, probe)

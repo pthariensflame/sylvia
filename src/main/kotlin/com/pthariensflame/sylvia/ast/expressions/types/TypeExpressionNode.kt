@@ -4,12 +4,14 @@ import com.oracle.truffle.api.dsl.GenerateNodeFactory
 import com.oracle.truffle.api.dsl.GenerateUncached
 import com.oracle.truffle.api.dsl.Introspectable
 import com.oracle.truffle.api.frame.VirtualFrame
-import com.oracle.truffle.api.instrumentation.*
+import com.oracle.truffle.api.instrumentation.GenerateWrapper
+import com.oracle.truffle.api.instrumentation.InstrumentableNode
+import com.oracle.truffle.api.instrumentation.ProbeNode
+import com.oracle.truffle.api.instrumentation.Tag
 import com.oracle.truffle.api.nodes.NodeInfo
 import com.pthariensflame.sylvia.ast.SylviaTag
 import com.pthariensflame.sylvia.ast.expressions.ExpressionNode
 import com.pthariensflame.sylvia.parser.SourceSpan
-import com.pthariensflame.sylvia.values.SylviaVal
 import com.pthariensflame.sylvia.values.types.SylviaType
 
 @NodeInfo(
@@ -28,9 +30,7 @@ abstract class TypeExpressionNode
         private const val MSG: String = "Type expression can't be executed as non-type"
     }
 
-    abstract fun executeType(frame: VirtualFrame): SylviaType
-
-    final override fun executeVal(frame: VirtualFrame): SylviaVal = executeType(frame)
+    abstract override fun executeVal(frame: VirtualFrame): SylviaType
 
     final override fun executeBool(frame: VirtualFrame): Boolean =
         throw UnsupportedOperationException(MSG)
