@@ -56,6 +56,9 @@ abstract class TypeExpressionNode
     final override fun executeString(frame: VirtualFrame): String =
         throw UnsupportedOperationException(MSG)
 
+    final override fun executeChar(frame: VirtualFrame): Char =
+        throw UnsupportedOperationException(MSG)
+
     override fun createWrapper(probe: ProbeNode): InstrumentableNode.WrapperNode =
         TypeExpressionNodeWrapper(this, probe)
 
