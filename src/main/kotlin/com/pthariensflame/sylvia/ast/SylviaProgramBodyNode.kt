@@ -136,6 +136,7 @@ open class SylviaProgramBodyNode
         private const val ALMOST_LIKELY_PROBABILITY: Double = LIKELY_PROBABILITY - SLOWPATH_PROBABILITY
 
         override fun executeVoid(frame: VirtualFrame, node: Node, index: Int, argument: Int) {
+            @Suppress("CascadeIf")
             if (TruffleUtil.injectBranchProbability(UNLIKELY_PROBABILITY, node is ExpressionNode)) {
                 (node as ExpressionNode).executeVoid(frame)
             } else if (TruffleUtil.injectBranchProbability(ALMOST_LIKELY_PROBABILITY, node is StatementNode)
