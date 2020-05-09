@@ -39,10 +39,10 @@ abstract class ExpressionNode
     }
 
     @Throws(UnexpectedResultException::class)
-    inline fun <reified T : Any> executeTyped(frame: VirtualFrame): T {
+    inline fun <reified T : SylviaVal> executeTyped(frame: VirtualFrame): T {
         val r = executeVal(frame)
         return if (TruffleUtil.injectBranchProbability(SLOWPATH_PROBABILITY, r is T)) {
-            r as T
+            r
         } else {
             throw UnexpectedResultException(r)
         }

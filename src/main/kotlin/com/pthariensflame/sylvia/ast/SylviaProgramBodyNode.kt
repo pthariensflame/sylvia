@@ -65,10 +65,10 @@ open class SylviaProgramBodyNode
         }
 
     @Throws(UnexpectedResultException::class)
-    inline fun <reified T : Any> executeTyped(frame: VirtualFrame): T {
+    inline fun <reified T : SylviaVal> executeTyped(frame: VirtualFrame): T {
         val r = executeVal(frame)
         return if (TruffleUtil.injectBranchProbability(SLOWPATH_PROBABILITY, r is T)) {
-            r as T
+            r
         } else {
             throw UnexpectedResultException(r)
         }
@@ -139,10 +139,9 @@ open class SylviaProgramBodyNode
         override fun executeVoid(frame: VirtualFrame, node: Node, index: Int, argument: Int) {
             @Suppress("CascadeIf")
             if (TruffleUtil.injectBranchProbability(UNLIKELY_PROBABILITY, node is ExpressionNode)) {
-                (node as ExpressionNode).executeVoid(frame)
-            } else if (TruffleUtil.injectBranchProbability(ALMOST_LIKELY_PROBABILITY, node is StatementNode)
-            ) {
-                (node as StatementNode).executeVoid(frame)
+                node.executeVoid(frame)
+            } else if (TruffleUtil.injectBranchProbability(ALMOST_LIKELY_PROBABILITY, node is StatementNode)) {
+                node.executeVoid(frame)
             } else { // SLOWPATH_PROBABILITY
                 throw IllegalArgumentException(
                     "Can't execute Sylvia node in block: neither expression node nor statement node"
@@ -152,7 +151,7 @@ open class SylviaProgramBodyNode
 
         override fun executeGeneric(frame: VirtualFrame, node: Node, index: Int, argument: Int): SylviaVal {
             if (TruffleUtil.injectBranchProbability(FASTPATH_PROBABILITY, node is ExpressionNode)) {
-                return (node as ExpressionNode).executeVal(frame)
+                return node.executeVal(frame)
             } else { // SLOWPATH_PROBABILITY
                 throw IllegalArgumentException(MSG)
             }
@@ -161,7 +160,7 @@ open class SylviaProgramBodyNode
         @Throws(UnexpectedResultException::class)
         override fun executeBoolean(frame: VirtualFrame, node: Node, index: Int, argument: Int): Boolean {
             if (TruffleUtil.injectBranchProbability(FASTPATH_PROBABILITY, node is ExpressionNode)) {
-                return (node as ExpressionNode).executeBool(frame)
+                return node.executeBool(frame)
             } else { // SLOWPATH_PROBABILITY
                 throw IllegalArgumentException(MSG)
             }
@@ -170,7 +169,7 @@ open class SylviaProgramBodyNode
         @Throws(UnexpectedResultException::class)
         override fun executeByte(frame: VirtualFrame, node: Node, index: Int, argument: Int): Byte {
             if (TruffleUtil.injectBranchProbability(FASTPATH_PROBABILITY, node is ExpressionNode)) {
-                return (node as ExpressionNode).executeByte(frame)
+                return node.executeByte(frame)
             } else { // SLOWPATH_PROBABILITY
                 throw IllegalArgumentException(MSG)
             }
@@ -179,7 +178,7 @@ open class SylviaProgramBodyNode
         @Throws(UnexpectedResultException::class)
         override fun executeDouble(frame: VirtualFrame, node: Node, index: Int, argument: Int): Double {
             if (TruffleUtil.injectBranchProbability(FASTPATH_PROBABILITY, node is ExpressionNode)) {
-                return (node as ExpressionNode).executeDouble(frame)
+                return node.executeDouble(frame)
             } else { // SLOWPATH_PROBABILITY
                 throw IllegalArgumentException(MSG)
             }
@@ -188,7 +187,7 @@ open class SylviaProgramBodyNode
         @Throws(UnexpectedResultException::class)
         override fun executeFloat(frame: VirtualFrame, node: Node, index: Int, argument: Int): Float {
             if (TruffleUtil.injectBranchProbability(FASTPATH_PROBABILITY, node is ExpressionNode)) {
-                return (node as ExpressionNode).executeFloat(frame)
+                return node.executeFloat(frame)
             } else { // SLOWPATH_PROBABILITY
                 throw IllegalArgumentException(MSG)
             }
@@ -206,7 +205,7 @@ open class SylviaProgramBodyNode
         @Throws(UnexpectedResultException::class)
         override fun executeLong(frame: VirtualFrame, node: Node, index: Int, argument: Int): Long {
             if (TruffleUtil.injectBranchProbability(FASTPATH_PROBABILITY, node is ExpressionNode)) {
-                return (node as ExpressionNode).executeLong(frame)
+                return node.executeLong(frame)
             } else { // SLOWPATH_PROBABILITY
                 throw IllegalArgumentException(MSG)
             }
@@ -215,7 +214,7 @@ open class SylviaProgramBodyNode
         @Throws(UnexpectedResultException::class)
         override fun executeShort(frame: VirtualFrame, node: Node, index: Int, argument: Int): Short {
             if (TruffleUtil.injectBranchProbability(FASTPATH_PROBABILITY, node is ExpressionNode)) {
-                return (node as ExpressionNode).executeShort(frame)
+                return node.executeShort(frame)
             } else { // SLOWPATH_PROBABILITY
                 throw IllegalArgumentException(MSG)
             }
@@ -224,7 +223,7 @@ open class SylviaProgramBodyNode
         @Throws(UnexpectedResultException::class)
         override fun executeChar(frame: VirtualFrame, node: Node, index: Int, argument: Int): Char {
             if (TruffleUtil.injectBranchProbability(FASTPATH_PROBABILITY, node is ExpressionNode)) {
-                return (node as ExpressionNode).executeString(frame).run {
+                return node.executeString(frame).run {
                     if (TruffleUtil.injectBranchProbability(FASTPATH_PROBABILITY, length == 1)) {
                         get(0)
                     } else { // SLOWPATH_PROBABILITY

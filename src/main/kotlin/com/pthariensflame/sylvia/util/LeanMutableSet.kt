@@ -1,25 +1,54 @@
 package com.pthariensflame.sylvia.util
 
 import org.graalvm.collections.EconomicSet
+import org.intellij.lang.annotations.Flow
 import org.jetbrains.annotations.Contract
 
 interface LeanMutableSet<E : Any> : LeanSet<E>, MutableSet<E> {
-    @get:Contract(pure = true)
     @JvmDefault
+    @get:Flow(
+        source = Flow.THIS_SOURCE,
+        sourceIsContainer = true,
+        target = Flow.RETURN_METHOD_TARGET,
+        targetIsContainer = true
+    )
+    @get:Contract(pure = true)
     override val underlying: EconomicSet<E>
 
     @JvmDefault
+    @Flow(
+        source = Flow.THIS_SOURCE,
+        sourceIsContainer = true,
+        target = Flow.RETURN_METHOD_TARGET,
+        targetIsContainer = true
+    )
     override fun iterator(): MutableIterator<E> =
         underlying.iterator()
 
     @JvmDefault
     @Contract(mutates = "this")
-    override fun add(element: E): Boolean =
+    override fun add(
+        @Flow(
+            source = Flow.DEFAULT_SOURCE,
+            sourceIsContainer = false,
+            target = Flow.THIS_TARGET,
+            targetIsContainer = true
+        )
+        element: E
+    ): Boolean =
         underlying.add(element)
 
     @JvmDefault
     @Contract(mutates = "this")
-    override fun addAll(elements: Collection<E>): Boolean {
+    override fun addAll(
+        @Flow(
+            source = Flow.DEFAULT_SOURCE,
+            sourceIsContainer = true,
+            target = Flow.THIS_TARGET,
+            targetIsContainer = true
+        )
+        elements: Collection<E>
+    ): Boolean {
         if (elements is LeanMutableSet<E>) return addAll(elements)
         val r = !containsAll(elements)
         underlying.addAll(elements.asIterable())
@@ -28,7 +57,15 @@ interface LeanMutableSet<E : Any> : LeanSet<E>, MutableSet<E> {
 
     @JvmDefault
     @Contract(mutates = "this")
-    fun addAll(elements: Iterable<E>): Boolean {
+    fun addAll(
+        @Flow(
+            source = Flow.DEFAULT_SOURCE,
+            sourceIsContainer = true,
+            target = Flow.THIS_TARGET,
+            targetIsContainer = true
+        )
+        elements: Iterable<E>
+    ): Boolean {
         val r = elements.any { !contains(it) }
         underlying.addAll(elements)
         return r
@@ -36,12 +73,28 @@ interface LeanMutableSet<E : Any> : LeanSet<E>, MutableSet<E> {
 
     @JvmDefault
     @Contract(mutates = "this,param1")
-    fun addAllOf(elements: Iterator<E>): Unit =
+    fun addAllOf(
+        @Flow(
+            source = Flow.DEFAULT_SOURCE,
+            sourceIsContainer = true,
+            target = Flow.THIS_TARGET,
+            targetIsContainer = true
+        )
+        elements: Iterator<E>
+    ): Unit =
         underlying.addAll(elements)
 
     @JvmDefault
     @Contract(mutates = "this")
-    fun addAll(elements: LeanMutableSet<E>): Boolean {
+    fun addAll(
+        @Flow(
+            source = Flow.DEFAULT_SOURCE,
+            sourceIsContainer = true,
+            target = Flow.THIS_TARGET,
+            targetIsContainer = true
+        )
+        elements: LeanMutableSet<E>
+    ): Boolean {
         val r = !containsAll(elements)
         underlying.addAll(elements.underlying)
         return r
@@ -111,11 +164,23 @@ interface LeanMutableSet<E : Any> : LeanSet<E>, MutableSet<E> {
     }
 
     @JvmDefault
+    @Flow(
+        source = Flow.THIS_SOURCE,
+        sourceIsContainer = true,
+        target = Flow.RETURN_METHOD_TARGET,
+        targetIsContainer = true
+    )
     @Contract("-> new")
     override fun clone(): LeanMutableSet<E> =
         LeanMutableSetImpl(this)
 
     @JvmDefault
+    @Flow(
+        source = Flow.THIS_SOURCE,
+        sourceIsContainer = true,
+        target = Flow.RETURN_METHOD_TARGET,
+        targetIsContainer = true
+    )
     @Contract("-> new")
     override fun cloneWithStyle(equivStyle: EquivStyle<E>): LeanMutableSet<E> =
         LeanMutableSetImpl(equivStyle, this)
@@ -131,6 +196,12 @@ interface LeanMutableSet<E : Any> : LeanSet<E>, MutableSet<E> {
 
         @Contract("_, _ -> new")
         inline fun <reified E : Any> copyFrom(
+            @Flow(
+                source = Flow.DEFAULT_SOURCE,
+                sourceIsContainer = true,
+                target = Flow.RETURN_METHOD_TARGET,
+                targetIsContainer = true
+            )
             other: LeanSet<E>,
             equivStyle: EquivStyle<E> = EquivStyle.objectMethodsAll(),
         ): LeanMutableSet<E> = LeanMutableSetImpl(equivStyle, other)

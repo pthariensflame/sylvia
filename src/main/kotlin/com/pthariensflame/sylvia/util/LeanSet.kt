@@ -1,13 +1,20 @@
 package com.pthariensflame.sylvia.util
 
 import org.graalvm.collections.UnmodifiableEconomicSet
+import org.intellij.lang.annotations.Flow
 import org.jetbrains.annotations.Contract
 import java.util.*
 import java.util.function.Consumer
 
 interface LeanSet<out E : Any> : Set<E>, Cloneable {
-    @get:Contract(pure = true)
     @JvmDefault
+    @get:Flow(
+        source = Flow.THIS_SOURCE,
+        sourceIsContainer = true,
+        target = Flow.RETURN_METHOD_TARGET,
+        targetIsContainer = true
+    )
+    @get:Contract(pure = true)
     val underlying: UnmodifiableEconomicSet<@UnsafeVariance E>
 
     @JvmDefault
@@ -19,14 +26,32 @@ interface LeanSet<out E : Any> : Set<E>, Cloneable {
         underlying.isEmpty
 
     @JvmDefault
+    @Flow(
+        source = Flow.THIS_SOURCE,
+        sourceIsContainer = true,
+        target = Flow.RETURN_METHOD_TARGET,
+        targetIsContainer = true
+    )
     override fun iterator(): Iterator<E> =
         underlying.iterator()
 
     @JvmDefault
+    @Flow(
+        source = Flow.THIS_SOURCE,
+        sourceIsContainer = true,
+        target = Flow.RETURN_METHOD_TARGET,
+        targetIsContainer = true
+    )
     override fun spliterator(): Spliterator<@UnsafeVariance E> =
         underlying.spliterator()
 
     @JvmDefault
+    @Flow(
+        source = Flow.THIS_SOURCE,
+        sourceIsContainer = true,
+        target = "action",
+        targetIsContainer = false
+    )
     override fun forEach(action: Consumer<in E>) =
         underlying.forEach(action)
 
@@ -39,16 +64,34 @@ interface LeanSet<out E : Any> : Set<E>, Cloneable {
         elements.all { underlying.contains(it) }
 
     @JvmDefault
+    @Flow(
+        source = Flow.THIS_SOURCE,
+        sourceIsContainer = true,
+        target = "arr",
+        targetIsContainer = true
+    )
     @Contract("_ -> param1", mutates = "param1")
     fun toArray(arr: Array<@UnsafeVariance E>): Array<@UnsafeVariance E> =
         underlying.toArray(arr)
 
     @JvmDefault
+    @Flow(
+        source = Flow.THIS_SOURCE,
+        sourceIsContainer = true,
+        target = Flow.RETURN_METHOD_TARGET,
+        targetIsContainer = true
+    )
     @Contract("-> new")
     override fun clone(): LeanSet<E> =
         LeanSetImpl(this)
 
     @JvmDefault
+    @Flow(
+        source = Flow.THIS_SOURCE,
+        sourceIsContainer = true,
+        target = Flow.RETURN_METHOD_TARGET,
+        targetIsContainer = true
+    )
     @Contract("-> new")
     fun cloneWithStyle(equivStyle: EquivStyle<E>): LeanSet<E> =
         LeanSetImpl(equivStyle, this)
@@ -64,6 +107,12 @@ interface LeanSet<out E : Any> : Set<E>, Cloneable {
 
         @Contract("_, _ -> new")
         inline fun <reified E : Any> copyFrom(
+            @Flow(
+                source = Flow.DEFAULT_SOURCE,
+                sourceIsContainer = true,
+                target = Flow.RETURN_METHOD_TARGET,
+                targetIsContainer = true
+            )
             other: LeanSet<E>,
             equivStyle: EquivStyle<E> = EquivStyle.objectMethodsAll(),
         ): LeanSet<E> = LeanSetImpl(equivStyle, other)
