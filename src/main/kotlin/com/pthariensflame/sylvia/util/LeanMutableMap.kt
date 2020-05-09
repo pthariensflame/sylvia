@@ -64,6 +64,11 @@ interface LeanMutableMap<K : Any, V : Any> : LeanMap<K, V>, MutableMap<K, V> {
             inner: EconomicMap<K, V>,
         ): LeanMutableMap<K, V> = LeanMutableMapImpl(inner)
 
+        @Contract("_ -> new")
+        inline fun <reified K : Any, reified V : Any> wrapping(
+            inner: MutableMap<K, V>,
+        ): LeanMutableMap<K, V> = LeanMutableMapImpl(EconomicMap.wrapMap(inner))
+
         @Contract("_, _ -> new")
         inline fun <reified K : Any, reified V : Any> copyFrom(
             other: LeanMap<K, V>,

@@ -5,13 +5,15 @@ import com.oracle.truffle.api.CompilerDirectives.FASTPATH_PROBABILITY
 import com.oracle.truffle.api.CompilerDirectives.LIKELY_PROBABILITY
 import org.graalvm.collections.EconomicMap
 import org.graalvm.collections.MapCursor
-import java.util.Spliterator
+import org.jetbrains.annotations.Contract
+import java.util.*
 import java.util.function.Consumer
 import java.util.function.Predicate
 
 @PublishedApi
 internal inline class LeanMutableMapImpl<K : Any, V : Any>
 constructor(
+    @get:Contract(pure = true)
     override val underlying: EconomicMap<K, V> = EconomicMap.create(),
 ) : LeanMutableMap<K, V> {
     constructor(

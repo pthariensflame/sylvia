@@ -1,5 +1,6 @@
 package com.pthariensflame.sylvia.util
 
+import org.graalvm.collections.EconomicMap
 import org.graalvm.collections.UnmodifiableEconomicMap
 import org.jetbrains.annotations.Contract
 
@@ -64,6 +65,11 @@ interface LeanMap<K : Any, out V : Any> : Map<K, V>, Cloneable {
         inline fun <reified K : Any, reified V : Any> wrapping(
             inner: UnmodifiableEconomicMap<K, V>,
         ): LeanMap<K, V> = LeanMapImpl(inner)
+
+        @Contract("_ -> new")
+        inline fun <reified K : Any, reified V : Any> wrapping(
+            inner: Map<K, V>,
+        ): LeanMap<K, V> = LeanMapImpl(EconomicMap.wrapMap(inner))
 
         @Contract("_, _ -> new")
         inline fun <reified K : Any, reified V : Any> copyFrom(

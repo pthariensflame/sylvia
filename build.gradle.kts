@@ -202,7 +202,7 @@ tasks {
     jar.configure {
         manifest {
             attributes(
-                "Main-Class" to "com.pthariensflame.sylvia.shell.SylviaShellMainKt",
+                "Main-Class" to "com.pthariensflame.sylvia.shell.SylviaLauncher",
                 "Automatic-Module-Name" to "com.pthariensflame.sylvia"
             )
         }

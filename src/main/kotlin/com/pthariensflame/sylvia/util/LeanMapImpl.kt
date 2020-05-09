@@ -5,12 +5,14 @@ import com.oracle.truffle.api.CompilerDirectives.LIKELY_PROBABILITY
 import org.graalvm.collections.EconomicMap
 import org.graalvm.collections.UnmodifiableEconomicMap
 import org.graalvm.collections.UnmodifiableMapCursor
+import org.jetbrains.annotations.Contract
 import java.util.Spliterator
 import java.util.function.Consumer
 
 @PublishedApi
 internal inline class LeanMapImpl<K : Any, out V : Any>
 constructor(
+    @get:Contract(pure = true)
     override val underlying: UnmodifiableEconomicMap<K, @UnsafeVariance V> = EconomicMap.create(),
 ) : LeanMap<K, V> {
     constructor(
@@ -105,7 +107,6 @@ constructor(
             override fun spliterator(): Spliterator<@UnsafeVariance V> =
                 myValues.spliterator()
         }
-
 
     constructor(other: LeanMap<K, V>) :
             this(EconomicMap.create(other.underlying))
