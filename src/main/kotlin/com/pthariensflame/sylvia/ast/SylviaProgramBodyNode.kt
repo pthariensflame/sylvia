@@ -196,7 +196,7 @@ open class SylviaProgramBodyNode
         @Throws(UnexpectedResultException::class)
         override fun executeInt(frame: VirtualFrame, node: Node, index: Int, argument: Int): Int {
             if (TruffleUtil.injectBranchProbability(FASTPATH_PROBABILITY, node is ExpressionNode)) {
-                return (node as ExpressionNode).executeInt(frame)
+                return node.executeInt(frame)
             } else { // SLOWPATH_PROBABILITY
                 throw IllegalArgumentException(MSG)
             }
