@@ -6,8 +6,6 @@ import com.oracle.truffle.api.Truffle
 import com.oracle.truffle.api.TruffleRuntime
 import com.oracle.truffle.api.nodes.Node
 import org.jetbrains.annotations.Contract
-import org.jetbrains.annotations.Range
-import java.util.concurrent.Callable
 import java.util.concurrent.locks.Lock
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
@@ -32,10 +30,25 @@ inline fun <R> Lock.locking(fn: () -> R): R {
     contract {
         callsInPlace(fn, InvocationKind.EXACTLY_ONCE)
     }
-    lock()
-    val r = fn()
-    unlock()
-    return r
+    try {
+        lock()
+        return fn()
+    } finally {
+        unlock()
+    }
+}
+
+@OptIn(ExperimentalContracts::class)
+inline fun Lock.locking(fn: () -> Unit) {
+    contract {
+        callsInPlace(fn, InvocationKind.EXACTLY_ONCE)
+    }
+    try {
+        lock()
+        fn()
+    } finally {
+        unlock()
+    }
 }
 
 @Suppress("NOTHING_TO_INLINE")

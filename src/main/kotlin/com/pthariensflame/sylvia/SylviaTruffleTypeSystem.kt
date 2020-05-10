@@ -9,6 +9,7 @@ import com.oracle.truffle.api.library.ExportLibrary
 import com.oracle.truffle.api.nodes.Node
 import com.pthariensflame.sylvia.ast.SylviaNode
 import com.pthariensflame.sylvia.values.*
+import com.pthariensflame.sylvia.values.types.SylviaType
 import org.jetbrains.annotations.Contract
 import java.math.MathContext
 import kotlin.contracts.ExperimentalContracts
@@ -29,6 +30,7 @@ import kotlin.contracts.ExperimentalContracts
     StringVal::class,
     SylviaException::class,
     SylviaExceptionVal::class,
+    SylviaType::class,
     SylviaVal::class,
 )
 @OptIn(ExperimentalContracts::class)

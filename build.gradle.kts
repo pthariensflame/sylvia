@@ -239,11 +239,7 @@ idea {
     module {
         isDownloadJavadoc = true
         isDownloadSources = true
-        sourceDirs = sourceDirs + sequenceOf(
-            File("src/main/antlr")
-        )
-        testSourceDirs = testSourceDirs + sequenceOf(
-            File("src/test/antlr")
-        )
+        sourceDirs = sourceDirs + File("$rootDir/src/main/antlr")
+        testSourceDirs = testSourceDirs + File("$rootDir/src/test/antlr")
     }
 }
