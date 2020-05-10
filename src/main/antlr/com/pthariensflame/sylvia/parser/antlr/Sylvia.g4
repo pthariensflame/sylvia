@@ -11,7 +11,6 @@ options {
 
 @parser::header {
     package com.pthariensflame.sylvia.parser.antlr;
-    import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 }
 
 program : stmts+=statement*;
@@ -188,9 +187,8 @@ numeric_literal : NUMBER;
 
 // booleans
 
-boolean_literal returns [@CompilationFinal boolean boolValue]
-    : TRUE { $ctx.boolValue = true; } # TrueLiteral
-    | FALSE { $ctx.boolValue = false; } # FalseLiteral;
+boolean_literal : TRUE # TrueLiteral
+                | FALSE # FalseLiteral;
 
 // identifiers
 
@@ -291,7 +289,8 @@ expression : getExpr=get_expr # GetExpr
            | call=procedure_call # ProcedureCallExpr
            | lit=literal # LiteralExpr
            | name=path # PathUseExpr
-           | OPEN_PAREN innerExpr=expression CLOSE_PAREN # ParenExpr;
+           | (OPEN_PAREN innerExpr=expression CLOSE_PAREN
+           | OPEN_DOUBLE_PAREN innerExpr=expression CLOSE_DOUBLE_PAREN) # ParenExpr;
 //comment_expression : syntactic_comment_expression | semantic_comment_expression;
 
 // whitespace and line endings

@@ -6,12 +6,16 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException
 import com.oracle.truffle.api.library.ExportLibrary
 import com.oracle.truffle.api.library.ExportMessage
 import com.pthariensflame.sylvia.UnicodeCodepoint
+import org.graalvm.tools.api.lsp.LSPLibrary
 import org.jetbrains.annotations.Contract
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
 
-@ExportLibrary(InteropLibrary::class)
+@ExportLibrary.Repeat(
+    ExportLibrary(InteropLibrary::class),
+//    ExportLibrary(LSPLibrary::class),
+)
 @ValueType
 @OptIn(ExperimentalContracts::class)
 data class StringVal(@JvmField val value: String) : SylviaVal(), Comparable<StringVal>, Cloneable {

@@ -9,10 +9,14 @@ import com.oracle.truffle.api.library.ExportLibrary
 import com.oracle.truffle.api.nodes.Node
 import com.pthariensflame.sylvia.ast.SylviaNode
 import com.pthariensflame.sylvia.values.SylviaException
+import org.graalvm.tools.api.lsp.LSPLibrary
 import org.jetbrains.annotations.Contract
 
 fun interface PrimitivesResolver {
-    @ExportLibrary(InteropLibrary::class)
+    @ExportLibrary.Repeat(
+        ExportLibrary(InteropLibrary::class),
+//        ExportLibrary(LSPLibrary::class),
+    )
     class AmbiguousPrimitiveIDException
     @JvmOverloads constructor(
         @JvmField val primID: String = "",

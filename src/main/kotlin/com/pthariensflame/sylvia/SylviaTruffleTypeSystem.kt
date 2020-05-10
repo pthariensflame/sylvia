@@ -1,13 +1,7 @@
 package com.pthariensflame.sylvia
 
-import com.oracle.truffle.api.CompilerDirectives
 import com.oracle.truffle.api.dsl.ImplicitCast
-import com.oracle.truffle.api.dsl.NodeFactory
 import com.oracle.truffle.api.dsl.TypeSystem
-import com.oracle.truffle.api.interop.InteropLibrary
-import com.oracle.truffle.api.library.ExportLibrary
-import com.oracle.truffle.api.nodes.Node
-import com.pthariensflame.sylvia.ast.SylviaNode
 import com.pthariensflame.sylvia.values.*
 import com.pthariensflame.sylvia.values.types.SylviaType
 import org.jetbrains.annotations.Contract
@@ -25,6 +19,7 @@ import kotlin.contracts.ExperimentalContracts
     Float::class,
     Double::class,
     BigFloatVal::class,
+    Char::class,
     UnicodeCodepoint::class,
     String::class,
     StringVal::class,
@@ -161,6 +156,21 @@ open class SylviaTruffleTypeSystem internal constructor() {
         @JvmStatic
         @Contract("-> new", pure = true)
         fun doubleToBigFloatVal(v: Double): BigFloatVal = BigFloatVal(v.toBigDecimal(MathContext.UNLIMITED))
+
+        @ImplicitCast
+        @JvmStatic
+        @Contract("-> new", pure = true)
+        fun charToUnicodeCodepoint(v: Char): UnicodeCodepoint = UnicodeCodepoint(v)
+
+        @ImplicitCast
+        @JvmStatic
+        @Contract("-> new", pure = true)
+        fun charToString(v: Char): String = v.toString()
+
+        @ImplicitCast
+        @JvmStatic
+        @Contract("-> new", pure = true)
+        fun charToStringVal(v: Char): StringVal = StringVal(v.toString())
 
         @ImplicitCast
         @JvmStatic

@@ -6,6 +6,7 @@ import com.oracle.truffle.api.interop.InteropLibrary
 import com.oracle.truffle.api.interop.UnsupportedMessageException
 import com.oracle.truffle.api.library.ExportLibrary
 import com.oracle.truffle.api.library.ExportMessage
+import org.graalvm.tools.api.lsp.LSPLibrary
 import org.jetbrains.annotations.Contract
 import java.math.BigDecimal
 import java.math.MathContext
@@ -13,7 +14,10 @@ import java.math.RoundingMode
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
-@ExportLibrary(InteropLibrary::class)
+@ExportLibrary.Repeat(
+    ExportLibrary(InteropLibrary::class),
+//    ExportLibrary(LSPLibrary::class),
+)
 @CompilerDirectives.ValueType
 @OptIn(ExperimentalContracts::class)
 @Suppress("ProtectedInFinal")

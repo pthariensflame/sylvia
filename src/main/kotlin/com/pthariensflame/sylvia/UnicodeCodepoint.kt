@@ -9,11 +9,15 @@ import com.oracle.truffle.api.interop.TruffleObject
 import com.oracle.truffle.api.interop.UnsupportedMessageException
 import com.oracle.truffle.api.library.ExportLibrary
 import com.oracle.truffle.api.library.ExportMessage
+import org.graalvm.tools.api.lsp.LSPLibrary
 import org.jetbrains.annotations.Contract
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
-@ExportLibrary(InteropLibrary::class)
+@ExportLibrary.Repeat(
+    ExportLibrary(InteropLibrary::class),
+//    ExportLibrary(LSPLibrary::class),
+)
 @ValueType
 @OptIn(ExperimentalContracts::class)
 data class UnicodeCodepoint(
@@ -63,12 +67,24 @@ data class UnicodeCodepoint(
     fun asString(): String =
         asStringChecked() ?: throw UnsupportedMessageException.create()
 
+//    @ExportMessage
+    @Throws(UnsupportedMessageException::class)
+    fun getDocumentation(): Any =
+        LSPLibrary.getFactory().getUncached(this).getDocumentation(this)
+
+//    @ExportMessage
+    @Throws(UnsupportedMessageException::class)
+    fun getSignature(): Any =
+        LSPLibrary.getFactory().getUncached(this).getSignature(this)
+
     @Contract("-> new", pure = true)
     internal fun asStringChecked(): String? =
         UCharacter.toString(value)
 
     @Contract("-> new", pure = true)
-    override fun clone(): UnicodeCodepoint {
-        return copy()
-    }
+    override fun clone(): UnicodeCodepoint = copy()
+
+    @Contract("-> new", pure = true)
+    override fun toString(): String =
+        "UnicodeCodepoint( U+${value.toString(16).toUpperCase()} )"
 }

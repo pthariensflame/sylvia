@@ -18,6 +18,7 @@ import com.pthariensflame.sylvia.util.TruffleUtil
 import com.pthariensflame.sylvia.values.SylviaException
 import org.antlr.v4.runtime.ParserRuleContext
 import org.antlr.v4.runtime.tree.ErrorNode
+import org.graalvm.tools.api.lsp.LSPLibrary
 import org.jetbrains.annotations.Contract
 
 // TODO
@@ -73,7 +74,10 @@ class SylviaASTGenVisitor
     override fun visitParenExpr(ctx: SylviaParser.ParenExprContext): ExpressionNode =
         super.visit(ctx.innerExpr) as ExpressionNode
 
-    @ExportLibrary(InteropLibrary::class)
+    @ExportLibrary.Repeat(
+        ExportLibrary(InteropLibrary::class),
+//        ExportLibrary(LSPLibrary::class),
+    )
     object ErrorNodeSyntaxException : SylviaException() {
         @Contract("-> this", pure = true)
         override fun fillInStackTrace(): Throwable = this

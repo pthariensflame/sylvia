@@ -14,12 +14,16 @@ import com.pthariensflame.sylvia.values.TypeLimits.MIN_BYTE
 import com.pthariensflame.sylvia.values.TypeLimits.MIN_INT
 import com.pthariensflame.sylvia.values.TypeLimits.MIN_LONG
 import com.pthariensflame.sylvia.values.TypeLimits.MIN_SHORT
+import org.graalvm.tools.api.lsp.LSPLibrary
 import org.jetbrains.annotations.Contract
 import java.math.BigInteger
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
-@ExportLibrary(InteropLibrary::class)
+@ExportLibrary.Repeat(
+    ExportLibrary(InteropLibrary::class),
+//    ExportLibrary(LSPLibrary::class),
+)
 @CompilerDirectives.ValueType
 @OptIn(ExperimentalContracts::class)
 data class BigIntVal(@JvmField val value: BigInteger) : SylviaVal(), Comparable<BigIntVal>, Cloneable {
