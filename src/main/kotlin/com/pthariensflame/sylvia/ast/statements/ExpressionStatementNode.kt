@@ -1,5 +1,6 @@
 package com.pthariensflame.sylvia.ast.statements
 
+import com.oracle.truffle.api.CompilerDirectives
 import com.oracle.truffle.api.dsl.GenerateNodeFactory
 import com.oracle.truffle.api.dsl.GenerateUncached
 import com.oracle.truffle.api.dsl.Introspectable
@@ -11,8 +12,9 @@ import com.oracle.truffle.api.nodes.Node
 import com.oracle.truffle.api.nodes.NodeCost
 import com.oracle.truffle.api.nodes.NodeInfo
 import com.pthariensflame.sylvia.ast.expressions.ExpressionNode
-import com.pthariensflame.sylvia.ast.expressions.ImpossibleExpressionNode
 import com.pthariensflame.sylvia.parser.SourceSpan
+import com.pthariensflame.sylvia.util.TruffleUtil
+import com.pthariensflame.sylvia.util.runAtomic
 
 @NodeInfo(
     shortName = "expr-stmt",
@@ -25,8 +27,22 @@ import com.pthariensflame.sylvia.parser.SourceSpan
 @Introspectable
 open class ExpressionStatementNode
 @JvmOverloads constructor(
-    @JvmField @Node.Child var inner: ExpressionNode = ImpossibleExpressionNode(),
-) : StatementNode(inner.srcSpan) {
+    srcSpan: SourceSpan? = null,
+) : StatementNode(srcSpan) {
+    @field:Node.Child
+    private var _inner: ExpressionNode? = null
+
+    var inner: ExpressionNode
+        get() = _inner!!
+        set(newInner) = runAtomic {
+            if (TruffleUtil.injectBranchProbability(CompilerDirectives.LIKELY_PROBABILITY, _inner == null)) {
+                _inner = insert(newInner)
+                notifyInserted(newInner)
+            } else {
+                _inner!!.replace(newInner)
+            }
+        }
+
     override fun isInstrumentable(): Boolean = true
 
     override fun createWrapper(probe: ProbeNode): InstrumentableNode.WrapperNode =

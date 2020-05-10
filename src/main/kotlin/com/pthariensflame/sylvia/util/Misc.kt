@@ -4,9 +4,13 @@ import com.oracle.truffle.api.CompilerAsserts
 import com.oracle.truffle.api.CompilerDirectives
 import com.oracle.truffle.api.Truffle
 import com.oracle.truffle.api.TruffleRuntime
+import com.oracle.truffle.api.nodes.Node
 import org.jetbrains.annotations.Contract
 import org.jetbrains.annotations.Range
+import java.util.concurrent.Callable
+import java.util.concurrent.locks.Lock
 import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
 @Suppress("NOTHING_TO_INLINE")
@@ -21,6 +25,35 @@ inline fun <T> T.assertPartialEvaluationConstant(): T {
 inline fun <T> T.assertCompilationConstant(): T {
     CompilerAsserts.compilationConstant<T>(this)
     return this
+}
+
+@OptIn(ExperimentalContracts::class)
+inline fun <R> Lock.locking(fn: () -> R): R {
+    contract {
+        callsInPlace(fn, InvocationKind.EXACTLY_ONCE)
+    }
+    lock()
+    val r = fn()
+    unlock()
+    return r
+}
+
+@Suppress("NOTHING_TO_INLINE")
+@OptIn(ExperimentalContracts::class)
+inline fun <R> Node.runAtomic(noinline fn: () -> R): R {
+    contract {
+        callsInPlace(fn, InvocationKind.EXACTLY_ONCE)
+    }
+    return atomic(fn)
+}
+
+@Suppress("NOTHING_TO_INLINE")
+@OptIn(ExperimentalContracts::class)
+inline fun Node.runAtomic(noinline fn: () -> Unit) {
+    contract {
+        callsInPlace(fn, InvocationKind.EXACTLY_ONCE)
+    }
+    return atomic(fn)
 }
 
 @OptIn(ExperimentalContracts::class)

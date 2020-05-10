@@ -16,7 +16,11 @@ import com.pthariensflame.sylvia.ast.statements.ExpressionStatementNode
 import com.pthariensflame.sylvia.ast.statements.StatementNode
 import com.pthariensflame.sylvia.parser.SourceSpan
 import com.pthariensflame.sylvia.util.TruffleUtil
+import com.pthariensflame.sylvia.util.runAtomic
 import com.pthariensflame.sylvia.values.*
+import org.intellij.lang.annotations.Flow
+import org.jetbrains.annotations.Contract
+import java.util.*
 
 @NodeInfo(
     shortName = "sylv-prog-body",
@@ -29,9 +33,103 @@ import com.pthariensflame.sylvia.values.*
 open class SylviaProgramBodyNode
 @JvmOverloads constructor(
     @JvmField val srcSpan: SourceSpan? = null,
-    @Node.Children @JvmField var statements: Array<StatementNode> = emptyArray(),
-    @Node.Child @JvmField var endExpr: ExpressionNode? = null,
 ) : Node(), SylviaNode, InstrumentableNode {
+    @get:Flow(
+        source = Flow.THIS_SOURCE,
+        sourceIsContainer = true,
+        target = Flow.RETURN_METHOD_TARGET,
+        targetIsContainer = true
+    )
+    @field:Node.Children
+    var statements: Array<StatementNode> = emptyArray()
+        private set
+
+    @Contract(mutates = "this,param2")
+    fun addStatement(
+        @Flow(
+            source = Flow.DEFAULT_SOURCE,
+            sourceIsContainer = false,
+            target = Flow.THIS_TARGET,
+            targetIsContainer = true
+        )
+        newStatement: StatementNode
+    ): Unit = runAtomic {
+        val oldSize = statements.size
+        statements += insert(newStatement)
+        notifyInserted(statements[oldSize])
+    }
+
+
+    @Contract(mutates = "this,param2")
+    fun addStatements(
+        @Flow(
+            source = Flow.DEFAULT_SOURCE,
+            sourceIsContainer = true,
+            target = Flow.THIS_TARGET,
+            targetIsContainer = true
+        )
+        newStatements: Iterable<StatementNode>
+    ): Unit = runAtomic {
+        val oldSize = statements.size
+        statements = Arrays.copyOf(statements, oldSize + newStatements.count())
+        newStatements.forEachIndexed { index, newStatement ->
+            val adjustedIndex = oldSize + index
+            statements[adjustedIndex] = insert(newStatement)
+            notifyInserted(statements[adjustedIndex])
+        }
+    }
+
+    @Contract(pure = true)
+    @Flow(
+        source = Flow.THIS_SOURCE,
+        sourceIsContainer = true,
+        target = Flow.RETURN_METHOD_TARGET,
+        targetIsContainer = false
+    )
+    fun getStatement(index: Int): StatementNode =
+        statements[index]
+
+    @Contract(mutates = "this,param2")
+    fun replaceStatement(
+        index: Int,
+        @Flow(
+            source = Flow.DEFAULT_SOURCE,
+            sourceIsContainer = false,
+            target = Flow.THIS_TARGET,
+            targetIsContainer = true
+        )
+        newStatement: StatementNode
+    ): StatementNode = runAtomic<StatementNode> {
+        statements[index].replace(newStatement)
+    }
+
+    @field:Node.Child
+    @get:Flow(
+        source = Flow.THIS_SOURCE,
+        sourceIsContainer = true,
+        target = Flow.RETURN_METHOD_TARGET,
+        targetIsContainer = false
+    )
+    var endExpr: ExpressionNode? = null
+        set(
+            @Flow(
+                source = Flow.DEFAULT_SOURCE,
+                sourceIsContainer = false,
+                target = Flow.THIS_TARGET,
+                targetIsContainer = true
+            )
+            newExpr
+        ) = runAtomic {
+            if (newExpr == null) {
+                field = null
+            } else if (field == null) {
+                field = insert(newExpr)
+                notifyInserted(field)
+            } else {
+                field!!.replace(newExpr)
+            }
+        }
+
     override fun isInstrumentable(): Boolean = true
 
     override fun createWrapper(probe: ProbeNode): InstrumentableNode.WrapperNode =
@@ -43,7 +141,7 @@ open class SylviaProgramBodyNode
     open fun executeVoid(outerFrame: VirtualFrame) {
         val allStatements =
             endExpr?.let {
-                statements.plusElement(ExpressionStatementNode(it))
+                statements.plusElement(ExpressionStatementNode(it.srcSpan).apply { inner = it })
             } ?: statements
         val block: BlockNode<StatementNode> =
             BlockNode.create(allStatements) { frame: VirtualFrame, node: StatementNode, _: Int, _: Int ->
@@ -136,94 +234,93 @@ open class SylviaProgramBodyNode
 
         private const val ALMOST_LIKELY_PROBABILITY: Double = LIKELY_PROBABILITY - SLOWPATH_PROBABILITY
 
-        override fun executeVoid(frame: VirtualFrame, node: Node, index: Int, argument: Int) {
-            @Suppress("CascadeIf")
-            if (TruffleUtil.injectBranchProbability(UNLIKELY_PROBABILITY, node is ExpressionNode)) {
+        override fun executeVoid(frame: VirtualFrame, node: Node, index: Int, argument: Int): Unit = when {
+            TruffleUtil.injectBranchProbability(
+                UNLIKELY_PROBABILITY,
+                node is ExpressionNode
+            ) -> {
                 node.executeVoid(frame)
-            } else if (TruffleUtil.injectBranchProbability(ALMOST_LIKELY_PROBABILITY, node is StatementNode)) {
+            }
+            TruffleUtil.injectBranchProbability(
+                ALMOST_LIKELY_PROBABILITY,
+                node is StatementNode
+            ) -> {
                 node.executeVoid(frame)
-            } else { // SLOWPATH_PROBABILITY
+            }
+            else -> { // SLOWPATH_PROBABILITY
                 throw IllegalArgumentException(
                     "Can't execute Sylvia node in block: neither expression node nor statement node"
                 )
             }
         }
 
-        override fun executeGeneric(frame: VirtualFrame, node: Node, index: Int, argument: Int): SylviaVal {
+        override fun executeGeneric(frame: VirtualFrame, node: Node, index: Int, argument: Int): SylviaVal =
             if (TruffleUtil.injectBranchProbability(FASTPATH_PROBABILITY, node is ExpressionNode)) {
-                return node.executeVal(frame)
+                node.executeVal(frame)
             } else { // SLOWPATH_PROBABILITY
                 throw IllegalArgumentException(MSG)
             }
-        }
 
         @Throws(UnexpectedResultException::class)
-        override fun executeBoolean(frame: VirtualFrame, node: Node, index: Int, argument: Int): Boolean {
+        override fun executeBoolean(frame: VirtualFrame, node: Node, index: Int, argument: Int): Boolean =
             if (TruffleUtil.injectBranchProbability(FASTPATH_PROBABILITY, node is ExpressionNode)) {
-                return node.executeBool(frame)
+                node.executeBool(frame)
             } else { // SLOWPATH_PROBABILITY
                 throw IllegalArgumentException(MSG)
             }
-        }
 
         @Throws(UnexpectedResultException::class)
-        override fun executeByte(frame: VirtualFrame, node: Node, index: Int, argument: Int): Byte {
+        override fun executeByte(frame: VirtualFrame, node: Node, index: Int, argument: Int): Byte =
             if (TruffleUtil.injectBranchProbability(FASTPATH_PROBABILITY, node is ExpressionNode)) {
-                return node.executeByte(frame)
+                node.executeByte(frame)
             } else { // SLOWPATH_PROBABILITY
                 throw IllegalArgumentException(MSG)
             }
-        }
 
         @Throws(UnexpectedResultException::class)
-        override fun executeDouble(frame: VirtualFrame, node: Node, index: Int, argument: Int): Double {
+        override fun executeDouble(frame: VirtualFrame, node: Node, index: Int, argument: Int): Double =
             if (TruffleUtil.injectBranchProbability(FASTPATH_PROBABILITY, node is ExpressionNode)) {
-                return node.executeDouble(frame)
+                node.executeDouble(frame)
             } else { // SLOWPATH_PROBABILITY
                 throw IllegalArgumentException(MSG)
             }
-        }
 
         @Throws(UnexpectedResultException::class)
-        override fun executeFloat(frame: VirtualFrame, node: Node, index: Int, argument: Int): Float {
+        override fun executeFloat(frame: VirtualFrame, node: Node, index: Int, argument: Int): Float =
             if (TruffleUtil.injectBranchProbability(FASTPATH_PROBABILITY, node is ExpressionNode)) {
-                return node.executeFloat(frame)
+                node.executeFloat(frame)
             } else { // SLOWPATH_PROBABILITY
                 throw IllegalArgumentException(MSG)
             }
-        }
 
         @Throws(UnexpectedResultException::class)
-        override fun executeInt(frame: VirtualFrame, node: Node, index: Int, argument: Int): Int {
+        override fun executeInt(frame: VirtualFrame, node: Node, index: Int, argument: Int): Int =
             if (TruffleUtil.injectBranchProbability(FASTPATH_PROBABILITY, node is ExpressionNode)) {
-                return node.executeInt(frame)
+                node.executeInt(frame)
             } else { // SLOWPATH_PROBABILITY
                 throw IllegalArgumentException(MSG)
             }
-        }
 
         @Throws(UnexpectedResultException::class)
-        override fun executeLong(frame: VirtualFrame, node: Node, index: Int, argument: Int): Long {
+        override fun executeLong(frame: VirtualFrame, node: Node, index: Int, argument: Int): Long =
             if (TruffleUtil.injectBranchProbability(FASTPATH_PROBABILITY, node is ExpressionNode)) {
-                return node.executeLong(frame)
+                node.executeLong(frame)
             } else { // SLOWPATH_PROBABILITY
                 throw IllegalArgumentException(MSG)
             }
-        }
 
         @Throws(UnexpectedResultException::class)
-        override fun executeShort(frame: VirtualFrame, node: Node, index: Int, argument: Int): Short {
+        override fun executeShort(frame: VirtualFrame, node: Node, index: Int, argument: Int): Short =
             if (TruffleUtil.injectBranchProbability(FASTPATH_PROBABILITY, node is ExpressionNode)) {
-                return node.executeShort(frame)
+                node.executeShort(frame)
             } else { // SLOWPATH_PROBABILITY
                 throw IllegalArgumentException(MSG)
             }
-        }
 
         @Throws(UnexpectedResultException::class)
-        override fun executeChar(frame: VirtualFrame, node: Node, index: Int, argument: Int): Char {
+        override fun executeChar(frame: VirtualFrame, node: Node, index: Int, argument: Int): Char =
             if (TruffleUtil.injectBranchProbability(FASTPATH_PROBABILITY, node is ExpressionNode)) {
-                return node.executeString(frame).run {
+                node.executeString(frame).run {
                     if (TruffleUtil.injectBranchProbability(FASTPATH_PROBABILITY, length == 1)) {
                         get(0)
                     } else { // SLOWPATH_PROBABILITY
@@ -233,6 +330,5 @@ open class SylviaProgramBodyNode
             } else { // SLOWPATH_PROBABILITY
                 throw IllegalArgumentException(MSG)
             }
-        }
     }
 }

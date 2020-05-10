@@ -5,11 +5,12 @@ import com.oracle.truffle.api.CompilerDirectives.ValueType
 import com.oracle.truffle.api.source.Source
 import com.oracle.truffle.api.source.SourceSection
 import org.antlr.v4.runtime.ParserRuleContext
+import org.jetbrains.annotations.Range
 
 @ValueType
 data class SourceSpan(
-    @JvmField val start: Int,
-    @JvmField val len: Int
+    @JvmField val start: @Range(from = 0, to = Int.MAX_VALUE.toLong()) Int,
+    @JvmField val len: @Range(from = 0, to = Int.MAX_VALUE.toLong()) Int
 ) : Cloneable {
     @TruffleBoundary(allowInlining = true)
     fun asSectionOf(src: Source): SourceSection =
@@ -21,7 +22,9 @@ data class SourceSpan(
 
     override fun clone(): SourceSpan = copy()
 
-    val end: Int get() = start + len - 1
+    val end: @Range(from = 0, to = Int.MAX_VALUE.toLong()) Int get() = start + len - 1
+
+    constructor(ir: IntRange) : this(ir.start, ir.endInclusive - ir.start + 1)
 
     companion object {
         @JvmStatic

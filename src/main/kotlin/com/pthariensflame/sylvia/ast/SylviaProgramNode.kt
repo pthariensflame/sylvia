@@ -1,5 +1,6 @@
 package com.pthariensflame.sylvia.ast
 
+import com.oracle.truffle.api.CompilerDirectives
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary
 import com.oracle.truffle.api.dsl.GenerateNodeFactory
 import com.oracle.truffle.api.dsl.GenerateUncached
@@ -14,7 +15,10 @@ import com.oracle.truffle.api.source.Source
 import com.oracle.truffle.api.source.SourceSection
 import com.pthariensflame.sylvia.SylviaLanguage
 import com.pthariensflame.sylvia.SylviaTruffleTypeSystem
+import com.pthariensflame.sylvia.ast.expressions.ExpressionNode
 import com.pthariensflame.sylvia.parser.SourceSpan
+import com.pthariensflame.sylvia.util.TruffleUtil
+import com.pthariensflame.sylvia.util.runAtomic
 import org.jetbrains.annotations.Contract
 
 @NodeInfo(
@@ -30,8 +34,22 @@ open class SylviaProgramNode
 @JvmOverloads constructor(
     langInstance: SylviaLanguage? = null,
     frameDescriptor: FrameDescriptor? = null,
-    @Node.Child @JvmField var bodyNode: SylviaProgramBodyNode = SylviaProgramBodyNode(),
-) : SylviaTopNode(langInstance, frameDescriptor, bodyNode.srcSpan) {
+    srcSpan: SourceSpan? = null,
+) : SylviaTopNode(langInstance, frameDescriptor, srcSpan) {
+    @field:Node.Child
+    private var _bodyNode: SylviaProgramBodyNode? = null
+
+    var bodyNode: SylviaProgramBodyNode
+        get() = _bodyNode!!
+        set(newInner) = runAtomic {
+            if (TruffleUtil.injectBranchProbability(CompilerDirectives.LIKELY_PROBABILITY, _bodyNode == null)) {
+                _bodyNode = insert(newInner)
+                notifyInserted(newInner)
+            } else {
+                _bodyNode!!.replace(newInner)
+            }
+        }
+
     @Contract("-> new")
     override fun createWrapper(probe: ProbeNode): InstrumentableNode.WrapperNode =
         SylviaProgramNodeWrapper(this, probe)

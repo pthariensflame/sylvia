@@ -3,11 +3,14 @@ package com.pthariensflame.sylvia
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal
 import com.oracle.truffle.api.Scope
 import com.oracle.truffle.api.TruffleLanguage
+import com.oracle.truffle.api.`object`.DynamicObject
+import com.oracle.truffle.api.`object`.Layout
+import com.oracle.truffle.api.`object`.Shape
 import com.oracle.truffle.api.instrumentation.ProvidedTags
 import com.oracle.truffle.api.instrumentation.StandardTags
-import com.pthariensflame.sylvia.ast.Identifier
 import com.pthariensflame.sylvia.ast.SylviaTag
 import com.pthariensflame.sylvia.shell.SylviaFileDetector
+import com.pthariensflame.sylvia.util.LazyConstant
 import com.pthariensflame.sylvia.values.SylviaException
 import com.pthariensflame.sylvia.values.SylviaVal
 import org.graalvm.options.OptionValues
@@ -42,6 +45,25 @@ import org.graalvm.options.OptionValues
 )
 @OptIn(ExperimentalStdlibApi::class)
 class SylviaLanguage : TruffleLanguage<SylviaLanguage.SylviaLangCxt>() {
+    companion object {
+        @JvmStatic
+        val scopeLayout: Layout by LazyConstant {
+            Layout.newLayout()
+                .addAllowedImplicitCast(Layout.ImplicitCast.IntToLong)
+                .setPolymorphicUnboxing(true)
+                .build()
+        }
+
+        @JvmStatic
+        val scopeShape: Shape by LazyConstant {
+            scopeLayout.createShape(SylviaScopeObjectType())
+        }
+
+        @JvmStatic
+        fun newScopeObject(): DynamicObject =
+            scopeLayout.newInstance(scopeShape)
+    }
+
     class SylviaLangCxt(
         @JvmField @CompilationFinal var env: Env,
     ) {
@@ -53,10 +75,10 @@ class SylviaLanguage : TruffleLanguage<SylviaLanguage.SylviaLangCxt>() {
 
         @JvmField
         @CompilationFinal
-        var globalScope: Scope =
+        var globalScope: Scope = run {
             Scope.newBuilder(
                 "Sylvia Top Scope",
-                TODO()
+                newScopeObject()
             ).node(
                 null
             ).arguments(
@@ -64,6 +86,7 @@ class SylviaLanguage : TruffleLanguage<SylviaLanguage.SylviaLangCxt>() {
             ).rootInstance(
                 null
             ).build()
+        }
     }
 
     override fun createContext(env: Env?): SylviaLangCxt? = env?.let {
@@ -91,6 +114,7 @@ class SylviaLanguage : TruffleLanguage<SylviaLanguage.SylviaLangCxt>() {
             is Long,
             is Float,
             is Double,
+            is UnicodeCodepoint,
             is String,
             is SylviaVal,
             is SylviaException,

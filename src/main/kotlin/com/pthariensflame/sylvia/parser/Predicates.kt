@@ -19,7 +19,9 @@ fun checkMatchedComment(txt: CharSequence): Boolean {
     contract {
         returns()
     }
-    return commentCheckRegex.matchEntire(txt)?.run {
-        groups[1] == groups[2]
-    } ?: false
+    return commentCheckRegex.matchEntire(txt).run {
+        if (this != null) {
+            groups[1] == groups[2]
+        } else false
+    }
 }

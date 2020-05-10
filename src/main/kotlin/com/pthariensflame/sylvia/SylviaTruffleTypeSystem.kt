@@ -24,6 +24,7 @@ import kotlin.contracts.ExperimentalContracts
     Float::class,
     Double::class,
     BigFloatVal::class,
+    UnicodeCodepoint::class,
     String::class,
     StringVal::class,
     SylviaException::class,
@@ -158,6 +159,16 @@ open class SylviaTruffleTypeSystem internal constructor() {
         @JvmStatic
         @Contract("-> new", pure = true)
         fun doubleToBigFloatVal(v: Double): BigFloatVal = BigFloatVal(v.toBigDecimal(MathContext.UNLIMITED))
+
+        @ImplicitCast
+        @JvmStatic
+        @Contract("-> new", pure = true)
+        fun unicodeCodepointToString(v: UnicodeCodepoint): String = v.asString()
+
+        @ImplicitCast
+        @JvmStatic
+        @Contract("-> new", pure = true)
+        fun unicodeCodepointToStringVal(v: UnicodeCodepoint): StringVal = StringVal(v.asString())
 
         @ImplicitCast
         @JvmStatic

@@ -55,13 +55,13 @@ data class UnicodeCodepoint(
 
     @ExportMessage
     @Contract(pure = true)
-    fun isString(): Boolean = UCharacter.toString(value) != null
+    fun isString(): Boolean = asStringChecked() != null
 
     @ExportMessage
     @Throws(UnsupportedMessageException::class)
     @Contract(pure = true)
     fun asString(): String =
-        UCharacter.toString(value) ?: throw UnsupportedMessageException.create()
+        asStringChecked() ?: throw UnsupportedMessageException.create()
 
     @Contract("-> new", pure = true)
     internal fun asStringChecked(): String? =
