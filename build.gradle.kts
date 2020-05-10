@@ -52,9 +52,9 @@ dependencies {
     }
 
     api(kotlin("stdlib-jdk8"))
-    implementation(kotlin("reflect"))
-    testImplementation(kotlin("test"))
-    testImplementation(kotlin("test-junit5"))
+    api(kotlin("reflect"))
+    testApi(kotlin("test"))
+    testApi(kotlin("test-junit5"))
 
     testImplementation("org.junit.jupiter", "junit-jupiter-api")
     testImplementation("org.junit.jupiter", "junit-jupiter-params")
@@ -71,19 +71,20 @@ dependencies {
 
     implementation("com.ibm.icu", "icu4j", "[67.1,)")
 
-    implementation("org.jline", "jline-terminal", "3.14.1")
-    implementation("org.jline", "jline-reader", "3.14.1")
-    implementation("org.jline", "jline-style", "3.14.1")
+    api("org.jline", "jline-terminal", "3.14.1")
+    api("org.jline", "jline-reader", "3.14.1")
+    api("org.jline", "jline-style", "3.14.1")
     implementation("org.jline", "jline-terminal-jansi", "3.14.1")
 
     api("org.graalvm.truffle", "truffle-api", graalVMVersion)
-    implementation("org.graalvm.truffle", "truffle-nfi", graalVMVersion)
-    implementation("org.graalvm.sdk", "graal-sdk", graalVMVersion)
-    implementation("org.graalvm.sdk", "launcher-common", graalVMVersion)
+    api("org.graalvm.truffle", "truffle-nfi", graalVMVersion)
+    api("org.graalvm.sdk", "graal-sdk", graalVMVersion)
+    api("org.graalvm.sdk", "launcher-common", graalVMVersion)
     kapt("org.graalvm.truffle", "truffle-dsl-processor", graalVMVersion)
     implementation("org.graalvm.compiler", "compiler", graalVMVersion)
-    testImplementation("org.graalvm.truffle", "truffle-tck", graalVMVersion)
-    testImplementation("org.graalvm.sdk", "polyglot-tck", graalVMVersion)
+    api("org.graalvm.tools", "lsp_api", graalVMVersion)
+    testApi("org.graalvm.truffle", "truffle-tck", graalVMVersion)
+    testApi("org.graalvm.sdk", "polyglot-tck", graalVMVersion)
 }
 
 java {
@@ -121,7 +122,7 @@ tasks {
 
     withType<AntlrTask>().configureEach {
         arguments = arguments + sequenceOf(
-            "-no-listener",
+            "-listener",
             "-visitor",
             "-long-messages"
         )
@@ -196,13 +197,16 @@ tasks {
             externalDocumentationLink {
                 url = URL("https://javadoc.io/static/org.graalvm.truffle/truffle-dsl-processor/$graalVMVersion/")
             }
+            externalDocumentationLink {
+                url = URL("https://javadoc.io/static/org.graalvm.tools/lsp_api/$graalVMVersion/")
+            }
 //            externalDocumentationLink { url = URL("https://javadoc.io/static/org.junit.jupiter/junit-jupiter-api/5.6.2/") }
 //            externalDocumentationLink { url = URL("https://javadoc.io/static/org.junit.jupiter/junit-jupiter-params/5.6.2/") }
             externalDocumentationLink { url = URL("https://javadoc.io/static/com.ibm.icu/icu4j/67.1/") }
-            externalDocumentationLink { url = URL("https://javadoc.io/static/org.jline/jline-terminal/3.14.1/") }
-            externalDocumentationLink { url = URL("https://javadoc.io/static/org.jline/jline-reader/3.14.1/") }
-            externalDocumentationLink { url = URL("https://javadoc.io/static/org.jline/jline-style/3.14.1/") }
-            externalDocumentationLink { url = URL("https://javadoc.io/static/org.jline/jline-terminal-jansi/3.14.1/") }
+//            externalDocumentationLink { url = URL("https://javadoc.io/static/org.jline/jline-terminal/3.14.1/") }
+//            externalDocumentationLink { url = URL("https://javadoc.io/static/org.jline/jline-reader/3.14.1/") }
+//            externalDocumentationLink { url = URL("https://javadoc.io/static/org.jline/jline-style/3.14.1/") }
+//            externalDocumentationLink { url = URL("https://javadoc.io/static/org.jline/jline-terminal-jansi/3.14.1/") }
             externalDocumentationLink { url = URL("https://javadoc.io/static/org.fusesource.jansi/jansi/1.18/") }
         }
     }
