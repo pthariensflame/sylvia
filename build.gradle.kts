@@ -239,7 +239,15 @@ idea {
     module {
         isDownloadJavadoc = true
         isDownloadSources = true
-        sourceDirs = sourceDirs + File("$rootDir/src/main/antlr")
-        testSourceDirs = testSourceDirs + File("$rootDir/src/test/antlr")
+        sourceDirs = sourceDirs + sequenceOf(
+            File("$rootDir/src/main/antlr")
+        )
+        testSourceDirs = testSourceDirs + sequenceOf(
+            File("$rootDir/src/test/antlr")
+        )
+        excludeDirs = excludeDirs + sequenceOf(
+            File("$rootDir/src/main/unwanted"),
+            File("$rootDir/src/test/unwanted")
+        )
     }
 }
