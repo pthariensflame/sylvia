@@ -7,6 +7,7 @@ import com.oracle.truffle.api.Truffle
 import com.oracle.truffle.api.TruffleRuntime
 import com.oracle.truffle.api.nodes.Node
 import org.jetbrains.annotations.Contract
+import java.io.Closeable
 import java.util.concurrent.locks.Lock
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
@@ -69,6 +70,12 @@ inline fun Node.runAtomic(noinline fn: () -> Unit) {
     }
     return atomic(fn)
 }
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun <C : Closeable?, S : Iterable<C>, R> S.useAll(noinline block: (S) -> R): R =
+    (fold(block) { fn, c ->
+        { v -> c.use { fn(v) } }
+    })(this)
 
 @OptIn(ExperimentalContracts::class)
 object TruffleUtil {
