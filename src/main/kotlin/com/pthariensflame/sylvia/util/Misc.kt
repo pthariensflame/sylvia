@@ -2,6 +2,7 @@ package com.pthariensflame.sylvia.util
 
 import com.oracle.truffle.api.CompilerAsserts
 import com.oracle.truffle.api.CompilerDirectives
+import com.oracle.truffle.api.CompilerDirectives.*
 import com.oracle.truffle.api.Truffle
 import com.oracle.truffle.api.TruffleRuntime
 import com.oracle.truffle.api.nodes.Node
@@ -71,6 +72,10 @@ inline fun Node.runAtomic(noinline fn: () -> Unit) {
 
 @OptIn(ExperimentalContracts::class)
 object TruffleUtil {
+    const val ALMOST_LIKELY_PROBABILITY: Double = LIKELY_PROBABILITY - SLOWPATH_PROBABILITY
+
+    const val ALMOST_UNLIKELY_PROBABILITY: Double = UNLIKELY_PROBABILITY - SLOWPATH_PROBABILITY
+
     @JvmStatic
     inline val runtime: TruffleRuntime
         get() = Truffle.getRuntime()

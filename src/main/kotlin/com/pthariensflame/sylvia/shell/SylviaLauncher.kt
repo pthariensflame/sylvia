@@ -15,9 +15,14 @@ class SylviaLauncher
 ) : AbstractLanguageLauncher() {
     companion object {
         @JvmStatic
-        fun main(args: Array<String>) {
-            SylviaLauncher().launch(args)
-        }
+        fun main(args: Array<String>): Unit =
+            SylviaLauncher().run {
+                try {
+                    launch(args)
+                } finally {
+                    term.close()
+                }
+            }
     }
 
     @Contract(pure = true)
@@ -36,24 +41,20 @@ class SylviaLauncher
     }
 
     override fun launch(contextBuilder: Context.Builder) {
-        try {
-            val lineReader: LineReader = LineReaderBuilder.builder()
-                .appName("sylvia")
-                .terminal(term)
-                .parser(TODO())
-                .completer(TODO())
-                .highlighter(TODO())
-                .variables(TODO())
-                .expander(TODO())
-                .history(TODO())
-                .option(LineReader.Option.AUTO_FRESH_LINE, true)
-                .option(LineReader.Option.DELAY_LINE_WRAP, true)
-                .build()
-            val ctx: Context = contextBuilder.build()
-            lineReader.readLine("")
-        } finally {
-            term.close()
-        }
+        val lineReader: LineReader = LineReaderBuilder.builder()
+            .appName("sylvia")
+            .terminal(term)
+            .parser(TODO())
+            .completer(TODO())
+            .highlighter(TODO())
+            .variables(TODO())
+            .expander(TODO())
+            .history(TODO())
+            .option(LineReader.Option.AUTO_FRESH_LINE, true)
+            .option(LineReader.Option.DELAY_LINE_WRAP, true)
+            .build()
+        val ctx: Context = contextBuilder.build()
+        lineReader.readLine("")
     }
 
     override fun validateArguments(polyglotOptions: Map<String, String>) {

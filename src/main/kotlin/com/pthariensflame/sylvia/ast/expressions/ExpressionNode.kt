@@ -49,7 +49,7 @@ abstract class ExpressionNode
     }
 
     @Throws(UnexpectedResultException::class)
-    open fun executeBool(frame: VirtualFrame): Boolean = executeTyped<BoolVal>(frame).value
+    open fun executeBoolean(frame: VirtualFrame): Boolean = executeTyped<BoolVal>(frame).value
 
     @Throws(UnexpectedResultException::class)
     open fun executeByte(frame: VirtualFrame): Byte = executeTyped<BigIntVal>(frame).apply {

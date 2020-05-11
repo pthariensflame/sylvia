@@ -32,7 +32,7 @@ abstract class TypeExpressionNode
 
     abstract override fun executeVal(frame: VirtualFrame): SylviaType
 
-    final override fun executeBool(frame: VirtualFrame): Boolean =
+    final override fun executeBoolean(frame: VirtualFrame): Boolean =
         throw UnsupportedOperationException(MSG)
 
     final override fun executeByte(frame: VirtualFrame): Byte =

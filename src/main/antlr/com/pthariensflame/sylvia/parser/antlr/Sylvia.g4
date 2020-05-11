@@ -70,12 +70,12 @@ fragment SMART_STRING_ANY : SMART_DOUBLE_STRING
                           | SMART_CHEVRON_STRING;
 fragment SMART_STRING_INNER : ~[“”‘’«»\\] | '\\' [“”‘’«»\\] | SMART_STRING_ANY;
 
-string_literal : contentStD=straight_double_string # StraightDoubleStringLiteral
-               | contentStS=straight_single_string # StraightSingleStringLiteral
-               | contentStB=straight_backtick_string # StraightBacktickStringLiteral
-               | contentSmD=smart_double_string # SmartDoubleStringLiteral
-               | contentSmS=smart_single_string # SmartSingleStringLiteral
-               | contentSmC=smart_chevron_string # SmartChevronStringLiteral;
+string_literal : stDString=straight_double_string # StraightDoubleStringLiteral
+               | stSString=straight_single_string # StraightSingleStringLiteral
+               | stBString=straight_backtick_string # StraightBacktickStringLiteral
+               | smDString=smart_double_string # SmartDoubleStringLiteral
+               | smSString=smart_single_string # SmartSingleStringLiteral
+               | smCString=smart_chevron_string # SmartChevronStringLiteral;
 
 // Keywords and symbols
 
@@ -126,6 +126,8 @@ OPEN_DOUBLE_PAREN : '⦅';
 OPEN_PAREN : '(';
 HASH_SYM : '#';
 DOT : '.';
+TILDE : '~';
+SCOPE_SEP : '/';
 
 keyword : ALIAS
         | BIND
@@ -153,14 +155,16 @@ keyword : ALIAS
         | TYPEALIAS
         | AT_SYM
         | COLON
-        | UNDERSCORE;
+        | UNDERSCORE
+        | SCOPE_SEP;
 
 separator_symbol : ARROW_FROM
                  | THICK_ARROW_FROM
                  | ARROW_TO
                  | THICK_ARROW_TO
                  | COMMA
-                 | SEMICOLON;
+                 | SEMICOLON
+                 | TILDE;
 
 enclosure_symbol : OPEN_BRACE
                  | OPEN_DOUBLE_BRACE
@@ -196,7 +200,7 @@ fragment IDENT_START : [\p{XID_START}];
 fragment IDENT_CONT : IDENT_START | [\p{XID_CONTINUE}];
 IDENT : IDENT_START IDENT_CONT*;
 identifier : IDENT;
-path : segments+=identifier (DOT segments+=identifier)*;
+path : segments+=identifier (SCOPE_SEP segments+=identifier)*;
 
 name_declarator : AT_SYM nature=expression OF name=identifier COLON type=expression;
 
@@ -218,23 +222,19 @@ parameter : declarator=name_declarator # FullParam
           | inner=single_or_brack_param # NestedParam;
 brack_param : OPEN_BRACK params=parameter_list CLOSE_BRACK # SingleBrackParam
             | OPEN_DOUBLE_BRACK params=parameter_list CLOSE_DOUBLE_BRACK # DoubleBrackParam;
-paren_param : OPEN_PAREN inner=parameter CLOSE_PAREN # SingleParenParam
-            | OPEN_DOUBLE_PAREN inner=parameter CLOSE_DOUBLE_PAREN # DoubleParenParam;
-single_or_brack_param : contentB=brack_param # BrackParam
-                      | contentP=paren_param # ParenParam;
+paren_param : (OPEN_PAREN inner=parameter CLOSE_PAREN
+            | OPEN_DOUBLE_PAREN inner=parameter CLOSE_DOUBLE_PAREN);
+single_or_brack_param : brackParam=brack_param # BrackParam
+                      | parenParam=paren_param # ParenParam;
 
 // collections
 
-collection_literal returns [@NotNull Argument_listContext elemList]
-    : OPEN_BRACK elemListS=argument_list CLOSE_BRACK { $ctx.elemList=$elemListS.ctx; } # SingleBrackCollLit
-    | OPEN_DOUBLE_BRACK elemListD=argument_list CLOSE_DOUBLE_BRACK { $ctx.elemList=$elemListD.ctx; }# DoubleBrackCollLit;
-argument_list returns [boolean hasMissings = false]
-    : (args+=argument (seps+=separator_symbol args+=argument)*)? {
-    };
-argument returns [boolean hasMissings]
-    : expr=expression { $ctx.hasMissings = false; } # ExprArg
-    | missing=missing_arg { $ctx.hasMissings = true; } # MissingArg
-    | sublist=collection_literal { $ctx.hasMissings = $sublist.elemList.hasMissings; } #SublistArg;
+collection_literal : OPEN_BRACK elemList=argument_list CLOSE_BRACK # SingleBrackCollLit
+                   | OPEN_DOUBLE_BRACK elemList=argument_list CLOSE_DOUBLE_BRACK # DoubleBrackCollLit;
+argument_list : (args+=argument (seps+=separator_symbol args+=argument)*)?;
+argument : expr=expression # ExprArg
+         | missing=missing_arg # MissingArg
+         | sublist=collection_literal #SublistArg;
 missing_arg : UNDERSCORE;
 
 // procedure calls
@@ -268,16 +268,16 @@ documented_decl : DOC documentation=string_literal inner=declaration;
 
 statement : expr=expression  # ExpressionStmt
           | decl=declaration # DeclarationStmt
-//          | comment_statement
           | DO body=block # DoBlockStmt;
+//          | comment_statement
 block : OPEN_BRACE stmts+=statement* CLOSE_BRACE;
 //comment_statement : syntactic_comment_statement | semantic_comment_statement;
 
 // expressions
 
-literal : contentB=boolean_literal # BoolLiteral
-        | contentN=numeric_literal # NumLiteral
-        | contentS=string_literal # StringLiteral;
+literal : booleanLit=boolean_literal # BoolLiteral
+        | numericLit=numeric_literal # NumLiteral
+        | stringLit=string_literal # StringLiteral;
 
 get_expr : GET paramList=parameter_list FROM body=block;
 

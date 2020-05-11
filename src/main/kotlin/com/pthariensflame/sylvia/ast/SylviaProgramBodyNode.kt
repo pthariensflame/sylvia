@@ -11,11 +11,13 @@ import com.oracle.truffle.api.nodes.BlockNode
 import com.oracle.truffle.api.nodes.Node
 import com.oracle.truffle.api.nodes.NodeInfo
 import com.oracle.truffle.api.nodes.UnexpectedResultException
+import com.pthariensflame.sylvia.UnicodeCodepoint
 import com.pthariensflame.sylvia.ast.expressions.ExpressionNode
-import com.pthariensflame.sylvia.ast.statements.ExpressionStatementNode
 import com.pthariensflame.sylvia.ast.statements.StatementNode
 import com.pthariensflame.sylvia.parser.SourceSpan
+import com.pthariensflame.sylvia.util.LazyConstant
 import com.pthariensflame.sylvia.util.TruffleUtil
+import com.pthariensflame.sylvia.util.TruffleUtil.ALMOST_LIKELY_PROBABILITY
 import com.pthariensflame.sylvia.util.runAtomic
 import com.pthariensflame.sylvia.values.*
 import org.intellij.lang.annotations.Flow
@@ -43,6 +45,12 @@ open class SylviaProgramBodyNode
     @field:Node.Children
     var statements: Array<StatementNode> = emptyArray()
         private set
+
+    val block: BlockNode<Node> by LazyConstant {
+        val allStatements: MutableList<Node> = statements.copyOf().toMutableList()
+        endExpr?.let { allStatements.add(it) }
+        BlockNode.create(allStatements.toTypedArray(), ProgramValueBlockExecutor)
+    }
 
     @Contract(mutates = "this,param2")
     fun addStatement(
@@ -138,29 +146,11 @@ open class SylviaProgramBodyNode
     override fun hasTag(tag: Class<out Tag>): Boolean =
         tag.kotlin == StandardTags.RootBodyTag::class || super.hasTag(tag)
 
-    open fun executeVoid(outerFrame: VirtualFrame) {
-        val allStatements =
-            endExpr?.let {
-                statements.plusElement(ExpressionStatementNode(it.srcSpan).apply { inner = it })
-            } ?: statements
-        val block: BlockNode<StatementNode> =
-            BlockNode.create(allStatements) { frame: VirtualFrame, node: StatementNode, _: Int, _: Int ->
-                node.executeVoid(frame)
-            }
+    open fun executeVoid(outerFrame: VirtualFrame): Unit =
         block.executeVoid(outerFrame, BlockNode.NO_ARGUMENT)
-    }
 
     open fun executeVal(outerFrame: VirtualFrame): SylviaVal? =
-        endExpr?.let { expr ->
-            val allStatements: MutableList<Node> = statements.copyOf().toMutableList()
-            allStatements.add(expr)
-            val block: BlockNode<Node> =
-                BlockNode.create(allStatements.toTypedArray(), ProgramValueBlockExecutor)
-            block.executeGeneric(outerFrame, BlockNode.NO_ARGUMENT) as SylviaVal
-        } ?: run {
-            executeVoid(outerFrame)
-            null
-        }
+        block.executeGeneric(outerFrame, BlockNode.NO_ARGUMENT) as SylviaVal
 
     @Throws(UnexpectedResultException::class)
     inline fun <reified T : SylviaVal> executeTyped(frame: VirtualFrame): T {
@@ -173,66 +163,54 @@ open class SylviaProgramBodyNode
     }
 
     @Throws(UnexpectedResultException::class)
-    open fun executeBool(frame: VirtualFrame): Boolean = executeTyped<BoolVal>(frame).value
+    open fun executeBoolean(frame: VirtualFrame): Boolean =
+        block.executeBoolean(frame, BlockNode.NO_ARGUMENT)
 
     @Throws(UnexpectedResultException::class)
-    open fun executeByte(frame: VirtualFrame): Byte = executeTyped<BigIntVal>(frame).apply {
-        if (TruffleUtil.injectBranchProbability(SLOWPATH_PROBABILITY, !fitsInByte())) {
-            throw UnexpectedResultException(this)
-        }
-    }.asByte()
+    open fun executeByte(frame: VirtualFrame): Byte =
+        block.executeByte(frame, BlockNode.NO_ARGUMENT)
 
     @Throws(UnexpectedResultException::class)
-    open fun executeShort(frame: VirtualFrame): Short = executeTyped<BigIntVal>(frame).apply {
-        if (TruffleUtil.injectBranchProbability(SLOWPATH_PROBABILITY, !fitsInShort())) {
-            throw UnexpectedResultException(this)
-        }
-    }.asShort()
+    open fun executeShort(frame: VirtualFrame): Short =
+        block.executeShort(frame, BlockNode.NO_ARGUMENT)
 
     @Throws(UnexpectedResultException::class)
-    open fun executeInt(frame: VirtualFrame): Int = executeTyped<BigIntVal>(frame).apply {
-        if (TruffleUtil.injectBranchProbability(SLOWPATH_PROBABILITY, !fitsInInt())) {
-            throw UnexpectedResultException(this)
-        }
-    }.asInt()
+    open fun executeInt(frame: VirtualFrame): Int =
+        block.executeInt(frame, BlockNode.NO_ARGUMENT)
 
     @Throws(UnexpectedResultException::class)
-    open fun executeLong(frame: VirtualFrame): Long = executeTyped<BigIntVal>(frame).apply {
-        if (TruffleUtil.injectBranchProbability(SLOWPATH_PROBABILITY, !fitsInLong())) {
-            throw UnexpectedResultException(this)
-        }
-    }.asLong()
+    open fun executeLong(frame: VirtualFrame): Long =
+        block.executeLong(frame, BlockNode.NO_ARGUMENT)
 
     @Throws(UnexpectedResultException::class)
-    open fun executeFloat(frame: VirtualFrame): Float = executeTyped<BigFloatVal>(frame).apply {
-        if (TruffleUtil.injectBranchProbability(SLOWPATH_PROBABILITY, !fitsInFloat())) {
-            throw UnexpectedResultException(this)
-        }
-    }.asFloat()
+    open fun executeFloat(frame: VirtualFrame): Float =
+        block.executeFloat(frame, BlockNode.NO_ARGUMENT)
 
     @Throws(UnexpectedResultException::class)
-    open fun executeDouble(frame: VirtualFrame): Double = executeTyped<BigFloatVal>(frame).apply {
-        if (TruffleUtil.injectBranchProbability(SLOWPATH_PROBABILITY, !fitsInDouble())) {
-            throw UnexpectedResultException(this)
-        }
-    }.asDouble()
+    open fun executeDouble(frame: VirtualFrame): Double =
+        block.executeDouble(frame, BlockNode.NO_ARGUMENT)
 
     @Throws(UnexpectedResultException::class)
     open fun executeString(frame: VirtualFrame): String = executeTyped<StringVal>(frame).value
 
     @Throws(UnexpectedResultException::class)
-    open fun executeChar(frame: VirtualFrame): Char = executeString(frame).run {
-        if (TruffleUtil.injectBranchProbability(CompilerDirectives.FASTPATH_PROBABILITY, length == 1)) {
-            get(0)
-        } else { // SLOWPATH_PROBABILITY
-            throw UnexpectedResultException(this)
-        }
-    }
+    open fun executeChar(frame: VirtualFrame): Char =
+        block.executeChar(frame, BlockNode.NO_ARGUMENT)
+
+    @Throws(UnexpectedResultException::class)
+    open fun executeUnicodeCodepoint(frame: VirtualFrame): UnicodeCodepoint =
+            executeString(frame).run {
+                if (TruffleUtil.injectBranchProbability(FASTPATH_PROBABILITY, length == 1)) {
+                    UnicodeCodepoint(get(0))
+                } else if (TruffleUtil.injectBranchProbability(FASTPATH_PROBABILITY, length == 2)) {
+                    UnicodeCodepoint(get(0), get(1))
+                } else { // SLOWPATH_PROBABILITY
+                    throw UnexpectedResultException(this)
+                }
+            }
 
     object ProgramValueBlockExecutor : BlockNode.ElementExecutor<Node> {
         private const val MSG: String = "Can't execute Sylvia node at end of block: not expression node"
-
-        private const val ALMOST_LIKELY_PROBABILITY: Double = LIKELY_PROBABILITY - SLOWPATH_PROBABILITY
 
         override fun executeVoid(frame: VirtualFrame, node: Node, index: Int, argument: Int): Unit = when {
             TruffleUtil.injectBranchProbability(
@@ -264,7 +242,7 @@ open class SylviaProgramBodyNode
         @Throws(UnexpectedResultException::class)
         override fun executeBoolean(frame: VirtualFrame, node: Node, index: Int, argument: Int): Boolean =
             if (TruffleUtil.injectBranchProbability(FASTPATH_PROBABILITY, node is ExpressionNode)) {
-                node.executeBool(frame)
+                node.executeBoolean(frame)
             } else { // SLOWPATH_PROBABILITY
                 throw IllegalArgumentException(MSG)
             }
