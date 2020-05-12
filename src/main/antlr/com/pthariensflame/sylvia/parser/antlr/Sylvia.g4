@@ -94,7 +94,6 @@ GET : 'get';
 IMPORT : 'import';
 MODULE : 'module';
 NATURE : 'nature';
-NEWTYPE : 'newType';
 OF : 'of';
 OVER : 'over';
 PRIMITIVE : 'primitive';
@@ -102,7 +101,7 @@ PROC : 'proc';
 PROC_TYPE : 'Proc';
 RECORD : 'record';
 TRUE : 'true';
-TYPEALIAS : 'typeAlias';
+TYPE : 'type';
 AT_SYM : '@';
 COLON : ':';
 UNDERSCORE : '_';
@@ -144,7 +143,6 @@ keyword : ALIAS
         | IMPORT
         | MODULE
         | NATURE
-        | NEWTYPE
         | OF
         | OVER
         | PRIMITIVE
@@ -152,7 +150,7 @@ keyword : ALIAS
         | PROC_TYPE
         | RECORD
         | TRUE
-        | TYPEALIAS
+        | TYPE
         | AT_SYM
         | COLON
         | UNDERSCORE
@@ -205,10 +203,12 @@ path : segments+=identifier (SCOPE_SEP segments+=identifier)*;
 name_declarator : AT_SYM nature=expression OF name=identifier COLON type=expression;
 
 // procedure declarations
-procedure_decl : norm=norm_procedure_decl # NormProcedureDecl
-               | prim=prim_procedure_decl # PrimProcedureDecl;
+procedure_decl : alias=alias_procedure_decl # AliasProcedureDecl
+               | prim=prim_procedure_decl # PrimProcedureDecl
+               | norm=norm_procedure_decl # NormProcedureDecl;
 norm_procedure_decl : head=procedure_decl_head body=block;
 prim_procedure_decl : head=procedure_decl_head PRIMITIVE primID=string_literal;
+alias_procedure_decl : PROC ALIAS name=identifier OF underlying=path;
 procedure_decl_head : PROC name=identifier paramList=single_or_brack_param;
 anon_procedure_expr : norm=norm_anon_procedure_expr # NormAnonProcExpr
                     | prim=prim_anon_procedure_expr # PrimAnonProcExpr;
@@ -220,17 +220,17 @@ parameter : declarator=name_declarator # FullParam
           | name=identifier # SimpleParam
           | UNDERSCORE # IgnoredParam
           | inner=single_or_brack_param # NestedParam;
-brack_param : OPEN_BRACK params=parameter_list CLOSE_BRACK # SingleBrackParam
-            | OPEN_DOUBLE_BRACK params=parameter_list CLOSE_DOUBLE_BRACK # DoubleBrackParam;
-paren_param : (OPEN_PAREN inner=parameter CLOSE_PAREN
-            | OPEN_DOUBLE_PAREN inner=parameter CLOSE_DOUBLE_PAREN);
+brack_param : OPEN_BRACK params=parameter_list CLOSE_BRACK // deliberately unnamed
+            | OPEN_DOUBLE_BRACK params=parameter_list CLOSE_DOUBLE_BRACK; // deliberately unnamed
+paren_param : OPEN_PAREN inner=parameter CLOSE_PAREN // deliberately unnamed
+            | OPEN_DOUBLE_PAREN inner=parameter CLOSE_DOUBLE_PAREN; // deliberately unnamed
 single_or_brack_param : brackParam=brack_param # BrackParam
                       | parenParam=paren_param # ParenParam;
 
 // collections
 
-collection_literal : OPEN_BRACK elemList=argument_list CLOSE_BRACK # SingleBrackCollLit
-                   | OPEN_DOUBLE_BRACK elemList=argument_list CLOSE_DOUBLE_BRACK # DoubleBrackCollLit;
+collection_literal : OPEN_BRACK elemList=argument_list CLOSE_BRACK
+                   | OPEN_DOUBLE_BRACK elemList=argument_list CLOSE_DOUBLE_BRACK;
 argument_list : (args+=argument (seps+=separator_symbol args+=argument)*)?;
 argument : expr=expression # ExprArg
          | missing=missing_arg # MissingArg
@@ -239,23 +239,17 @@ missing_arg : UNDERSCORE;
 
 // procedure calls
 
-procedure_call : invokee=procedure_call_head argExpr=expression;
-procedure_call_head : name=path # PathProcCallHead
-                    | OPEN_PAREN expr=expression CLOSE_PAREN # SingleParenProcCallHead
-                    | OPEN_DOUBLE_PAREN expr=expression CLOSE_DOUBLE_PAREN # DoubleParenProcCallHead;
+procedure_call : invokee=enclosed_expr argExpr=enclosed_expr;
 
 // declarations
 
-bind_prim_decl : BIND PRIMITIVE declarator=name_declarator FROM primID=string_literal;
-
-bind_decl : BIND paramList=parameter_list FROM body=block;
+bind_decl : BIND paramList=parameter_list bindingSource=binding_source;
 
 module_decl : MODULE name=identifier OF body=decl_block;
 
 decl_block : OPEN_BRACE decls+=declaration* CLOSE_BRACE;
 
-declaration : bindPrim=bind_prim_decl # BindPrimDecl
-            | bind=bind_decl # BindDecl
+declaration :  bind=bind_decl # BindDecl
             | module=module_decl # ModuleDecl
             | procedure=procedure_decl # ProcedureDecl
             | documented=documented_decl # DocumentedDecl
@@ -266,11 +260,12 @@ documented_decl : DOC documentation=string_literal inner=declaration;
 
 // statements
 
-statement : expr=expression  # ExpressionStmt
-          | decl=declaration # DeclarationStmt
+statement : decl=declaration # DeclarationStmt
+          | expr=expression  # ExpressionStmt
           | DO body=block # DoBlockStmt;
 //          | comment_statement
-block : OPEN_BRACE stmts+=statement* CLOSE_BRACE;
+block : OPEN_BRACE stmts+=statement* CLOSE_BRACE // deliberately unnamed
+      | OPEN_DOUBLE_BRACE stmts+=statement* CLOSE_DOUBLE_BRACE; // deliberately unnamed
 //comment_statement : syntactic_comment_statement | semantic_comment_statement;
 
 // expressions
@@ -279,19 +274,24 @@ literal : booleanLit=boolean_literal # BoolLiteral
         | numericLit=numeric_literal # NumLiteral
         | stringLit=string_literal # StringLiteral;
 
-get_expr : GET paramList=parameter_list FROM body=block;
+get_expr : GET paramList=parameter_list bindingSource=binding_source;
 
 expression : getExpr=get_expr # GetExpr
            | anonProc=anon_procedure_expr # AnonProcExpr
            | DO body=block # DoBlockExpr
-//           | comment_expression expression # CommentBeforeExpr
-//           | expression comment_expression # CommentAfterExpr
-           | call=procedure_call # ProcedureCallExpr
-           | lit=literal # LiteralExpr
-           | name=path # PathUseExpr
-           | (OPEN_PAREN innerExpr=expression CLOSE_PAREN
-           | OPEN_DOUBLE_PAREN innerExpr=expression CLOSE_DOUBLE_PAREN) # ParenExpr;
+           | call=procedure_call # ProcedureCallExp
+//              | comment_expression expression # CommentBeforeExpr
+//              | expression comment_expression # CommentAfterExpr
+           | inner=enclosed_expr # EnclosedExpr;
+enclosed_expr : lit=literal # LiteralExpr
+              | name=path # PathUseExpr
+              | (OPEN_PAREN innerExpr=expression CLOSE_PAREN
+              | OPEN_DOUBLE_PAREN innerExpr=expression CLOSE_DOUBLE_PAREN) # ParenExpr;
 //comment_expression : syntactic_comment_expression | semantic_comment_expression;
+
+binding_source : FROM body=block # BlockBindingSource
+               | FROM inner=expression # ExprBindingSource
+               | PRIMITIVE primID=string_literal # PrimBindingSource;
 
 // whitespace and line endings
 
