@@ -77,6 +77,15 @@ inline fun <C : Closeable?, S : Iterable<C>, R> S.useAll(noinline block: (S) -> 
         { v -> c.use { fn(v) } }
     })(this)
 
+@Contract("_ -> param1", pure = true)
+@OptIn(ExperimentalContracts::class)
+fun <T> identityFunction(v: T): T {
+    contract {
+        returns()
+    }
+    return v
+}
+
 @OptIn(ExperimentalContracts::class)
 object TruffleUtil {
     const val ALMOST_LIKELY_PROBABILITY: Double = LIKELY_PROBABILITY - SLOWPATH_PROBABILITY

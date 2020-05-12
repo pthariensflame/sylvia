@@ -1,6 +1,5 @@
 package com.pthariensflame.sylvia.ast
 
-import com.oracle.truffle.api.CompilerDirectives
 import com.oracle.truffle.api.CompilerDirectives.*
 import com.oracle.truffle.api.dsl.GenerateNodeFactory
 import com.oracle.truffle.api.dsl.GenerateUncached
@@ -19,7 +18,8 @@ import com.pthariensflame.sylvia.util.LazyConstant
 import com.pthariensflame.sylvia.util.TruffleUtil
 import com.pthariensflame.sylvia.util.TruffleUtil.ALMOST_LIKELY_PROBABILITY
 import com.pthariensflame.sylvia.util.runAtomic
-import com.pthariensflame.sylvia.values.*
+import com.pthariensflame.sylvia.values.StringVal
+import com.pthariensflame.sylvia.values.SylviaVal
 import org.intellij.lang.annotations.Flow
 import org.jetbrains.annotations.Contract
 import java.util.*
@@ -60,7 +60,7 @@ open class SylviaProgramBodyNode
             target = Flow.THIS_TARGET,
             targetIsContainer = true
         )
-        newStatement: StatementNode
+        newStatement: StatementNode,
     ): Unit = runAtomic {
         val oldSize = statements.size
         statements += insert(newStatement)
@@ -76,7 +76,7 @@ open class SylviaProgramBodyNode
             target = Flow.THIS_TARGET,
             targetIsContainer = true
         )
-        newStatements: Iterable<StatementNode>
+        newStatements: Iterable<StatementNode>,
     ): Unit = runAtomic {
         val oldSize = statements.size
         statements = Arrays.copyOf(statements, oldSize + newStatements.count())
@@ -106,7 +106,7 @@ open class SylviaProgramBodyNode
             target = Flow.THIS_TARGET,
             targetIsContainer = true
         )
-        newStatement: StatementNode
+        newStatement: StatementNode,
     ): StatementNode = runAtomic<StatementNode> {
         statements[index].replace(newStatement)
     }
@@ -126,7 +126,7 @@ open class SylviaProgramBodyNode
                 target = Flow.THIS_TARGET,
                 targetIsContainer = true
             )
-            newExpr
+            newExpr,
         ) = runAtomic {
             if (newExpr == null) {
                 field = null
@@ -199,15 +199,15 @@ open class SylviaProgramBodyNode
 
     @Throws(UnexpectedResultException::class)
     open fun executeUnicodeCodepoint(frame: VirtualFrame): UnicodeCodepoint =
-            executeString(frame).run {
-                if (TruffleUtil.injectBranchProbability(FASTPATH_PROBABILITY, length == 1)) {
-                    UnicodeCodepoint(get(0))
-                } else if (TruffleUtil.injectBranchProbability(FASTPATH_PROBABILITY, length == 2)) {
-                    UnicodeCodepoint(get(0), get(1))
-                } else { // SLOWPATH_PROBABILITY
-                    throw UnexpectedResultException(this)
-                }
+        executeString(frame).run {
+            if (TruffleUtil.injectBranchProbability(FASTPATH_PROBABILITY, length == 1)) {
+                UnicodeCodepoint(get(0))
+            } else if (TruffleUtil.injectBranchProbability(FASTPATH_PROBABILITY, length == 2)) {
+                UnicodeCodepoint(get(0), get(1))
+            } else { // SLOWPATH_PROBABILITY
+                throw UnexpectedResultException(this)
             }
+        }
 
     object ProgramValueBlockExecutor : BlockNode.ElementExecutor<Node> {
         private const val MSG: String = "Can't execute Sylvia node at end of block: not expression node"

@@ -1,5 +1,6 @@
 package com.pthariensflame.sylvia.ast
 
+import com.oracle.truffle.api.CompilerDirectives.LIKELY_PROBABILITY
 import com.oracle.truffle.api.dsl.GenerateNodeFactory
 import com.oracle.truffle.api.dsl.GenerateUncached
 import com.oracle.truffle.api.dsl.Introspectable
