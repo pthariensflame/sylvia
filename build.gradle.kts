@@ -148,12 +148,13 @@ tasks {
                 "-Xjvm-default=enable",
                 "-Xuse-mixed-named-arguments",
                 "-Xnew-inference",
+                "-Xeffect-system",
                 "-Xread-deserialized-contracts",
                 "-Xassertions=jvm",
                 "-Xstrict-java-nullability-assertions",
                 "-Xgenerate-strict-metadata-version",
                 "-Xemit-jvm-type-annotations",
-                "-XXLanguage:+InlineClasses"
+                "-Xinline-classes"
 //                "-Xmodule-path=$javaClasspath"
             )
         }
