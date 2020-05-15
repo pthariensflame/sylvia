@@ -20,27 +20,87 @@ interface RoseBushValueVisitor<in Elem, in Gap, Val> {
     fun concatValues(values: Sequence<Val>): Val
 }
 
-interface RoseBushVisitor<in Elem, in Gap> : RoseBushValueVisitor<Elem, Gap, Unit> {
+interface RoseBushVisitor<in Elem, in Gap> {
     @JvmDefault
-    override fun visitEmpty(): Unit = Unit
+    fun visitEmpty(): Unit = Unit
 
     @JvmDefault
-    override fun visitLeaf(elem: Elem): Unit = Unit
+    fun visitLeaf(elem: Elem): Unit = Unit
 
     @JvmDefault
-    override fun visitGap(gap: Gap): Unit = Unit
+    fun visitGap(gap: Gap): Unit = Unit
 
     @JvmDefault
-    override fun enterNested(): Unit = Unit
+    fun enterNested(): Unit = Unit
 
     @JvmDefault
-    override fun exitNested(): Unit = Unit
-
-    @JvmDefault
-    override fun concatValues(values: Sequence<Unit>): Unit = Unit
+    fun exitNested(): Unit = Unit
 }
 
 @Suppress("NOTHING_TO_INLINE")
 inline fun <Elem, Gap, Val> RoseBushValueVisitor<Elem, Gap, Val>.visit(
     tree: RoseBush<Elem, Gap>,
 ): Val = tree.acceptVisitor(this)
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun <Elem, Gap> RoseBushValueVisitor<Elem, Gap, Unit>.asVisitor(): RoseBushVisitor<Elem, Gap> =
+    object : RoseBushVisitor<Elem, Gap> {
+        override fun enterNested() {
+            this@asVisitor.enterNested()
+        }
+
+        override fun exitNested() {
+            this@asVisitor.exitNested()
+        }
+
+        override fun visitEmpty() {
+            this@asVisitor.visitEmpty()
+        }
+
+        override fun visitGap(gap: Gap) {
+            this@asVisitor.visitGap(gap)
+        }
+
+        override fun visitLeaf(elem: Elem) {
+            this@asVisitor.visitLeaf(elem)
+        }
+    }
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun <Elem, Gap, Val> RoseBushValueVisitor<Elem, Gap, Val>.asValueVisitor(): RoseBushValueVisitor<Elem, Gap, Val> =
+    this
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun <Elem, Gap> RoseBushVisitor<Elem, Gap>.visit(
+    tree: RoseBush<Elem, Gap>,
+): Unit = tree.acceptVisitor(this)
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun <Elem, Gap> RoseBushVisitor<Elem, Gap>.asValueVisitor(): RoseBushValueVisitor<Elem, Gap, Unit> =
+    object : RoseBushValueVisitor<Elem, Gap, Unit> {
+        override fun visitEmpty() {
+            this@asValueVisitor.visitEmpty()
+        }
+
+        override fun visitLeaf(elem: Elem) {
+            this@asValueVisitor.visitLeaf(elem)
+        }
+
+        override fun visitGap(gap: Gap) {
+            this@asValueVisitor.visitGap(gap)
+        }
+
+        override fun enterNested() {
+            this@asValueVisitor.enterNested()
+        }
+
+        override fun exitNested() {
+            this@asValueVisitor.exitNested()
+        }
+
+        override fun concatValues(values: Sequence<Unit>): Unit = Unit
+    }
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun <Elem, Gap> RoseBushVisitor<Elem, Gap>.asVisitor(): RoseBushVisitor<Elem, Gap> =
+    this

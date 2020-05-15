@@ -10,6 +10,7 @@ plugins {
 //    id("kotlinx-atomicfu") version "0.14.2-1.4-M1"
     id("org.jetbrains.dokka") version "0.10.1"
     `maven-publish`
+    application
     idea
 }
 
@@ -112,6 +113,12 @@ kapt {
 //    variant = "BOTH"
 //    transformJs = false
 //}
+
+application {
+    applicationName = "sylvia"
+//    mainModule.set("com.pthariensflame.sylvia")
+    mainClassName = "com.pthariensflame.sylvia.shell.SylviaLauncher"
+}
 
 tasks {
     compileKotlin.configure { dependsOn.add(generateGrammarSource) }
@@ -222,7 +229,6 @@ tasks {
     jar.configure {
         manifest {
             attributes(
-                "Main-Class" to "com.pthariensflame.sylvia.shell.SylviaLauncher",
                 "Automatic-Module-Name" to "com.pthariensflame.sylvia"
             )
         }

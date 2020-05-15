@@ -4,12 +4,15 @@ import com.oracle.truffle.api.CompilerDirectives.*
 import com.oracle.truffle.api.interop.InteropLibrary
 import com.oracle.truffle.api.library.ExportLibrary
 import com.oracle.truffle.api.nodes.Node
+import com.oracle.truffle.api.source.Source
+import com.oracle.truffle.api.source.SourceSection
 import com.pthariensflame.sylvia.SylviaLanguage
 import com.pthariensflame.sylvia.ast.SylviaNode
 import com.pthariensflame.sylvia.ast.SylviaProgramBodyNode
 import com.pthariensflame.sylvia.ast.SylviaProgramNode
 import com.pthariensflame.sylvia.ast.declarations.DeclarationNode
 import com.pthariensflame.sylvia.ast.expressions.ExpressionNode
+import com.pthariensflame.sylvia.ast.expressions.StringLiteralExpressionNode
 import com.pthariensflame.sylvia.ast.statements.ExpressionStatementNode
 import com.pthariensflame.sylvia.ast.statements.StatementNode
 import com.pthariensflame.sylvia.parser.antlr.SylviaBaseVisitor
@@ -18,13 +21,13 @@ import com.pthariensflame.sylvia.util.TruffleUtil
 import com.pthariensflame.sylvia.values.SylviaException
 import org.antlr.v4.runtime.ParserRuleContext
 import org.antlr.v4.runtime.tree.ErrorNode
-import org.graalvm.tools.api.lsp.LSPLibrary
 import org.jetbrains.annotations.Contract
 
 // TODO
 class SylviaASTGenVisitor
 @JvmOverloads constructor(
     @JvmField val langInstance: SylviaLanguage? = null,
+    @JvmField val source: Source? = null,
 ) : SylviaBaseVisitor<SylviaNode>() {
     override fun visitProgram(ctx: SylviaParser.ProgramContext): SylviaNode =
         ctx.sourceSpan.let { srcSpan ->
@@ -65,20 +68,93 @@ class SylviaASTGenVisitor
 
     override fun visitExpressionStmt(ctx: SylviaParser.ExpressionStmtContext): StatementNode =
         ExpressionStatementNode(ctx.sourceSpan).apply {
-            inner = super.visit(ctx.expr) as ExpressionNode
+            inner = visit(ctx.expr) as ExpressionNode
+        }
+
+    override fun visitEnclosedExpr(ctx: SylviaParser.EnclosedExprContext): ExpressionNode =
+        visit(ctx.inner) as ExpressionNode
+
+    override fun visitStraightSingleStringLiteral(ctx: SylviaParser.StraightSingleStringLiteralContext): SylviaNode =
+        StringLiteralExpressionNode(ctx.sourceSpan).apply {
+            kind = StringLiteralExpressionNode.Kind.StraightSingleQuotes
+            content
         }
 
     override fun visitDeclarationStmt(ctx: SylviaParser.DeclarationStmtContext): StatementNode =
-        super.visit(ctx.decl) as DeclarationNode
+        visit(ctx.decl) as DeclarationNode
 
     override fun visitParenExpr(ctx: SylviaParser.ParenExprContext): ExpressionNode =
-        super.visit(ctx.innerExpr) as ExpressionNode
+        visit(ctx.innerExpr) as ExpressionNode
 
     @ExportLibrary.Repeat(
         ExportLibrary(InteropLibrary::class),
 //        ExportLibrary(LSPLibrary::class),
     )
-    object ErrorNodeSyntaxException : SylviaException() {
+    data class DoBindVisibilitySyntaxException(
+        @JvmField val ctx: SylviaParser.VisDeclContext,
+        @JvmField val source: Source?,
+    ) : SylviaException() {
+        @Contract("-> this", pure = true)
+        override fun fillInStackTrace(): Throwable = this
+
+        @Contract("-> null", pure = true)
+        override fun getLocation(): Node? = null
+
+        @Contract("-> true", pure = true)
+        override fun isSyntaxError(): Boolean = true
+
+        override fun getSourceLocation(): SourceSection? =
+            source?.let { ctx.sourceSpan?.asSectionOf(source) }
+    }
+
+    @ExportLibrary.Repeat(
+        ExportLibrary(InteropLibrary::class),
+//        ExportLibrary(LSPLibrary::class),
+    )
+    data class MultiVisibilitySyntaxException(
+        @JvmField val ctx: SylviaParser.VisDeclContext,
+        @JvmField val source: Source?,
+    ) : SylviaException() {
+        @Contract("-> this", pure = true)
+        override fun fillInStackTrace(): Throwable = this
+
+        @Contract("-> null", pure = true)
+        override fun getLocation(): Node? = null
+
+        @Contract("-> true", pure = true)
+        override fun isSyntaxError(): Boolean = true
+
+        override fun getSourceLocation(): SourceSection? =
+            source?.let { ctx.sourceSpan?.asSectionOf(source) }
+    }
+
+    override fun visitVisDecl(ctx: SylviaParser.VisDeclContext): DeclarationNode = when (ctx.inner) {
+        is SylviaParser.DoBlockDeclContext -> throw DoBindVisibilitySyntaxException(ctx, source)
+        is SylviaParser.VisDeclContext -> throw MultiVisibilitySyntaxException(ctx, source)
+        else -> (visit(ctx.inner) as DeclarationNode).apply {
+            visibility = when (ctx.vis) {
+                is SylviaParser.VisibleVisibilityContext -> DeclarationNode.Visibility.Visible
+                is SylviaParser.HiddenVisibilityContext -> DeclarationNode.Visibility.Hidden
+                else -> throw IllegalStateException("Unreachable code")
+            }
+        }
+    }
+
+    override fun visitDocumentedDecl(ctx: SylviaParser.DocumentedDeclContext): SylviaNode =
+        (visit(ctx.documented.inner) as DeclarationNode).apply {
+            documentation = arrayOf(
+                (visit(ctx.documented.documentation) as StringLiteralExpressionNode).content,
+                *documentation
+            )
+        }
+
+    @ExportLibrary.Repeat(
+        ExportLibrary(InteropLibrary::class),
+//        ExportLibrary(LSPLibrary::class),
+    )
+    data class ErrorNodeSyntaxException(
+        @JvmField val errorNode: ErrorNode,
+    ) : SylviaException() {
         @Contract("-> this", pure = true)
         override fun fillInStackTrace(): Throwable = this
 
@@ -92,7 +168,7 @@ class SylviaASTGenVisitor
     @TruffleBoundary
     @Contract("_ -> fail", pure = true)
     override fun visitErrorNode(node: ErrorNode): SylviaNode =
-        throw ErrorNodeSyntaxException
+        throw ErrorNodeSyntaxException(node)
 
     companion object {
         @JvmStatic

@@ -13,6 +13,7 @@ import org.graalvm.tools.api.lsp.LSPLibrary
 import org.jetbrains.annotations.Contract
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
+import kotlin.streams.asSequence
 
 @ExportLibrary.Repeat(
     ExportLibrary(InteropLibrary::class),
@@ -21,7 +22,7 @@ import kotlin.contracts.contract
 @ValueType
 @OptIn(ExperimentalContracts::class)
 data class UnicodeCodepoint(
-    @JvmField val value: Int
+    @JvmField val value: Int,
 ) : Comparable<UnicodeCodepoint>, TruffleObject, Cloneable {
     init {
         if (CompilerDirectives.injectBranchProbability(SLOWPATH_PROBABILITY, !UCharacter.isLegal(value))) {
@@ -45,6 +46,16 @@ data class UnicodeCodepoint(
                 null
             }
         }
+
+        @JvmStatic
+        @get:Contract(pure = true)
+        val String.unicodeCodepoints: Sequence<UnicodeCodepoint>
+            get() = codePoints().asSequence().map(::UnicodeCodepoint)
+
+        @JvmStatic
+        @get:Contract(pure = true)
+        val Sequence<UnicodeCodepoint>.intoString: String
+            get() = joinToString(separator = "") { it.asString() }
     }
 
     constructor(c: Char) :
@@ -67,12 +78,12 @@ data class UnicodeCodepoint(
     fun asString(): String =
         asStringChecked() ?: throw UnsupportedMessageException.create()
 
-//    @ExportMessage
+    //    @ExportMessage
     @Throws(UnsupportedMessageException::class)
     fun getDocumentation(): Any =
         LSPLibrary.getFactory().getUncached(this).getDocumentation(this)
 
-//    @ExportMessage
+    //    @ExportMessage
     @Throws(UnsupportedMessageException::class)
     fun getSignature(): Any =
         LSPLibrary.getFactory().getUncached(this).getSignature(this)

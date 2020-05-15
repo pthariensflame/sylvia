@@ -12,7 +12,6 @@ private val commentCheckRegex: Regex by LazyConstant {
     )
 }
 
-
 @Contract(pure = true)
 @OptIn(ExperimentalContracts::class)
 fun checkMatchedComment(txt: CharSequence): Boolean {

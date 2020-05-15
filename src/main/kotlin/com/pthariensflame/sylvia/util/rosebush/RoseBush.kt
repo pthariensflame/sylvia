@@ -29,9 +29,10 @@ sealed class RoseBush<out Elem, out Gap> {
         fun <Elem, Gap> nest(inner: RoseBush<Elem, Gap>): RoseBush<Elem, Gap> =
             Nested(listOf(inner), emptyList())
 
+        @PublishedApi
         @Contract(pure = true)
         @JvmStatic
-        fun <Elem, Gap> concat(
+        internal fun <Elem, Gap> concatImpl(
             left: RoseBush<Elem, Gap>,
             gap: Gap,
             right: RoseBush<Elem, Gap>,
@@ -60,6 +61,42 @@ sealed class RoseBush<out Elem, out Gap> {
                     left._childGaps.plusElement(gap).plus(right._childGaps),
                 )
             }
+
+        @Contract(pure = true)
+        @Suppress("NOTHING_TO_INLINE")
+        @JvmStatic
+        inline fun <Elem, Gap> concat(
+            left: RoseBush<Elem, Gap>,
+            gap: Gap,
+            right: RoseBush<Elem, Gap>,
+        ): RoseBush<Elem, Gap> = concatImpl(left, gap, right)
+
+        @Contract(pure = true)
+        @Suppress("NOTHING_TO_INLINE")
+        @JvmStatic
+        inline fun <Elem, Gap> concat(
+            left: NonEmptyRoseBush<Elem, Gap>,
+            gap: Gap,
+            right: RoseBush<Elem, Gap>,
+        ): NonEmptyRoseBush<Elem, Gap> = concatImpl(left, gap, right) as NonEmptyRoseBush
+
+        @Contract(pure = true)
+        @Suppress("NOTHING_TO_INLINE")
+        @JvmStatic
+        inline fun <Elem, Gap> concat(
+            left: RoseBush<Elem, Gap>,
+            gap: Gap,
+            right: NonEmptyRoseBush<Elem, Gap>,
+        ): NonEmptyRoseBush<Elem, Gap> = concatImpl(left, gap, right) as NonEmptyRoseBush
+
+        @Contract(pure = true)
+        @Suppress("NOTHING_TO_INLINE")
+        @JvmStatic
+        inline fun <Elem, Gap> concat(
+            left: NonEmptyRoseBush<Elem, Gap>,
+            gap: Gap,
+            right: NonEmptyRoseBush<Elem, Gap>,
+        ): NonEmptyRoseBush<Elem, Gap> = concatImpl(left, gap, right) as NonEmptyRoseBush
 
         @Contract(pure = true)
         @JvmStatic
@@ -122,8 +159,8 @@ sealed class RoseBush<out Elem, out Gap> {
     ) : RoseBushVisitor<Elem, Gap> {
         override fun visitEmpty() {} // do nothing
 
-        override fun visitLeaf(value: Elem) {
-            sb.append(value)
+        override fun visitLeaf(elem: Elem) {
+            sb.append(elem)
         }
 
         override fun visitGap(gap: Gap) {
@@ -565,10 +602,12 @@ private data class Nested<out Elem, out Gap>(
         visitor: RoseBushValueVisitor<Elem, Gap, Val>,
     ): Val = visitor.concatValues(sequence {
         yield(visitor.enterNested())
-        _children.asSequence().zip(_childGaps.asSequence()).forEach { (c, g) ->
-            yield(visitor.visit(c))
-            yield(visitor.visitGap(g))
-        }
+        yieldAll(_children.asSequence().zip(_childGaps.asSequence()) { c, g ->
+            sequenceOf(
+                visitor.visit(c),
+                visitor.visitGap(g),
+            )
+        }.flatten())
         yield(visitor.visit(_children.last()))
         yield(visitor.exitNested())
     })

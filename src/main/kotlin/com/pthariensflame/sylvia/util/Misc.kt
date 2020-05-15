@@ -71,11 +71,51 @@ inline fun Node.runAtomic(noinline fn: () -> Unit) {
     return atomic(fn)
 }
 
-@Suppress("NOTHING_TO_INLINE")
-inline fun <C : Closeable?, S : Iterable<C>, R> S.useAll(noinline block: (S) -> R): R =
-    (fold(block) { fn, c ->
-        { v -> c.use { fn(v) } }
-    })(this)
+class CloseableIterable<C : Closeable?>(
+    private val inner: Iterable<C>,
+) : Iterable<C> by inner, Closeable {
+    override fun close(): Unit =
+        inner.forEach { it?.close() }
+}
+
+@OptIn(ExperimentalContracts::class)
+fun <C : Closeable?> Iterable<C>.asCloseable(): CloseableIterable<C> {
+    contract {
+        returns()
+    }
+    return CloseableIterable(this)
+}
+
+@OptIn(ExperimentalContracts::class)
+inline fun <C : Closeable?, R> Iterable<C>.useAll(block: (Iterable<C>) -> R): R {
+    contract {
+        callsInPlace(block, InvocationKind.EXACTLY_ONCE)
+    }
+    return asCloseable().use { block(it) }
+}
+
+class CloseableSequence<C : Closeable?>(
+    private val inner: Sequence<C>,
+) : Sequence<C> by inner, Closeable {
+    override fun close(): Unit =
+        inner.forEach { it?.close() }
+}
+
+@OptIn(ExperimentalContracts::class)
+fun <C : Closeable?> Sequence<C>.asCloseable(): CloseableSequence<C> {
+    contract {
+        returns()
+    }
+    return CloseableSequence(this)
+}
+
+@OptIn(ExperimentalContracts::class)
+inline fun <C : Closeable?, R> Sequence<C>.useAll(block: (Sequence<C>) -> R): R {
+    contract {
+        callsInPlace(block, InvocationKind.EXACTLY_ONCE)
+    }
+    return asCloseable().use { block(it) }
+}
 
 @Contract("_ -> param1", pure = true)
 @OptIn(ExperimentalContracts::class)

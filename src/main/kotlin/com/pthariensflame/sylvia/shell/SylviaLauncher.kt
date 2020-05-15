@@ -18,7 +18,7 @@ import java.io.Closeable
 
 class SylviaLauncher
 @JvmOverloads constructor(
-    @JvmField val term: Terminal = TerminalBuilder.terminal()
+    @JvmField val term: Terminal = TerminalBuilder.terminal(),
 ) : AbstractLanguageLauncher() {
     val outWriter = term.output().bufferedWriter()
     val logWriter = logFile?.let { Launcher.newLogStream(it).bufferedWriter() }
@@ -39,9 +39,10 @@ class SylviaLauncher
 
     override fun preprocessArguments(
         arguments: List<String>,
-        polyglotOptions: Map<String, String>
+        polyglotOptions: Map<String, String>,
     ): List<String> {
         TODO("Not yet implemented")
+        return arguments
     }
 
     override fun printHelp(maxCategory: OptionCategory) {
@@ -71,7 +72,7 @@ class SylviaLauncher
                 line = lineReader.readLine(prompt)
                 logWriter?.write(line)
                 logWriter?.newLine()
-                val res = ctx.eval("sylvia", line).toString()
+                val res = ctx.eval("sylvia", line)!!.toString()
                 outWriter.write(res)
                 outWriter.newLine()
                 logWriter?.write(res)
