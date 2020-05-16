@@ -1,7 +1,8 @@
 package com.pthariensflame.sylvia.values
 
 import com.oracle.truffle.api.CompilerAsserts
-import com.oracle.truffle.api.CompilerDirectives
+import com.oracle.truffle.api.CompilerDirectives.CompilationFinal
+import com.oracle.truffle.api.CompilerDirectives.ValueType
 import com.oracle.truffle.api.interop.InteropLibrary
 import com.oracle.truffle.api.interop.UnsupportedMessageException
 import com.oracle.truffle.api.library.ExportLibrary
@@ -18,14 +19,13 @@ import kotlin.contracts.contract
     ExportLibrary(InteropLibrary::class),
 //    ExportLibrary(LSPLibrary::class),
 )
-@CompilerDirectives.ValueType
+@ValueType
 @OptIn(ExperimentalContracts::class)
 @Suppress("ProtectedInFinal")
 data class BigFloatVal protected constructor(@JvmField val value: BigDecimal) : SylviaVal(), Comparable<BigFloatVal>,
     Cloneable {
-    override var originatingNode: ExpressionNode?
-        get() = TODO("Not yet implemented")
-        set(newNode) = TODO("Not yet implemented")
+    @CompilationFinal
+    override var originatingNode: ExpressionNode? = null
 
     companion object {
         @JvmStatic

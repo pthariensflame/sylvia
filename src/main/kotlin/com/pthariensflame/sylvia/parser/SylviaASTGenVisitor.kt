@@ -76,7 +76,7 @@ class SylviaASTGenVisitor
 
     override fun visitStraightSingleStringLiteral(ctx: SylviaParser.StraightSingleStringLiteralContext): StringLiteralExpressionNode =
         StringLiteralExpressionNode(ctx.sourceSpan).apply {
-            kind = StringLiteralExpressionNode.Kind.StraightSingleQuotes
+            delimiterKind = StringLiteralExpressionNode.StringLiteralDelimiterKind.StraightSingleQuotes
             content = StringLiteralExpressionNode.processStringLiteralContent(ctx.text.subSequence(
                 1..ctx.text.length - 2
             ))
@@ -84,7 +84,7 @@ class SylviaASTGenVisitor
 
     override fun visitStraightDoubleStringLiteral(ctx: SylviaParser.StraightDoubleStringLiteralContext): StringLiteralExpressionNode =
         StringLiteralExpressionNode(ctx.sourceSpan).apply {
-            kind = StringLiteralExpressionNode.Kind.StraightDoubleQuotes
+            delimiterKind = StringLiteralExpressionNode.StringLiteralDelimiterKind.StraightDoubleQuotes
             content = StringLiteralExpressionNode.processStringLiteralContent(ctx.text.subSequence(
                 1..ctx.text.length - 2
             ))
@@ -92,7 +92,7 @@ class SylviaASTGenVisitor
 
     override fun visitStraightBacktickStringLiteral(ctx: SylviaParser.StraightBacktickStringLiteralContext): StringLiteralExpressionNode =
         StringLiteralExpressionNode(ctx.sourceSpan).apply {
-            kind = StringLiteralExpressionNode.Kind.StraightBackticks
+            delimiterKind = StringLiteralExpressionNode.StringLiteralDelimiterKind.StraightBackticks
             content = StringLiteralExpressionNode.processStringLiteralContent(ctx.text.subSequence(
                 1..ctx.text.length - 2
             ))
@@ -100,7 +100,7 @@ class SylviaASTGenVisitor
 
     override fun visitSmartSingleStringLiteral(ctx: SylviaParser.SmartSingleStringLiteralContext): StringLiteralExpressionNode =
         StringLiteralExpressionNode(ctx.sourceSpan).apply {
-            kind = StringLiteralExpressionNode.Kind.SmartSingleQuotes
+            delimiterKind = StringLiteralExpressionNode.StringLiteralDelimiterKind.SmartSingleQuotes
             content = StringLiteralExpressionNode.processStringLiteralContent(ctx.text.subSequence(
                 1..ctx.text.length - 2
             ))
@@ -108,7 +108,7 @@ class SylviaASTGenVisitor
 
     override fun visitSmartDoubleStringLiteral(ctx: SylviaParser.SmartDoubleStringLiteralContext): StringLiteralExpressionNode =
         StringLiteralExpressionNode(ctx.sourceSpan).apply {
-            kind = StringLiteralExpressionNode.Kind.SmartDoubleQuotes
+            delimiterKind = StringLiteralExpressionNode.StringLiteralDelimiterKind.SmartDoubleQuotes
             content = StringLiteralExpressionNode.processStringLiteralContent(ctx.text.subSequence(
                 1..ctx.text.length - 2
             ))
@@ -116,7 +116,7 @@ class SylviaASTGenVisitor
 
     override fun visitSmartChevronStringLiteral(ctx: SylviaParser.SmartChevronStringLiteralContext): StringLiteralExpressionNode =
         StringLiteralExpressionNode(ctx.sourceSpan).apply {
-            kind = StringLiteralExpressionNode.Kind.SmartChevrons
+            delimiterKind = StringLiteralExpressionNode.StringLiteralDelimiterKind.SmartChevrons
             content = StringLiteralExpressionNode.processStringLiteralContent(ctx.text.subSequence(
                 1..ctx.text.length - 2
             ))
@@ -175,8 +175,8 @@ class SylviaASTGenVisitor
         is SylviaParser.VisDeclContext -> throw MultiVisibilitySyntaxException(ctx, source)
         else -> (visit(ctx.inner) as DeclarationNode).apply {
             visibility = when (ctx.vis) {
-                is SylviaParser.VisibleVisibilityContext -> DeclarationNode.Visibility.Visible
-                is SylviaParser.HiddenVisibilityContext -> DeclarationNode.Visibility.Hidden
+                is SylviaParser.VisibleVisibilityContext -> DeclarationNode.DeclarationVisibility.Visible
+                is SylviaParser.HiddenVisibilityContext -> DeclarationNode.DeclarationVisibility.Hidden
                 else -> throw IllegalStateException("Unreachable code")
             }
         }

@@ -7,11 +7,13 @@ import org.intellij.lang.annotations.Flow
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
+@Suppress("OVERRIDE_BY_INLINE", "NOTHING_TO_INLINE")
 @ValueType
 class LazyConstant<out T : Any>(
-    private val fn: () -> T,
+    @PublishedApi internal val fn: () -> T,
 ) : ReadOnlyProperty<Any?, T> {
-    private val underlying: AssumedValue<T?> =
+    @PublishedApi
+    internal val underlying: AssumedValue<@UnsafeVariance T?> =
         AssumedValue("underlying value of lazy constant", null)
 
     @Flow(
@@ -20,12 +22,12 @@ class LazyConstant<out T : Any>(
         target = Flow.RETURN_METHOD_TARGET,
         targetIsContainer = false
     )
-    override operator fun getValue(thisRef: Any?, property: KProperty<*>): T {
+    override inline operator fun getValue(thisRef: Any?, property: KProperty<*>): T {
         force()
         return underlying.get()!!
     }
 
-    fun force() {
+    inline fun force() {
         if (TruffleUtil.injectBranchProbability(SLOWPATH_PROBABILITY, null == underlying.get()))
             underlying.set(fn().let { underlying.get() ?: it })
     }

@@ -2,6 +2,7 @@ package com.pthariensflame.sylvia.shell
 
 import com.oracle.truffle.api.interop.InteropException
 import com.oracle.truffle.api.nodes.ExplodeLoop
+import com.pthariensflame.sylvia.util.loadingAndSaving
 import com.pthariensflame.sylvia.util.useAll
 import org.graalvm.launcher.AbstractLanguageLauncher
 import org.graalvm.launcher.Launcher
@@ -62,31 +63,31 @@ class SylviaLauncher
 //            .history(TODO())
 //            .variables(TODO())
             .build()
-        lineReader.history.load()
-        val ctx: Context = contextBuilder.build()
-        val prompt = "sylvia> "
-        do {
-            var line: String = ""
-            try {
-                logWriter?.write("sylvia> ")
-                line = lineReader.readLine(prompt)
-                logWriter?.write(line)
-                logWriter?.newLine()
-                val res = ctx.eval("sylvia", line)!!.toString()
-                outWriter.write(res)
-                outWriter.newLine()
-                logWriter?.write(res)
-                logWriter?.newLine()
-            } catch (e: EndOfFileException) {
-                break
-            } catch (e: UserInterruptException) {
-                continue
-            } catch (e: InteropException) {
-                outWriter.write(e.localizedMessage)
-                logWriter?.write(e.localizedMessage)
-            }
-        } while (line != "!quit")
-        lineReader.history.save()
+        lineReader.history.loadingAndSaving { history ->
+            val ctx: Context = contextBuilder.build()
+            val prompt = "sylvia> "
+            do {
+                var line: String = ""
+                try {
+                    logWriter?.write(prompt)
+                    line = lineReader.readLine(prompt)
+                    logWriter?.write(line)
+                    logWriter?.newLine()
+                    val res = ctx.eval("sylvia", line)!!.toString()
+                    outWriter.write(res)
+                    outWriter.newLine()
+                    logWriter?.write(res)
+                    logWriter?.newLine()
+                } catch (e: EndOfFileException) {
+                    break
+                } catch (e: UserInterruptException) {
+                    continue
+                } catch (e: InteropException) {
+                    outWriter.write(e.localizedMessage)
+                    logWriter?.write(e.localizedMessage)
+                }
+            } while (line != "!quit")
+        }
     }
 
     override fun validateArguments(polyglotOptions: Map<String, String>) {

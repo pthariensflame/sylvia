@@ -22,7 +22,7 @@ import com.pthariensflame.sylvia.parser.SourceSpan
 @Introspectable
 abstract class ProcedureBodyNode
 @JvmOverloads constructor(
-    @JvmField val srcSpan: SourceSpan? = null,
+    @JvmField final override val srcSpan: SourceSpan? = null,
 ) : Node(), SylviaNode, InstrumentableNode {
     override fun isInstrumentable(): Boolean = true
 
@@ -38,8 +38,8 @@ abstract class ProcedureBodyNode
     protected fun outConv(@Suppress("UNUSED_PARAMETER") v: Any?): Any? = null
 
     @TruffleBoundary
-    override fun getSourceSection(): SourceSection {
-        val src: Source = encapsulatingSourceSection.source
-        return srcSpan?.asSectionOf(src) ?: src.createUnavailableSection()
-    }
+    override fun getSourceSection(): SourceSection? =
+        encapsulatingSourceSection?.source?.let { src ->
+            srcSpan?.asSectionOf(src) ?: src.createUnavailableSection()
+        }
 }

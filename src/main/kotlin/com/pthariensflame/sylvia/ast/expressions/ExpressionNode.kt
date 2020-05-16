@@ -11,10 +11,10 @@ import com.oracle.truffle.api.instrumentation.*
 import com.oracle.truffle.api.nodes.Node
 import com.oracle.truffle.api.nodes.NodeInfo
 import com.oracle.truffle.api.nodes.UnexpectedResultException
-import com.oracle.truffle.api.source.Source
 import com.oracle.truffle.api.source.SourceSection
 import com.pthariensflame.sylvia.ast.SylviaNode
 import com.pthariensflame.sylvia.parser.SourceSpan
+import com.pthariensflame.sylvia.parser.SourceSpan.Companion.createUnavailableSubsection
 import com.pthariensflame.sylvia.util.TruffleUtil
 import com.pthariensflame.sylvia.values.*
 
@@ -28,7 +28,7 @@ import com.pthariensflame.sylvia.values.*
 @Introspectable
 abstract class ExpressionNode
 @JvmOverloads constructor(
-    @JvmField val srcSpan: SourceSpan? = null,
+    @JvmField final override val srcSpan: SourceSpan? = null,
 ) : Node(), SylviaNode, InstrumentableNode {
     abstract override fun isInstrumentable(): Boolean
 
@@ -112,8 +112,8 @@ abstract class ExpressionNode
         tag.kotlin == StandardTags.ExpressionTag::class || super.hasTag(tag)
 
     @TruffleBoundary
-    override fun getSourceSection(): SourceSection {
-        val src: Source = encapsulatingSourceSection.source
-        return srcSpan?.asSectionOf(src) ?: src.createUnavailableSection()
-    }
+    override fun getSourceSection(): SourceSection? =
+        rootNode?.sourceSection?.let { src ->
+            srcSpan?.asSubsectionOf(src) ?: src.createUnavailableSubsection()
+        }
 }

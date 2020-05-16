@@ -26,7 +26,7 @@ import kotlin.contracts.ExperimentalContracts
     StringVal::class,
     SylviaException::class,
     SylviaExceptionVal::class,
-    StringLiteralExpressionNode.Kind::class,
+    StringLiteralExpressionNode.StringLiteralDelimiterKind::class,
     SylviaType::class,
     SylviaVal::class,
 )

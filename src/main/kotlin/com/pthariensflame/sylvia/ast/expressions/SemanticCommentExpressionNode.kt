@@ -55,8 +55,8 @@ open class SemanticCommentExpressionNode
     }
 
     @TruffleBoundary
-    override fun getSourceSection(): SourceSection {
-        val src: Source = encapsulatingSourceSection.source
-        return srcSpan?.asSectionOf(src) ?: src.createUnavailableSection()
-    }
+    override fun getSourceSection(): SourceSection? =
+        encapsulatingSourceSection?.source?.let { src ->
+            srcSpan?.asSectionOf(src) ?: src.createUnavailableSection()
+        }
 }

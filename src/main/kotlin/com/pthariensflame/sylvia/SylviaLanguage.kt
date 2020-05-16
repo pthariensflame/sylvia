@@ -8,6 +8,7 @@ import com.oracle.truffle.api.`object`.Layout
 import com.oracle.truffle.api.`object`.Shape
 import com.oracle.truffle.api.instrumentation.ProvidedTags
 import com.oracle.truffle.api.instrumentation.StandardTags
+import com.pthariensflame.sylvia.SylviaLanguage.Companion.LANG_VERSION
 import com.pthariensflame.sylvia.ast.SylviaTag
 import com.pthariensflame.sylvia.shell.SylviaFileDetector
 import com.pthariensflame.sylvia.util.LazyConstant
@@ -20,7 +21,7 @@ import org.graalvm.options.OptionValues
     id = "sylvia",
     name = "Sylvia",
     implementationName = "Reference Truffle Sylvia",
-    version = "0.0.1",
+    version = LANG_VERSION,
     characterMimeTypes = ["text/x-sylvia"],
     byteMimeTypes = [],
     defaultMimeType = "text/x-sylvia",
@@ -42,10 +43,14 @@ import org.graalvm.options.OptionValues
 //    StandardTags.TryBlockTag::class,
 //    DebuggerTags.AlwaysHalt::class,
     SylviaTag.TypeExpressionTag::class,
+    SylviaTag.NatureExpressionTag::class,
+    SylviaTag.EffectExpressionTag::class,
 )
 @OptIn(ExperimentalStdlibApi::class)
 class SylviaLanguage : TruffleLanguage<SylviaLanguage.SylviaLangCxt>() {
     companion object {
+        const val LANG_VERSION: String = "0.0.1"
+
         @JvmStatic
         val scopeLayout: Layout by LazyConstant {
             Layout.newLayout()

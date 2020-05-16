@@ -6,7 +6,6 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException
 import com.oracle.truffle.api.library.ExportLibrary
 import com.oracle.truffle.api.source.SourceSection
 import com.pthariensflame.sylvia.ast.expressions.ExpressionNode
-import org.graalvm.tools.api.lsp.LSPLibrary
 import org.jetbrains.annotations.Contract
 
 @ExportLibrary.Repeat(
@@ -20,12 +19,12 @@ abstract class SylviaVal internal constructor() : TruffleObject, Cloneable {
     //    @ExportMessage
     @Throws(UnsupportedMessageException::class)
     open fun getDocumentation(): Any =
-        LSPLibrary.getFactory().getUncached(this).getDocumentation(this)
+        throw UnsupportedMessageException.create()
 
     //    @ExportMessage
     @Throws(UnsupportedMessageException::class)
     open fun getSignature(): Any =
-        LSPLibrary.getFactory().getUncached(this).getSignature(this)
+        throw UnsupportedMessageException.create()
 
     //    @ExportMessage
     open fun hasSourceLocation(): Boolean =

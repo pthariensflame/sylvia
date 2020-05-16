@@ -11,6 +11,7 @@ import com.oracle.truffle.api.source.Source
 import com.oracle.truffle.api.source.SourceSection
 import com.pthariensflame.sylvia.SylviaLanguage
 import com.pthariensflame.sylvia.parser.SourceSpan
+import com.pthariensflame.sylvia.parser.SourceSpan.Companion.createSection
 import org.jetbrains.annotations.Contract
 
 @NodeInfo(
@@ -24,7 +25,8 @@ abstract class SylviaTopNode
 @JvmOverloads internal constructor(
     langInstance: SylviaLanguage? = null,
     frameDescriptor: FrameDescriptor? = null,
-    @JvmField val srcSpan: SourceSpan? = null,
+    @JvmField val originalSrc: Source? = null,
+    @JvmField final override val srcSpan: SourceSpan? = null,
 ) : RootNode(langInstance, frameDescriptor), SylviaNode, InstrumentableNode {
     override fun isInstrumentable(): Boolean = true
 
@@ -36,8 +38,6 @@ abstract class SylviaTopNode
         tag.kotlin == StandardTags.RootTag::class || super.hasTag(tag)
 
     @TruffleBoundary
-    override fun getSourceSection(): SourceSection {
-        val src: Source = encapsulatingSourceSection.source
-        return srcSpan?.asSectionOf(src) ?: src.createUnavailableSection()
-    }
+    override fun getSourceSection(): SourceSection? =
+        originalSrc?.run { srcSpan?.let { createSection(it) } ?: createUnavailableSection() }
 }

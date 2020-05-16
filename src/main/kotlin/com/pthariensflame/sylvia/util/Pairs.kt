@@ -10,7 +10,7 @@ import org.antlr.v4.runtime.misc.Pair as AntlrPair
     target = Flow.RETURN_METHOD_TARGET,
     targetIsContainer = true
 )
-inline val <A : Any, B : Any> GraalSDKPair<A, B>.kotlinPair: Pair<A?, B?>
+inline val <A, B> GraalSDKPair<A, B>.kotlinPair: Pair<A, B>
     get() = Pair(left, right)
 
 @get:Flow(
@@ -28,7 +28,7 @@ inline val <A, B> AntlrPair<A, B>.kotlinPair: Pair<A, B>
     target = Flow.RETURN_METHOD_TARGET,
     targetIsContainer = true
 )
-inline val <A : Any, B : Any> Pair<A?, B?>.graalSDKPair: GraalSDKPair<A, B>
+inline val <A, B> Pair<A, B>.graalSDKPair: GraalSDKPair<A, B>
     get() = GraalSDKPair.create(first, second)
 
 @get:Flow(
@@ -37,7 +37,7 @@ inline val <A : Any, B : Any> Pair<A?, B?>.graalSDKPair: GraalSDKPair<A, B>
     target = Flow.RETURN_METHOD_TARGET,
     targetIsContainer = true
 )
-inline val <A : Any, B : Any> AntlrPair<A?, B?>.graalSDKPair: GraalSDKPair<A, B>
+inline val <A, B> AntlrPair<A, B>.graalSDKPair: GraalSDKPair<A, B>
     get() = GraalSDKPair.create(a, b)
 
 @get:Flow(
@@ -55,5 +55,5 @@ inline val <A, B> Pair<A, B>.antlrPair: AntlrPair<A, B>
     target = Flow.RETURN_METHOD_TARGET,
     targetIsContainer = true
 )
-inline val <A : Any, B : Any> GraalSDKPair<A, B>.antlrPair: AntlrPair<A?, B?>
+inline val <A, B> GraalSDKPair<A, B>.antlrPair: AntlrPair<A, B>
     get() = AntlrPair(left, right)

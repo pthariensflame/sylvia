@@ -76,9 +76,23 @@ data class SourceSpan(
     }
 
     companion object {
+        @Suppress("NOTHING_TO_INLINE")
         @JvmStatic
         @TruffleBoundary(allowInlining = true)
-        fun Source.createSection(span: SourceSpan): SourceSection = span.asSectionOf(this)
+        inline fun Source.createSection(span: SourceSpan): SourceSection =
+            span.asSectionOf(this)
+
+        @Suppress("NOTHING_TO_INLINE")
+        @JvmStatic
+        @TruffleBoundary(allowInlining = true)
+        inline fun SourceSection.createSubsection(span: SourceSpan): SourceSection =
+            span.asSubsectionOf(this)
+
+        @Suppress("NOTHING_TO_INLINE")
+        @JvmStatic
+        @TruffleBoundary(allowInlining = true)
+        inline fun SourceSection.createUnavailableSubsection(): SourceSection =
+            source.createUnavailableSection()
 
         @JvmStatic
         @TruffleBoundary(allowInlining = true)

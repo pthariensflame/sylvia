@@ -39,7 +39,7 @@ open class StringLiteralExpressionNode
         ExportLibrary(InteropLibrary::class),
 //    ExportLibrary(LSPLibrary::class),
     )
-    enum class Kind : TruffleObject {
+    enum class StringLiteralDelimiterKind : TruffleObject {
         StraightSingleQuotes {
             override val isStraight: Boolean = true
             override val isSingleQuotes: Boolean = true
@@ -140,7 +140,7 @@ open class StringLiteralExpressionNode
     }
 
     @field:CompilationFinal
-    lateinit var kind: Kind
+    lateinit var delimiterKind: StringLiteralDelimiterKind
 
     @field:CompilationFinal
     lateinit var content: String

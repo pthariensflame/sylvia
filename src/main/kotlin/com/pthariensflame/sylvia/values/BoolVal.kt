@@ -6,7 +6,7 @@ import com.oracle.truffle.api.interop.InteropLibrary
 import com.oracle.truffle.api.interop.UnsupportedMessageException
 import com.oracle.truffle.api.library.ExportLibrary
 import com.oracle.truffle.api.library.ExportMessage
-import com.pthariensflame.sylvia.ast.expressions.BooleanLiteralExpressionNode
+import com.pthariensflame.sylvia.ast.expressions.ExpressionNode
 import org.jetbrains.annotations.Contract
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
@@ -20,7 +20,7 @@ import kotlin.contracts.contract
 @OptIn(ExperimentalContracts::class)
 data class BoolVal(@JvmField val value: Boolean) : SylviaVal(), Comparable<BoolVal>, Cloneable {
     @CompilationFinal
-    override var originatingNode: BooleanLiteralExpressionNode? = null
+    override var originatingNode: ExpressionNode? = null
 
     @ExportMessage
     @Contract("-> true", pure = true)

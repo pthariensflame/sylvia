@@ -21,13 +21,14 @@ import kotlin.contracts.contract
 @OptIn(ExperimentalContracts::class)
 data class SylviaExceptionVal(
     @JvmField val inner: SylviaException,
-) : SylviaVal(), TruffleException by inner {
+) : SylviaVal() {
     @get:Contract(pure = true)
     override val originatingNode: ExpressionNode?
         get() = location as? ExpressionNode
 
-    @Contract(pure = true)
-    override fun getLocation(): Node? = inner.location
+    @get:Contract(pure = true)
+    val location: Node?
+        get() = inner.location
 
     @ExportMessage
     @Contract("-> true", pure = true)
@@ -40,11 +41,11 @@ data class SylviaExceptionVal(
 
     //    @ExportMessage
     override fun hasSourceLocation(): Boolean =
-        null == super<TruffleException>.getSourceLocation() || super<SylviaVal>.hasSourceLocation()
+        inner.hasSourceLocation() || super<SylviaVal>.hasSourceLocation()
 
     //    @ExportMessage
     override fun getSourceLocation(): SourceSection =
-        super<TruffleException>.getSourceLocation() ?: super<SylviaVal>.getSourceLocation()
+        inner.sourceLocation ?: super<SylviaVal>.getSourceLocation()
 
     @ExportMessage
     @Contract(pure = true)

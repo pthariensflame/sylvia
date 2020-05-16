@@ -12,6 +12,7 @@ import com.oracle.truffle.api.instrumentation.InstrumentableNode
 import com.oracle.truffle.api.instrumentation.ProbeNode
 import com.oracle.truffle.api.nodes.Node
 import com.oracle.truffle.api.nodes.NodeInfo
+import com.oracle.truffle.api.source.Source
 import com.pthariensflame.sylvia.SylviaLanguage
 import com.pthariensflame.sylvia.SylviaTruffleTypeSystem
 import com.pthariensflame.sylvia.parser.SourceSpan
@@ -32,8 +33,9 @@ open class ProcedureNode
 @JvmOverloads constructor(
     langInstance: SylviaLanguage? = null,
     frameDescriptor: FrameDescriptor? = null,
+    originalSrc: Source? = null,
     srcSpan: SourceSpan? = null,
-) : SylviaTopNode(langInstance, frameDescriptor, srcSpan) {
+) : SylviaTopNode(langInstance, frameDescriptor, originalSrc, srcSpan) {
     @field:Node.Child
     private var _bodyNode: ProcedureBodyNode? = null
 

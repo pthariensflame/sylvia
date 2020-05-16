@@ -34,7 +34,7 @@ import java.util.*
 @Introspectable
 open class SylviaProgramBodyNode
 @JvmOverloads constructor(
-    @JvmField val srcSpan: SourceSpan? = null,
+    @JvmField final override val srcSpan: SourceSpan? = null,
 ) : Node(), SylviaNode, InstrumentableNode {
     @get:Flow(
         source = Flow.THIS_SOURCE,

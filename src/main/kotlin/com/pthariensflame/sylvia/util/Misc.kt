@@ -7,7 +7,6 @@ import com.oracle.truffle.api.Truffle
 import com.oracle.truffle.api.TruffleRuntime
 import com.oracle.truffle.api.nodes.Node
 import org.jetbrains.annotations.Contract
-import java.io.Closeable
 import java.util.concurrent.locks.Lock
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
@@ -69,52 +68,6 @@ inline fun Node.runAtomic(noinline fn: () -> Unit) {
         callsInPlace(fn, InvocationKind.EXACTLY_ONCE)
     }
     return atomic(fn)
-}
-
-class CloseableIterable<C : Closeable?>(
-    private val inner: Iterable<C>,
-) : Iterable<C> by inner, Closeable {
-    override fun close(): Unit =
-        inner.forEach { it?.close() }
-}
-
-@OptIn(ExperimentalContracts::class)
-fun <C : Closeable?> Iterable<C>.asCloseable(): CloseableIterable<C> {
-    contract {
-        returns()
-    }
-    return CloseableIterable(this)
-}
-
-@OptIn(ExperimentalContracts::class)
-inline fun <C : Closeable?, R> Iterable<C>.useAll(block: (Iterable<C>) -> R): R {
-    contract {
-        callsInPlace(block, InvocationKind.EXACTLY_ONCE)
-    }
-    return asCloseable().use { block(it) }
-}
-
-class CloseableSequence<C : Closeable?>(
-    private val inner: Sequence<C>,
-) : Sequence<C> by inner, Closeable {
-    override fun close(): Unit =
-        inner.forEach { it?.close() }
-}
-
-@OptIn(ExperimentalContracts::class)
-fun <C : Closeable?> Sequence<C>.asCloseable(): CloseableSequence<C> {
-    contract {
-        returns()
-    }
-    return CloseableSequence(this)
-}
-
-@OptIn(ExperimentalContracts::class)
-inline fun <C : Closeable?, R> Sequence<C>.useAll(block: (Sequence<C>) -> R): R {
-    contract {
-        callsInPlace(block, InvocationKind.EXACTLY_ONCE)
-    }
-    return asCloseable().use { block(it) }
 }
 
 @Contract("_ -> param1", pure = true)

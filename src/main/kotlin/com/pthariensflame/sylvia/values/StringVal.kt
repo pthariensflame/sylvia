@@ -7,7 +7,7 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException
 import com.oracle.truffle.api.library.ExportLibrary
 import com.oracle.truffle.api.library.ExportMessage
 import com.pthariensflame.sylvia.UnicodeCodepoint
-import com.pthariensflame.sylvia.ast.expressions.StringLiteralExpressionNode
+import com.pthariensflame.sylvia.ast.expressions.ExpressionNode
 import org.jetbrains.annotations.Contract
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
@@ -21,7 +21,7 @@ import kotlin.contracts.contract
 @OptIn(ExperimentalContracts::class)
 data class StringVal(@JvmField val value: String) : SylviaVal(), Comparable<StringVal>, Cloneable {
     @field:CompilationFinal
-    override var originatingNode: StringLiteralExpressionNode? = null
+    override var originatingNode: ExpressionNode? = null
 
     constructor(c: Char) : this(
         c.toString()
