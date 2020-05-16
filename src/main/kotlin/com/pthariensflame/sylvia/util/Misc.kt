@@ -147,4 +147,14 @@ object TruffleUtil {
         }
         return CompilerDirectives.injectBranchProbability(probability, condition)
     }
+
+    @Suppress("NOTHING_TO_INLINE")
+    @JvmStatic
+    @Contract("_ -> true", pure = true)
+    inline fun otherwise(probability: Double): Boolean {
+        contract {
+            returns(true)
+        }
+        return TruffleUtil.injectBranchProbability(probability, true)
+    }
 }

@@ -8,7 +8,7 @@ import com.oracle.truffle.api.library.ExportLibrary
 import com.oracle.truffle.api.library.ExportMessage
 import com.oracle.truffle.api.nodes.Node
 import com.oracle.truffle.api.source.SourceSection
-import org.graalvm.tools.api.lsp.LSPLibrary
+import com.pthariensflame.sylvia.ast.expressions.ExpressionNode
 import org.jetbrains.annotations.Contract
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
@@ -21,7 +21,12 @@ import kotlin.contracts.contract
 @OptIn(ExperimentalContracts::class)
 data class SylviaExceptionVal(
     @JvmField val inner: SylviaException,
-) : SylviaVal(), TruffleException by inner, Cloneable {
+) : SylviaVal(), TruffleException by inner {
+    @get:Contract(pure = true)
+    override val originatingNode: ExpressionNode?
+        get() = location as? ExpressionNode
+
+    @Contract(pure = true)
     override fun getLocation(): Node? = inner.location
 
     @ExportMessage
@@ -33,6 +38,14 @@ data class SylviaExceptionVal(
         return true
     }
 
+    //    @ExportMessage
+    override fun hasSourceLocation(): Boolean =
+        null == super<TruffleException>.getSourceLocation() || super<SylviaVal>.hasSourceLocation()
+
+    //    @ExportMessage
+    override fun getSourceLocation(): SourceSection =
+        super<TruffleException>.getSourceLocation() ?: super<SylviaVal>.getSourceLocation()
+
     @ExportMessage
     @Contract(pure = true)
     fun throwException(): RuntimeException {
@@ -42,12 +55,12 @@ data class SylviaExceptionVal(
         return inner
     }
 
-//    @ExportMessage
+    //    @ExportMessage
     @Throws(UnsupportedMessageException::class)
     override fun getDocumentation(): Any =
         inner.getDocumentation()
 
-//    @ExportMessage
+    //    @ExportMessage
     @Throws(UnsupportedMessageException::class)
     override fun getSignature(): Any =
         inner.getSignature()

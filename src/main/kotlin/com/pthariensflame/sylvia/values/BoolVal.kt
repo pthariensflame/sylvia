@@ -1,11 +1,12 @@
 package com.pthariensflame.sylvia.values
 
-import com.oracle.truffle.api.CompilerDirectives
+import com.oracle.truffle.api.CompilerDirectives.CompilationFinal
+import com.oracle.truffle.api.CompilerDirectives.ValueType
 import com.oracle.truffle.api.interop.InteropLibrary
 import com.oracle.truffle.api.interop.UnsupportedMessageException
 import com.oracle.truffle.api.library.ExportLibrary
 import com.oracle.truffle.api.library.ExportMessage
-import org.graalvm.tools.api.lsp.LSPLibrary
+import com.pthariensflame.sylvia.ast.expressions.BooleanLiteralExpressionNode
 import org.jetbrains.annotations.Contract
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
@@ -15,9 +16,12 @@ import kotlin.contracts.contract
     ExportLibrary(InteropLibrary::class),
 //    ExportLibrary(LSPLibrary::class),
 )
-@CompilerDirectives.ValueType
+@ValueType
 @OptIn(ExperimentalContracts::class)
 data class BoolVal(@JvmField val value: Boolean) : SylviaVal(), Comparable<BoolVal>, Cloneable {
+    @CompilationFinal
+    override var originatingNode: BooleanLiteralExpressionNode? = null
+
     @ExportMessage
     @Contract("-> true", pure = true)
     fun isBoolean(): Boolean {

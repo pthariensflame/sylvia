@@ -6,7 +6,7 @@ import com.oracle.truffle.api.interop.InteropLibrary
 import com.oracle.truffle.api.interop.UnsupportedMessageException
 import com.oracle.truffle.api.library.ExportLibrary
 import com.oracle.truffle.api.library.ExportMessage
-import org.graalvm.tools.api.lsp.LSPLibrary
+import com.pthariensflame.sylvia.ast.expressions.ExpressionNode
 import org.jetbrains.annotations.Contract
 import java.math.BigDecimal
 import java.math.MathContext
@@ -23,6 +23,10 @@ import kotlin.contracts.contract
 @Suppress("ProtectedInFinal")
 data class BigFloatVal protected constructor(@JvmField val value: BigDecimal) : SylviaVal(), Comparable<BigFloatVal>,
     Cloneable {
+    override var originatingNode: ExpressionNode?
+        get() = TODO("Not yet implemented")
+        set(newNode) = TODO("Not yet implemented")
+
     companion object {
         @JvmStatic
         @JvmName("create")

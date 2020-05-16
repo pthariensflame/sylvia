@@ -2,6 +2,7 @@ package com.pthariensflame.sylvia
 
 import com.oracle.truffle.api.dsl.ImplicitCast
 import com.oracle.truffle.api.dsl.TypeSystem
+import com.pthariensflame.sylvia.ast.expressions.StringLiteralExpressionNode
 import com.pthariensflame.sylvia.values.*
 import com.pthariensflame.sylvia.values.types.SylviaType
 import org.jetbrains.annotations.Contract
@@ -25,6 +26,7 @@ import kotlin.contracts.ExperimentalContracts
     StringVal::class,
     SylviaException::class,
     SylviaExceptionVal::class,
+    StringLiteralExpressionNode.Kind::class,
     SylviaType::class,
     SylviaVal::class,
 )

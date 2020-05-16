@@ -66,7 +66,7 @@ constructor(
                         !this@LeanMutableMapImpl.isEmpty()
                     )
 
-                    private var present: Boolean = true;
+                    private var present: Boolean = true
 
                     override fun hasNext(): Boolean = !hasMore
 

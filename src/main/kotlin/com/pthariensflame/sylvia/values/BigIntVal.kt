@@ -5,6 +5,7 @@ import com.oracle.truffle.api.interop.InteropLibrary
 import com.oracle.truffle.api.interop.UnsupportedMessageException
 import com.oracle.truffle.api.library.ExportLibrary
 import com.oracle.truffle.api.library.ExportMessage
+import com.pthariensflame.sylvia.ast.expressions.ExpressionNode
 import com.pthariensflame.sylvia.util.assertPartialEvaluationConstant
 import com.pthariensflame.sylvia.values.TypeLimits.MAX_BYTE
 import com.pthariensflame.sylvia.values.TypeLimits.MAX_INT
@@ -27,6 +28,9 @@ import kotlin.contracts.contract
 @CompilerDirectives.ValueType
 @OptIn(ExperimentalContracts::class)
 data class BigIntVal(@JvmField val value: BigInteger) : SylviaVal(), Comparable<BigIntVal>, Cloneable {
+    override var originatingNode: ExpressionNode?
+        get() = TODO("Not yet implemented")
+        set(newNode) = TODO("Not yet implemented")
 
     @ExportMessage
     @Contract("-> true", pure = true)

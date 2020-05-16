@@ -74,10 +74,52 @@ class SylviaASTGenVisitor
     override fun visitEnclosedExpr(ctx: SylviaParser.EnclosedExprContext): ExpressionNode =
         visit(ctx.inner) as ExpressionNode
 
-    override fun visitStraightSingleStringLiteral(ctx: SylviaParser.StraightSingleStringLiteralContext): SylviaNode =
+    override fun visitStraightSingleStringLiteral(ctx: SylviaParser.StraightSingleStringLiteralContext): StringLiteralExpressionNode =
         StringLiteralExpressionNode(ctx.sourceSpan).apply {
             kind = StringLiteralExpressionNode.Kind.StraightSingleQuotes
-            content
+            content = StringLiteralExpressionNode.processStringLiteralContent(ctx.text.subSequence(
+                1..ctx.text.length - 2
+            ))
+        }
+
+    override fun visitStraightDoubleStringLiteral(ctx: SylviaParser.StraightDoubleStringLiteralContext): StringLiteralExpressionNode =
+        StringLiteralExpressionNode(ctx.sourceSpan).apply {
+            kind = StringLiteralExpressionNode.Kind.StraightDoubleQuotes
+            content = StringLiteralExpressionNode.processStringLiteralContent(ctx.text.subSequence(
+                1..ctx.text.length - 2
+            ))
+        }
+
+    override fun visitStraightBacktickStringLiteral(ctx: SylviaParser.StraightBacktickStringLiteralContext): StringLiteralExpressionNode =
+        StringLiteralExpressionNode(ctx.sourceSpan).apply {
+            kind = StringLiteralExpressionNode.Kind.StraightBackticks
+            content = StringLiteralExpressionNode.processStringLiteralContent(ctx.text.subSequence(
+                1..ctx.text.length - 2
+            ))
+        }
+
+    override fun visitSmartSingleStringLiteral(ctx: SylviaParser.SmartSingleStringLiteralContext): StringLiteralExpressionNode =
+        StringLiteralExpressionNode(ctx.sourceSpan).apply {
+            kind = StringLiteralExpressionNode.Kind.SmartSingleQuotes
+            content = StringLiteralExpressionNode.processStringLiteralContent(ctx.text.subSequence(
+                1..ctx.text.length - 2
+            ))
+        }
+
+    override fun visitSmartDoubleStringLiteral(ctx: SylviaParser.SmartDoubleStringLiteralContext): StringLiteralExpressionNode =
+        StringLiteralExpressionNode(ctx.sourceSpan).apply {
+            kind = StringLiteralExpressionNode.Kind.SmartDoubleQuotes
+            content = StringLiteralExpressionNode.processStringLiteralContent(ctx.text.subSequence(
+                1..ctx.text.length - 2
+            ))
+        }
+
+    override fun visitSmartChevronStringLiteral(ctx: SylviaParser.SmartChevronStringLiteralContext): StringLiteralExpressionNode =
+        StringLiteralExpressionNode(ctx.sourceSpan).apply {
+            kind = StringLiteralExpressionNode.Kind.SmartChevrons
+            content = StringLiteralExpressionNode.processStringLiteralContent(ctx.text.subSequence(
+                1..ctx.text.length - 2
+            ))
         }
 
     override fun visitDeclarationStmt(ctx: SylviaParser.DeclarationStmtContext): StatementNode =
