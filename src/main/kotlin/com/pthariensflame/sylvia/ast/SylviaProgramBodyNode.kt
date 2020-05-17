@@ -1,9 +1,11 @@
 package com.pthariensflame.sylvia.ast
 
 import com.oracle.truffle.api.CompilerDirectives.*
+import com.oracle.truffle.api.Scope
 import com.oracle.truffle.api.dsl.GenerateNodeFactory
 import com.oracle.truffle.api.dsl.GenerateUncached
 import com.oracle.truffle.api.dsl.Introspectable
+import com.oracle.truffle.api.dsl.NodeField
 import com.oracle.truffle.api.frame.VirtualFrame
 import com.oracle.truffle.api.instrumentation.*
 import com.oracle.truffle.api.nodes.BlockNode
@@ -34,7 +36,7 @@ import java.util.*
 @Introspectable
 open class SylviaProgramBodyNode
 @JvmOverloads constructor(
-    @JvmField final override val srcSpan: SourceSpan? = null,
+    @field:CompilationFinal override val srcSpan: SourceSpan? = null,
 ) : Node(), SylviaNode, InstrumentableNode {
     @get:Flow(
         source = Flow.THIS_SOURCE,

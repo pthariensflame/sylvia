@@ -12,7 +12,7 @@ import com.pthariensflame.sylvia.ast.SylviaProgramBodyNode
 import com.pthariensflame.sylvia.ast.SylviaProgramNode
 import com.pthariensflame.sylvia.ast.declarations.DeclarationNode
 import com.pthariensflame.sylvia.ast.expressions.ExpressionNode
-import com.pthariensflame.sylvia.ast.expressions.StringLiteralExpressionNode
+import com.pthariensflame.sylvia.ast.expressions.literals.StringLiteralExpressionNode
 import com.pthariensflame.sylvia.ast.statements.ExpressionStatementNode
 import com.pthariensflame.sylvia.ast.statements.StatementNode
 import com.pthariensflame.sylvia.parser.antlr.SylviaBaseVisitor
@@ -31,7 +31,7 @@ class SylviaASTGenVisitor
 ) : SylviaBaseVisitor<SylviaNode>() {
     override fun visitProgram(ctx: SylviaParser.ProgramContext): SylviaNode =
         ctx.sourceSpan.let { srcSpan ->
-            SylviaProgramNode(langInstance, null, srcSpan).apply {
+            SylviaProgramNode(langInstance, null, source, srcSpan).apply {
                 bodyNode = SylviaProgramBodyNode(srcSpan).apply {
                     val stmtNodes: Iterable<StatementNode>
                     val endExprNode: ExpressionNode?
@@ -75,7 +75,8 @@ class SylviaASTGenVisitor
         visit(ctx.inner) as ExpressionNode
 
     override fun visitStraightSingleStringLiteral(ctx: SylviaParser.StraightSingleStringLiteralContext): StringLiteralExpressionNode =
-        StringLiteralExpressionNode(ctx.sourceSpan).apply {
+        StringLiteralExpressionNode(ctx.sourceSpan)
+            .apply {
             delimiterKind = StringLiteralExpressionNode.StringLiteralDelimiterKind.StraightSingleQuotes
             content = StringLiteralExpressionNode.processStringLiteralContent(ctx.text.subSequence(
                 1..ctx.text.length - 2
@@ -83,7 +84,8 @@ class SylviaASTGenVisitor
         }
 
     override fun visitStraightDoubleStringLiteral(ctx: SylviaParser.StraightDoubleStringLiteralContext): StringLiteralExpressionNode =
-        StringLiteralExpressionNode(ctx.sourceSpan).apply {
+        StringLiteralExpressionNode(ctx.sourceSpan)
+            .apply {
             delimiterKind = StringLiteralExpressionNode.StringLiteralDelimiterKind.StraightDoubleQuotes
             content = StringLiteralExpressionNode.processStringLiteralContent(ctx.text.subSequence(
                 1..ctx.text.length - 2
@@ -91,7 +93,8 @@ class SylviaASTGenVisitor
         }
 
     override fun visitStraightBacktickStringLiteral(ctx: SylviaParser.StraightBacktickStringLiteralContext): StringLiteralExpressionNode =
-        StringLiteralExpressionNode(ctx.sourceSpan).apply {
+        StringLiteralExpressionNode(ctx.sourceSpan)
+            .apply {
             delimiterKind = StringLiteralExpressionNode.StringLiteralDelimiterKind.StraightBackticks
             content = StringLiteralExpressionNode.processStringLiteralContent(ctx.text.subSequence(
                 1..ctx.text.length - 2
@@ -99,7 +102,8 @@ class SylviaASTGenVisitor
         }
 
     override fun visitSmartSingleStringLiteral(ctx: SylviaParser.SmartSingleStringLiteralContext): StringLiteralExpressionNode =
-        StringLiteralExpressionNode(ctx.sourceSpan).apply {
+        StringLiteralExpressionNode(ctx.sourceSpan)
+            .apply {
             delimiterKind = StringLiteralExpressionNode.StringLiteralDelimiterKind.SmartSingleQuotes
             content = StringLiteralExpressionNode.processStringLiteralContent(ctx.text.subSequence(
                 1..ctx.text.length - 2
@@ -107,7 +111,8 @@ class SylviaASTGenVisitor
         }
 
     override fun visitSmartDoubleStringLiteral(ctx: SylviaParser.SmartDoubleStringLiteralContext): StringLiteralExpressionNode =
-        StringLiteralExpressionNode(ctx.sourceSpan).apply {
+        StringLiteralExpressionNode(ctx.sourceSpan)
+            .apply {
             delimiterKind = StringLiteralExpressionNode.StringLiteralDelimiterKind.SmartDoubleQuotes
             content = StringLiteralExpressionNode.processStringLiteralContent(ctx.text.subSequence(
                 1..ctx.text.length - 2
@@ -115,7 +120,8 @@ class SylviaASTGenVisitor
         }
 
     override fun visitSmartChevronStringLiteral(ctx: SylviaParser.SmartChevronStringLiteralContext): StringLiteralExpressionNode =
-        StringLiteralExpressionNode(ctx.sourceSpan).apply {
+        StringLiteralExpressionNode(ctx.sourceSpan)
+            .apply {
             delimiterKind = StringLiteralExpressionNode.StringLiteralDelimiterKind.SmartChevrons
             content = StringLiteralExpressionNode.processStringLiteralContent(ctx.text.subSequence(
                 1..ctx.text.length - 2
@@ -209,7 +215,7 @@ class SylviaASTGenVisitor
 
     @TruffleBoundary
     @Contract("_ -> fail", pure = true)
-    override fun visitErrorNode(node: ErrorNode): SylviaNode =
+    override fun visitErrorNode(node: ErrorNode): Nothing =
         throw ErrorNodeSyntaxException(node)
 
     companion object {

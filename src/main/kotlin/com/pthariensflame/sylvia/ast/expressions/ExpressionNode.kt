@@ -1,8 +1,7 @@
 package com.pthariensflame.sylvia.ast.expressions
 
 import com.oracle.truffle.api.CompilerDirectives
-import com.oracle.truffle.api.CompilerDirectives.SLOWPATH_PROBABILITY
-import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary
+import com.oracle.truffle.api.CompilerDirectives.*
 import com.oracle.truffle.api.dsl.GenerateNodeFactory
 import com.oracle.truffle.api.dsl.GenerateUncached
 import com.oracle.truffle.api.dsl.Introspectable
@@ -28,7 +27,7 @@ import com.pthariensflame.sylvia.values.*
 @Introspectable
 abstract class ExpressionNode
 @JvmOverloads constructor(
-    @JvmField final override val srcSpan: SourceSpan? = null,
+    @field:CompilationFinal override val srcSpan: SourceSpan? = null,
 ) : Node(), SylviaNode, InstrumentableNode {
     abstract override fun isInstrumentable(): Boolean
 

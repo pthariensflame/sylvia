@@ -1,5 +1,6 @@
 package com.pthariensflame.sylvia.ast
 
+import com.oracle.truffle.api.CompilerDirectives.CompilationFinal
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary
 import com.oracle.truffle.api.dsl.GenerateNodeFactory
 import com.oracle.truffle.api.dsl.GenerateUncached
@@ -25,8 +26,8 @@ abstract class SylviaTopNode
 @JvmOverloads internal constructor(
     langInstance: SylviaLanguage? = null,
     frameDescriptor: FrameDescriptor? = null,
-    @JvmField val originalSrc: Source? = null,
-    @JvmField final override val srcSpan: SourceSpan? = null,
+    @get:TruffleBoundary @field:CompilationFinal open val originalSrc: Source? = null,
+    @field:CompilationFinal override val srcSpan: SourceSpan? = null,
 ) : RootNode(langInstance, frameDescriptor), SylviaNode, InstrumentableNode {
     override fun isInstrumentable(): Boolean = true
 

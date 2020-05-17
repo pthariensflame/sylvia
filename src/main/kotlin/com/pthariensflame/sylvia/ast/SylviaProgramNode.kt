@@ -34,8 +34,9 @@ open class SylviaProgramNode
 @JvmOverloads constructor(
     langInstance: SylviaLanguage? = null,
     frameDescriptor: FrameDescriptor? = null,
+    originalSrc: Source? = null,
     srcSpan: SourceSpan? = null,
-) : SylviaTopNode(langInstance, frameDescriptor, srcSpan) {
+) : SylviaTopNode(langInstance, frameDescriptor, originalSrc, srcSpan) {
     @field:Node.Child
     private var _bodyNode: SylviaProgramBodyNode? = null
 

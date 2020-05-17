@@ -1,4 +1,4 @@
-package com.pthariensflame.sylvia.ast.expressions
+package com.pthariensflame.sylvia.ast.expressions.literals
 
 import com.oracle.truffle.api.dsl.GenerateNodeFactory
 import com.oracle.truffle.api.dsl.GenerateUncached
@@ -7,6 +7,7 @@ import com.oracle.truffle.api.instrumentation.GenerateWrapper
 import com.oracle.truffle.api.instrumentation.InstrumentableNode
 import com.oracle.truffle.api.instrumentation.ProbeNode
 import com.oracle.truffle.api.nodes.NodeInfo
+import com.pthariensflame.sylvia.ast.expressions.ExpressionNode
 import com.pthariensflame.sylvia.parser.SourceSpan
 
 @NodeInfo(

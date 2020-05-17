@@ -1,4 +1,4 @@
-package com.pthariensflame.sylvia.ast.expressions
+package com.pthariensflame.sylvia.ast.expressions.literals
 
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal
 import com.oracle.truffle.api.dsl.GenerateNodeFactory
@@ -18,6 +18,7 @@ import com.oracle.truffle.api.nodes.NodeInfo
 import com.pthariensflame.sylvia.UnicodeCodepoint
 import com.pthariensflame.sylvia.parser.SourceSpan
 import com.pthariensflame.sylvia.values.StringVal
+import org.intellij.lang.annotations.MagicConstant
 import org.jetbrains.annotations.Contract
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
@@ -117,7 +118,21 @@ open class StringLiteralExpressionNode
             )
 
         @ExportMessage
-        fun isMemberReadable(member: String): Boolean {
+        fun isMemberReadable(
+            @MagicConstant(
+                stringValues = [
+                    "isSmart",
+                    "isStraight",
+                    "isSingleQuotes",
+                    "isDoubleQuotes",
+                    "isBackticks",
+                    "isChevrons",
+                    "openingDelimeter",
+                    "closingDelimeter",
+                ]
+            )
+            member: String
+        ): Boolean {
             return member in getMembers(false)
         }
 
@@ -126,7 +141,21 @@ open class StringLiteralExpressionNode
             UnsupportedMessageException::class,
             UnknownIdentifierException::class,
         )
-        fun readMember(member: String): Any = when (member) {
+        fun readMember(
+            @MagicConstant(
+                stringValues = [
+                    "isSmart",
+                    "isStraight",
+                    "isSingleQuotes",
+                    "isDoubleQuotes",
+                    "isBackticks",
+                    "isChevrons",
+                    "openingDelimeter",
+                    "closingDelimeter",
+                ]
+            )
+            member: String
+        ): Any = when (member) {
             "isSmart" -> isSmart
             "isStraight" -> isStraight
             "isSingleQuotes" -> isSingleQuotes

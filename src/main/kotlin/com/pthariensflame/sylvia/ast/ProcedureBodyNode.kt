@@ -1,5 +1,6 @@
 package com.pthariensflame.sylvia.ast
 
+import com.oracle.truffle.api.CompilerDirectives.CompilationFinal
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary
 import com.oracle.truffle.api.dsl.GenerateNodeFactory
 import com.oracle.truffle.api.dsl.GenerateUncached
@@ -8,7 +9,6 @@ import com.oracle.truffle.api.frame.VirtualFrame
 import com.oracle.truffle.api.instrumentation.*
 import com.oracle.truffle.api.nodes.Node
 import com.oracle.truffle.api.nodes.NodeInfo
-import com.oracle.truffle.api.source.Source
 import com.oracle.truffle.api.source.SourceSection
 import com.pthariensflame.sylvia.parser.SourceSpan
 
@@ -22,7 +22,7 @@ import com.pthariensflame.sylvia.parser.SourceSpan
 @Introspectable
 abstract class ProcedureBodyNode
 @JvmOverloads constructor(
-    @JvmField final override val srcSpan: SourceSpan? = null,
+    @field:CompilationFinal override val srcSpan: SourceSpan? = null,
 ) : Node(), SylviaNode, InstrumentableNode {
     override fun isInstrumentable(): Boolean = true
 

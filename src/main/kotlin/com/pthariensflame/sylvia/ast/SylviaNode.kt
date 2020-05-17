@@ -1,6 +1,7 @@
 package com.pthariensflame.sylvia.ast
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary
+import com.oracle.truffle.api.dsl.GenerateUncached
 import com.oracle.truffle.api.dsl.Introspectable
 import com.oracle.truffle.api.dsl.ReportPolymorphism
 import com.oracle.truffle.api.nodes.NodeInfo
@@ -15,13 +16,12 @@ import org.jetbrains.annotations.Contract
     description = "An arbitrary node for the Sylvia language"
 )
 @ReportPolymorphism
+@GenerateUncached(inherit = true)
 @Introspectable
 interface SylviaNode : NodeInterface {
-    @JvmDefault
     @get:Contract(pure = true)
     val srcSpan: SourceSpan?
 
     @TruffleBoundary
-    @JvmDefault
     fun getSourceSection(): SourceSection?
 }

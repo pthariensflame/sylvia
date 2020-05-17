@@ -27,16 +27,19 @@ data class SourceSpan(
     @JvmField val len: @Range(from = 0, to = Int.MAX_VALUE.toLong()) Int,
 ) : Cloneable, TruffleObject {
     @TruffleBoundary(allowInlining = true)
-    fun asSectionOf(src: Source): SourceSection =
+    @Suppress("NOTHING_TO_INLINE")
+    inline fun asSectionOf(src: Source): SourceSection =
         src.createSection(start, len)
 
     @TruffleBoundary(allowInlining = true)
-    fun asSubsectionOf(srcSec: SourceSection): SourceSection =
+    @Suppress("NOTHING_TO_INLINE")
+    inline fun asSubsectionOf(srcSec: SourceSection): SourceSection =
         asSectionOf(srcSec.source)
 
     override fun clone(): SourceSpan = copy()
 
-    val end: @Range(from = 0, to = Int.MAX_VALUE.toLong()) Int get() = start + len - 1
+    inline val end: @Range(from = 0, to = Int.MAX_VALUE.toLong()) Int
+        get() = start + len - 1
 
     constructor(ir: IntRange) : this(ir.start, ir.endInclusive - ir.start + 1)
 
@@ -76,27 +79,28 @@ data class SourceSpan(
     }
 
     companion object {
-        @Suppress("NOTHING_TO_INLINE")
         @JvmStatic
         @TruffleBoundary(allowInlining = true)
+        @Suppress("NOTHING_TO_INLINE")
         inline fun Source.createSection(span: SourceSpan): SourceSection =
             span.asSectionOf(this)
 
-        @Suppress("NOTHING_TO_INLINE")
         @JvmStatic
         @TruffleBoundary(allowInlining = true)
+        @Suppress("NOTHING_TO_INLINE")
         inline fun SourceSection.createSubsection(span: SourceSpan): SourceSection =
             span.asSubsectionOf(this)
 
-        @Suppress("NOTHING_TO_INLINE")
         @JvmStatic
         @TruffleBoundary(allowInlining = true)
+        @Suppress("NOTHING_TO_INLINE")
         inline fun SourceSection.createUnavailableSubsection(): SourceSection =
             source.createUnavailableSection()
 
         @JvmStatic
         @TruffleBoundary(allowInlining = true)
-        fun ParserRuleContext.sourceSpan(): SourceSpan {
+        @Suppress("NOTHING_TO_INLINE")
+        inline fun ParserRuleContext.sourceSpan(): SourceSpan {
             val startIx: Int = getStart().startIndex
             return SourceSpan(
                 startIx,
