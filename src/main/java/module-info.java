@@ -1,12 +1,23 @@
+import com.oracle.truffle.api.TruffleLanguage.Provider;
+import com.pthariensflame.sylvia.SylviaLanguageProvider;
+
+@SuppressWarnings("JavaRequiresAutoModule")
 open module com.pthariensflame.sylvia {
     requires transitive org.graalvm.truffle;
-    requires org.graalvm.sdk;
-    requires org.graalvm.launcher;
-    requires com.oracle.truffle.truffle_nfi;
+    requires transitive org.graalvm.sdk;
+    requires transitive org.graalvm.launcher;
+    requires transitive org.graalvm.tools.api.lsp;
+    requires transitive org.antlr.antlr4.runtime;
     requires transitive kotlin.stdlib;
     requires transitive kotlin.stdlib.jdk8;
     requires transitive kotlin.stdlib.jdk7;
     requires transitive kotlin.stdlib.common;
+    requires transitive kotlin.reflect;
+    requires transitive jline.reader;
+    requires transitive jline.style;
+    requires transitive jline.terminal;
+    requires jline.terminal.jansi;
+    requires static org.jetbrains.annotations;
 
     exports com.pthariensflame.sylvia.ast;
     exports com.pthariensflame.sylvia.ast.expressions;
@@ -16,4 +27,6 @@ open module com.pthariensflame.sylvia {
     exports com.pthariensflame.sylvia.parser;
     exports com.pthariensflame.sylvia.parser.antlr;
     exports com.pthariensflame.sylvia.shell;
+
+    provides Provider with SylviaLanguageProvider;
 }

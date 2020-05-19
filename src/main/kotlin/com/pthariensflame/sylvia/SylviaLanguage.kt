@@ -11,20 +11,20 @@ import com.oracle.truffle.api.instrumentation.StandardTags
 import com.pthariensflame.sylvia.SylviaLanguage.Companion.LANG_VERSION
 import com.pthariensflame.sylvia.ast.SylviaTag
 import com.pthariensflame.sylvia.shell.SylviaFileDetector
+import com.pthariensflame.sylvia.shell.SylviaFileDetector.Companion.SYLVIA_MIME_TYPE
 import com.pthariensflame.sylvia.util.LazyConstant
 import com.pthariensflame.sylvia.values.SylviaException
 import com.pthariensflame.sylvia.values.SylviaVal
 import org.graalvm.options.OptionValues
-
 
 @TruffleLanguage.Registration(
     id = "sylvia",
     name = "Sylvia",
     implementationName = "Reference Truffle Sylvia",
     version = LANG_VERSION,
-    characterMimeTypes = ["text/x-sylvia"],
+    characterMimeTypes = [SYLVIA_MIME_TYPE],
     byteMimeTypes = [],
-    defaultMimeType = "text/x-sylvia",
+    defaultMimeType = SYLVIA_MIME_TYPE,
     interactive = true,
     internal = false,
     dependentLanguages = ["nfi"],

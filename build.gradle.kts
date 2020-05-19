@@ -42,16 +42,17 @@ dependencies {
             belongsTo("io.kotest:kotest-virtual-platform:${id.version}", true)
         }
     }
-    api(enforcedPlatform("org.graalvm:graalvm-virtual-platform:$graalVMVersion"))
+//    api(enforcedPlatform("org.graalvm:graalvm-virtual-platform:$graalVMVersion"))
     implementation(enforcedPlatform("org.jline:jline-virtual-platform:3.14.1"))
-    testImplementation(platform("org.junit:junit-bom:5.7.+"))
+    testApi(platform("org.junit:junit-bom:5.7.+"))
     testApi(enforcedPlatform("io.kotest:kotest-virtual-platform:4.0.5"))
     constraints {
         testImplementation("junit", "junit", "[4.13,)")
-        api("org.jetbrains", "annotations", "19.+")
         implementation("org.fusesource.jansi", "jansi", "[1.18,)")
     }
 
+
+    api("org.jetbrains", "annotations", "19.+")
     api(kotlin("stdlib-jdk8"))
     api(kotlin("reflect"))
     testApi(kotlin("test"))
@@ -77,33 +78,33 @@ dependencies {
     api("org.jline", "jline-style", "3.14.1")
     implementation("org.jline", "jline-terminal-jansi", "3.14.1")
 
-    api("org.graalvm.truffle", "truffle-api", graalVMVersion)
-    api("org.graalvm.truffle", "truffle-nfi", graalVMVersion)
-    api("org.graalvm.sdk", "graal-sdk", graalVMVersion)
-    api("org.graalvm.sdk", "launcher-common", graalVMVersion)
+//    api("org.graalvm.truffle", "truffle-api", graalVMVersion)
+//    runtimeOnly("org.graalvm.truffle", "truffle-nfi", graalVMVersion)
+//    api("org.graalvm.sdk", "graal-sdk", graalVMVersion)
+//    api("org.graalvm.sdk", "launcher-common", graalVMVersion)
     kapt("org.graalvm.truffle", "truffle-dsl-processor", graalVMVersion)
-    implementation("org.graalvm.compiler", "compiler", graalVMVersion)
-    api("org.graalvm.tools", "lsp_api", graalVMVersion)
-    testApi("org.graalvm.truffle", "truffle-tck", graalVMVersion)
-    testApi("org.graalvm.sdk", "polyglot-tck", graalVMVersion)
+//    runtimeOnly("org.graalvm.compiler", "compiler", graalVMVersion)
+//    api("org.graalvm.tools", "lsp_api", graalVMVersion)
+//    testApi("org.graalvm.truffle", "truffle-tck", graalVMVersion)
+//    testApi("org.graalvm.sdk", "polyglot-tck", graalVMVersion)
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
     withJavadocJar()
     withSourcesJar()
-//    modularity.inferModulePath.set(true)
+    modularity.inferModulePath.set(true)
 }
-//val compileJava: JavaCompile by tasks
-//val javaClasspath = compileJava.classpath.asPath
+val compileJava: JavaCompile by tasks
+val javaCompileClasspath = compileJava.classpath.asPath
 
 kapt {
     correctErrorTypes = true
     includeCompileClasspath = false
 
     javacOptions {
-//        option("--module-path", javaClasspath)
+        option("--module-path", javaCompileClasspath)
     }
 }
 
@@ -139,7 +140,7 @@ tasks {
         usePreciseJavaTracking = true
 
         kotlinOptions {
-            jvmTarget = "1.8"
+            jvmTarget = "11"
             javaParameters = true
             apiVersion = "1.4"
             languageVersion = "1.4"
@@ -162,7 +163,7 @@ tasks {
                 "-Xgenerate-strict-metadata-version",
                 "-Xemit-jvm-type-annotations",
                 "-Xinline-classes"
-//                "-Xmodule-path=$javaClasspath"
+//                "-Xmodule-path=$javaCompileClasspath"
             )
         }
     }
@@ -175,7 +176,7 @@ tasks {
 
         configuration {
             //reportUndocumented = true
-            jdkVersion = 8
+            jdkVersion = 11
             platform = "JVM"
 
             // remember to keep up to date
@@ -208,13 +209,13 @@ tasks {
             externalDocumentationLink {
                 url = URL("https://javadoc.io/static/org.graalvm.tools/lsp_api/$graalVMVersion/")
             }
-//            externalDocumentationLink { url = URL("https://javadoc.io/static/org.junit.jupiter/junit-jupiter-api/5.6.2/") }
-//            externalDocumentationLink { url = URL("https://javadoc.io/static/org.junit.jupiter/junit-jupiter-params/5.6.2/") }
+            externalDocumentationLink { url = URL("https://javadoc.io/static/org.junit.jupiter/junit-jupiter-api/5.6.2/") }
+            externalDocumentationLink { url = URL("https://javadoc.io/static/org.junit.jupiter/junit-jupiter-params/5.6.2/") }
             externalDocumentationLink { url = URL("https://javadoc.io/static/com.ibm.icu/icu4j/67.1/") }
-//            externalDocumentationLink { url = URL("https://javadoc.io/static/org.jline/jline-terminal/3.14.1/") }
-//            externalDocumentationLink { url = URL("https://javadoc.io/static/org.jline/jline-reader/3.14.1/") }
-//            externalDocumentationLink { url = URL("https://javadoc.io/static/org.jline/jline-style/3.14.1/") }
-//            externalDocumentationLink { url = URL("https://javadoc.io/static/org.jline/jline-terminal-jansi/3.14.1/") }
+            externalDocumentationLink { url = URL("https://javadoc.io/static/org.jline/jline-terminal/3.14.1/") }
+            externalDocumentationLink { url = URL("https://javadoc.io/static/org.jline/jline-reader/3.14.1/") }
+            externalDocumentationLink { url = URL("https://javadoc.io/static/org.jline/jline-style/3.14.1/") }
+            externalDocumentationLink { url = URL("https://javadoc.io/static/org.jline/jline-terminal-jansi/3.14.1/") }
             externalDocumentationLink { url = URL("https://javadoc.io/static/org.fusesource.jansi/jansi/1.18/") }
         }
     }
@@ -240,7 +241,7 @@ tasks {
 
 idea {
     project {
-        jdkName = "GraalVM 1.8 (20)"
+        jdkName = "GraalVM 11 (20.0)"
     }
 
     module {
