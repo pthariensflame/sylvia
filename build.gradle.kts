@@ -51,7 +51,6 @@ dependencies {
         implementation("org.fusesource.jansi", "jansi", "[1.18,)")
     }
 
-
     api("org.jetbrains", "annotations", "19.+")
     api(kotlin("stdlib-jdk8"))
     api(kotlin("reflect"))
@@ -88,9 +87,15 @@ dependencies {
     testApi("org.graalvm.truffle", "truffle-tck", graalVMVersion)
     testApi("org.graalvm.sdk", "polyglot-tck", graalVMVersion)
 }
+val kotlinStdlibPath = project.configurations.compile.get().find { it.name.startsWith("kotlin-stdlib-1.4") }
+val kotlinStdlibJdk7Path = project.configurations.compile.get().find { it.name.startsWith("kotlin-stdlib-jdk7-1.4") }
+val kotlinStdlibJdk8Path = project.configurations.compile.get().find { it.name.startsWith("kotlin-stdlib-jdk8-1.4") }
+val kotlinStdlibCommonPath =
+    project.configurations.compile.get().find { it.name.startsWith("kotlin-stdlib-common-1.4") }
+val kotlinReflectPath = project.configurations.compile.get().find { it.name.startsWith("kotlin-reflect-1.4") }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_14
+    sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
     withJavadocJar()
     withSourcesJar()
@@ -117,7 +122,7 @@ kapt {
 
 application {
     applicationName = "sylvia"
-//    mainModule.set("com.pthariensflame.sylvia")
+    mainModule.set("com.pthariensflame.sylvia")
     mainClassName = "com.pthariensflame.sylvia.shell.SylviaLauncher"
 }
 
@@ -125,8 +130,25 @@ tasks {
     compileKotlin.configure { dependsOn.add(generateGrammarSource) }
     compileTestKotlin.configure { dependsOn.add(generateTestGrammarSource) }
 
-//    withType<JavaCompile>().configureEach {
-//    }
+    withType<JavaCompile>().configureEach {
+        options.compilerArgs = options.compilerArgs + sequenceOf(
+            "--add-exports",
+            "org.graalvm.launcher/org.graalvm.launcher=com.pthariensflame.sylvia", // fix when possible
+
+            "--patch-module",
+            "kotlin.stdlib=${sequenceOf(
+                kotlinStdlibPath,
+                kotlinStdlibJdk7Path,
+                kotlinStdlibJdk8Path,
+                kotlinStdlibCommonPath
+            ).joinToString(separator = File.pathSeparator)}",
+            "--patch-module",
+            "kotlin.reflect=$kotlinReflectPath",
+
+            "--add-reads",
+            "com.pthariensflame.sylvia=ALL-UNNAMED"
+        )
+    }
 
     withType<AntlrTask>().configureEach {
         arguments = arguments + sequenceOf(
@@ -148,6 +170,7 @@ tasks {
             (project.findProperty("warningsAsErrors") as? String)?.toBoolean()?.let {
                 allWarningsAsErrors = it
             }
+            @Suppress("SuspiciousCollectionReassignment")
             freeCompilerArgs += sequenceOf(
                 "-progressive",
                 "-Xopt-in=kotlin.RequiresOptIn",
@@ -162,8 +185,26 @@ tasks {
                 "-Xstrict-java-nullability-assertions",
                 "-Xgenerate-strict-metadata-version",
                 "-Xemit-jvm-type-annotations",
-                "-Xinline-classes"
-//                "-Xmodule-path=$javaCompileClasspath"
+                "-Xinline-classes",
+                "-Xmodule-path=$javaCompileClasspath",
+
+                "-Xjavac-arguments=" + sequenceOf(
+                    "--add-exports",
+                    "org.graalvm.launcher/org.graalvm.launcher=com.pthariensflame.sylvia", // fix when possible
+
+                    "--patch-module",
+                    "kotlin.stdlib=${sequenceOf(
+                        kotlinStdlibPath,
+                        kotlinStdlibJdk7Path,
+                        kotlinStdlibJdk8Path,
+                        kotlinStdlibCommonPath
+                    ).joinToString(separator = File.pathSeparator)}",
+                    "--patch-module",
+                    "kotlin.reflect=$kotlinReflectPath",
+
+                    "--add-reads",
+                    "com.pthariensflame.sylvia=ALL-UNNAMED"
+                ).joinToString(separator = ",")
             )
         }
     }
@@ -209,8 +250,12 @@ tasks {
             externalDocumentationLink {
                 url = URL("https://javadoc.io/static/org.graalvm.tools/lsp_api/$graalVMVersion/")
             }
-            externalDocumentationLink { url = URL("https://javadoc.io/static/org.junit.jupiter/junit-jupiter-api/5.6.2/") }
-            externalDocumentationLink { url = URL("https://javadoc.io/static/org.junit.jupiter/junit-jupiter-params/5.6.2/") }
+            externalDocumentationLink {
+                url = URL("https://javadoc.io/static/org.junit.jupiter/junit-jupiter-api/5.6.2/")
+            }
+            externalDocumentationLink {
+                url = URL("https://javadoc.io/static/org.junit.jupiter/junit-jupiter-params/5.6.2/")
+            }
             externalDocumentationLink { url = URL("https://javadoc.io/static/com.ibm.icu/icu4j/67.1/") }
             externalDocumentationLink { url = URL("https://javadoc.io/static/org.jline/jline-terminal/3.14.1/") }
             externalDocumentationLink { url = URL("https://javadoc.io/static/org.jline/jline-reader/3.14.1/") }
@@ -227,13 +272,12 @@ tasks {
         useJUnitPlatform()
     }
 
-    jar.configure {
-        manifest {
-            attributes(
-                "Automatic-Module-Name" to "com.pthariensflame.sylvia"
-            )
-        }
-    }
+//    jar.configure {
+//        manifest {
+//            attributes(
+//            )
+//        }
+//    }
 
     withType<PublishToMavenLocal>().configureEach { dependsOn(assemble) }
     withType<PublishToMavenRepository>().configureEach { dependsOn(assemble) }

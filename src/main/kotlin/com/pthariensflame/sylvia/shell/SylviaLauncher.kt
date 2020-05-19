@@ -4,8 +4,6 @@ import com.oracle.truffle.api.interop.InteropException
 import com.oracle.truffle.api.nodes.ExplodeLoop
 import com.pthariensflame.sylvia.util.loadingAndSaving
 import com.pthariensflame.sylvia.util.useAll
-import org.graalvm.launcher.AbstractLanguageLauncher
-import org.graalvm.launcher.Launcher
 import org.graalvm.options.OptionCategory
 import org.graalvm.polyglot.Context
 import org.jetbrains.annotations.Contract
@@ -19,10 +17,12 @@ import java.io.Closeable
 
 class SylviaLauncher
 @JvmOverloads constructor(
-    @JvmField val term: Terminal = TerminalBuilder.terminal(),
-) : AbstractLanguageLauncher() {
-    val outWriter = term.output().bufferedWriter()
-    val logWriter = logFile?.let { Launcher.newLogStream(it).bufferedWriter() }
+    @JvmField internal val term: Terminal = TerminalBuilder.terminal(),
+) : SylviaLauncherSuper() {
+    @JvmField
+    internal val outWriter = term.output().bufferedWriter()
+    @JvmField
+    internal val logWriter = logFile?.let { SylviaLauncherSuper.newLogStreamImpl(it).bufferedWriter() }
 
     companion object {
         @JvmStatic
