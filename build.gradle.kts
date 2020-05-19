@@ -42,7 +42,7 @@ dependencies {
             belongsTo("io.kotest:kotest-virtual-platform:${id.version}", true)
         }
     }
-//    api(enforcedPlatform("org.graalvm:graalvm-virtual-platform:$graalVMVersion"))
+    api(enforcedPlatform("org.graalvm:graalvm-virtual-platform:$graalVMVersion"))
     implementation(enforcedPlatform("org.jline:jline-virtual-platform:3.14.1"))
     testApi(platform("org.junit:junit-bom:5.7.+"))
     testApi(enforcedPlatform("io.kotest:kotest-virtual-platform:4.0.5"))
@@ -78,19 +78,19 @@ dependencies {
     api("org.jline", "jline-style", "3.14.1")
     implementation("org.jline", "jline-terminal-jansi", "3.14.1")
 
-//    api("org.graalvm.truffle", "truffle-api", graalVMVersion)
-//    runtimeOnly("org.graalvm.truffle", "truffle-nfi", graalVMVersion)
-//    api("org.graalvm.sdk", "graal-sdk", graalVMVersion)
-//    api("org.graalvm.sdk", "launcher-common", graalVMVersion)
+    api("org.graalvm.truffle", "truffle-api", graalVMVersion)
+    runtimeOnly("org.graalvm.truffle", "truffle-nfi", graalVMVersion)
+    api("org.graalvm.sdk", "graal-sdk", graalVMVersion)
+    api("org.graalvm.sdk", "launcher-common", graalVMVersion)
     kapt("org.graalvm.truffle", "truffle-dsl-processor", graalVMVersion)
-//    runtimeOnly("org.graalvm.compiler", "compiler", graalVMVersion)
-//    api("org.graalvm.tools", "lsp_api", graalVMVersion)
-//    testApi("org.graalvm.truffle", "truffle-tck", graalVMVersion)
-//    testApi("org.graalvm.sdk", "polyglot-tck", graalVMVersion)
+    runtimeOnly("org.graalvm.compiler", "compiler", graalVMVersion)
+    api("org.graalvm.tools", "lsp_api", graalVMVersion)
+    testApi("org.graalvm.truffle", "truffle-tck", graalVMVersion)
+    testApi("org.graalvm.sdk", "polyglot-tck", graalVMVersion)
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_14
     targetCompatibility = JavaVersion.VERSION_11
     withJavadocJar()
     withSourcesJar()
@@ -241,7 +241,7 @@ tasks {
 
 idea {
     project {
-        jdkName = "GraalVM 11 (20.0)"
+        jdkName = "SapMachine 14"
     }
 
     module {
