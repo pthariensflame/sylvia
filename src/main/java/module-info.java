@@ -24,9 +24,12 @@ open module com.pthariensflame.sylvia {
     exports com.pthariensflame.sylvia.ast.statements;
     exports com.pthariensflame.sylvia.ast.declarations;
     exports com.pthariensflame.sylvia.values;
+    exports com.pthariensflame.sylvia.values.types;
     exports com.pthariensflame.sylvia.parser;
     exports com.pthariensflame.sylvia.parser.antlr;
     exports com.pthariensflame.sylvia.shell;
+    exports com.pthariensflame.sylvia.util;
+    exports com.pthariensflame.sylvia.util.rosebush;
 
     provides Provider with SylviaLanguageProvider;
 }
