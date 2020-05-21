@@ -13,17 +13,13 @@ import org.graalvm.tools.api.lsp.LSPLibrary
 import org.jetbrains.annotations.Contract
 
 fun interface PrimitivesResolver {
-    @ExportLibrary.Repeat(
-        ExportLibrary(InteropLibrary::class),
-//        ExportLibrary(LSPLibrary::class),
-    )
     class AmbiguousPrimitiveIDException
     @JvmOverloads constructor(
         @JvmField val primID: String = "",
         @JvmField private val requestingNode: Node? = null,
     ) : SylviaException() {
         @Contract("-> this", pure = true)
-        override fun fillInStackTrace(): Throwable = this
+        override fun fillInStackTrace(): AmbiguousPrimitiveIDException = this
 
         @Contract(pure = true)
         override fun getLocation(): Node? = requestingNode

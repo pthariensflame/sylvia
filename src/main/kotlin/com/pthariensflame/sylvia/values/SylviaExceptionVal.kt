@@ -1,9 +1,7 @@
 package com.pthariensflame.sylvia.values
 
 import com.oracle.truffle.api.CompilerDirectives.ValueType
-import com.oracle.truffle.api.TruffleException
 import com.oracle.truffle.api.interop.InteropLibrary
-import com.oracle.truffle.api.interop.UnsupportedMessageException
 import com.oracle.truffle.api.library.ExportLibrary
 import com.oracle.truffle.api.library.ExportMessage
 import com.oracle.truffle.api.nodes.Node
@@ -39,11 +37,11 @@ data class SylviaExceptionVal(
         return true
     }
 
-    //    @ExportMessage
+    @ExportMessage
     override fun hasSourceLocation(): Boolean =
-        inner.hasSourceLocation() || super<SylviaVal>.hasSourceLocation()
+        null != inner.sourceLocation || super<SylviaVal>.hasSourceLocation()
 
-    //    @ExportMessage
+    @ExportMessage
     override fun getSourceLocation(): SourceSection =
         inner.sourceLocation ?: super<SylviaVal>.getSourceLocation()
 
@@ -51,20 +49,10 @@ data class SylviaExceptionVal(
     @Contract(pure = true)
     fun throwException(): RuntimeException {
         contract {
-            returns()
+            returns() implies false
         }
-        return inner
+        throw inner
     }
-
-    //    @ExportMessage
-    @Throws(UnsupportedMessageException::class)
-    override fun getDocumentation(): Any =
-        inner.getDocumentation()
-
-    //    @ExportMessage
-    @Throws(UnsupportedMessageException::class)
-    override fun getSignature(): Any =
-        inner.getSignature()
 
     @Contract("-> new", pure = true)
     override fun clone(): SylviaExceptionVal = SylviaExceptionVal(inner)

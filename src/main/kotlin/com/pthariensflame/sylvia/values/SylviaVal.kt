@@ -4,6 +4,7 @@ import com.oracle.truffle.api.interop.InteropLibrary
 import com.oracle.truffle.api.interop.TruffleObject
 import com.oracle.truffle.api.interop.UnsupportedMessageException
 import com.oracle.truffle.api.library.ExportLibrary
+import com.oracle.truffle.api.library.ExportMessage
 import com.oracle.truffle.api.source.SourceSection
 import com.pthariensflame.sylvia.ast.expressions.ExpressionNode
 import org.jetbrains.annotations.Contract
@@ -26,11 +27,11 @@ abstract class SylviaVal internal constructor() : TruffleObject, Cloneable {
     open fun getSignature(): Any =
         throw UnsupportedMessageException.create()
 
-    //    @ExportMessage
+    @ExportMessage
     open fun hasSourceLocation(): Boolean =
         null == originatingNode
 
-    //    @ExportMessage
+    @ExportMessage
     @Throws(UnsupportedMessageException::class)
     open fun getSourceLocation(): SourceSection =
         originatingNode?.sourceSection ?: throw UnsupportedMessageException.create()

@@ -8,13 +8,13 @@ open module com.pthariensflame.sylvia {
     requires transitive org.graalvm.launcher;
     requires transitive org.graalvm.tools.api.lsp;
     requires transitive org.antlr.antlr4.runtime;
-//    requires transitive kotlin.stdlib;
-//    requires transitive kotlin.reflect;
+    requires transitive kotlin.stdlib;
+    requires transitive kotlin.reflect;
 //    requires transitive jline.reader;
 //    requires transitive jline.style;
 //    requires transitive jline.terminal;
 //    requires jline.terminal.jansi;
-    requires static org.jetbrains.annotations;
+    requires transitive org.jetbrains.annotations;
 
     exports com.pthariensflame.sylvia;
     exports com.pthariensflame.sylvia.ast;

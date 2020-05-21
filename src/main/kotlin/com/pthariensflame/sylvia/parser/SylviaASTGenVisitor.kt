@@ -134,16 +134,12 @@ class SylviaASTGenVisitor
     override fun visitParenExpr(ctx: SylviaParser.ParenExprContext): ExpressionNode =
         visit(ctx.innerExpr) as ExpressionNode
 
-    @ExportLibrary.Repeat(
-        ExportLibrary(InteropLibrary::class),
-//        ExportLibrary(LSPLibrary::class),
-    )
     data class DoBindVisibilitySyntaxException(
         @JvmField val ctx: SylviaParser.VisDeclContext,
         @JvmField val source: Source?,
     ) : SylviaException() {
         @Contract("-> this", pure = true)
-        override fun fillInStackTrace(): Throwable = this
+        override fun fillInStackTrace(): DoBindVisibilitySyntaxException = this
 
         @Contract("-> null", pure = true)
         override fun getLocation(): Node? = null
@@ -155,16 +151,12 @@ class SylviaASTGenVisitor
             source?.let { ctx.sourceSpan?.asSectionOf(source) }
     }
 
-    @ExportLibrary.Repeat(
-        ExportLibrary(InteropLibrary::class),
-//        ExportLibrary(LSPLibrary::class),
-    )
     data class MultiVisibilitySyntaxException(
         @JvmField val ctx: SylviaParser.VisDeclContext,
         @JvmField val source: Source?,
     ) : SylviaException() {
         @Contract("-> this", pure = true)
-        override fun fillInStackTrace(): Throwable = this
+        override fun fillInStackTrace(): MultiVisibilitySyntaxException = this
 
         @Contract("-> null", pure = true)
         override fun getLocation(): Node? = null
@@ -196,15 +188,11 @@ class SylviaASTGenVisitor
             )
         }
 
-    @ExportLibrary.Repeat(
-        ExportLibrary(InteropLibrary::class),
-//        ExportLibrary(LSPLibrary::class),
-    )
     data class ErrorNodeSyntaxException(
         @JvmField val errorNode: ErrorNode,
     ) : SylviaException() {
         @Contract("-> this", pure = true)
-        override fun fillInStackTrace(): Throwable = this
+        override fun fillInStackTrace(): ErrorNodeSyntaxException = this
 
         @Contract("-> null", pure = true)
         override fun getLocation(): Node? = null
